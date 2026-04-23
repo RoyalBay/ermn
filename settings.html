@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<title>ermn Settings</title>
+<link rel="icon" href="wicon.png">
+
+<style>
+
+body{
+  margin:0;
+  font-family:Tahoma;
+  background:#f5f6f7;
+}
+
+.topbar{
+  height:44px;
+  background:#3b5998;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 10px;
+}
+
+.topbar .left{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.backBtn{
+  background:white;
+  color:#3b5998;
+  border:none;
+  padding:6px 10px;
+  cursor:pointer;
+}
+
+.box{
+  width:300px;
+  margin:40px auto;
+  background:white;
+  border:1px solid #ccc;
+  padding:10px;
+  box-sizing:border-box;
+}
+
+h3{
+  margin-top:0;
+}
+
+button{
+  width:100%;
+  margin:5px 0;
+  padding:8px;
+  background:#3b5998;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+
+  <div class="left">
+    <b style="font-size:18px;">ermn</b>
+  </div>
+
+  <button class="backBtn" onclick="location.href='feed.html'">Back</button>
+
+</div>
+
+<!-- SETTINGS -->
+<div class="box">
+
+<h3>Settings</h3>
+
+<h4>Themes</h4>
+
+<button onclick="setTheme('light')">Light</button>
+<button onclick="setTheme('dark')">Dark</button>
+<button onclick="setTheme('dynamic')">Dynamic</button>
+
+</div>
+
+<script>
+function setTheme(t){
+  localStorage.setItem("theme",t);
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<title>ermn Login</title>
+<link rel="icon" href="wicon.png">
+<style>
+
+body{
+  margin:0;
+  font-family:Tahoma;
+  background:linear-gradient(#dfe7f3,#f5f6f7);
+}
+
+/* TOP BAR */
+.topbar{
+  height:44px;
+  background:#3b5998;
+  color:white;
+  display:flex;
+  align-items:center;
+  padding:0 10px;
+}
+
+/* TITLE SECTION */
+.title{
+  text-align:center;
+  margin-top:40px;
+}
+
+.title h1{
+  font-weight:bold;
+  margin:0;
+}
+
+.title p{
+  margin:0;
+  color:#555;
+}
+
+/* LOGIN BOX */
+.box{
+  width:300px;
+  margin:60px auto;
+  background:white;
+  padding:20px;
+  border:1px solid #ccc;
+}
+
+/* INPUTS */
+input,button{
+  width:100%;
+  padding:8px;
+  margin-top:5px;
+  box-sizing:border-box;
+}
+
+button{
+  background:#3b5998;
+  color:white;
+  border:none;
+  cursor:pointer;
+}
+
+#error{
+  color:red;
+  font-size:13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <b style="font-size:20px;">ermn</b>
+  </div>
+</div>
+
+<!-- LOGIN HEADER -->
+<div class="title">
+  <h1>ermn.</h1>
+  <p>whenever. wherever.</p>
+</div>
+
+<!-- LOGIN BOX -->
+<div class="box">
+
+  <input id="username" placeholder="username">
+  <input id="password" type="password" placeholder="password">
+
+  <button onclick="login()">Login</button>
+  <button onclick="create()">Create Account</button>
+
+  <div id="error"></div>
+
+</div>
+
+<script>
+
+let users = JSON.parse(localStorage.getItem("users") || "{}");
+
+/* LOGIN */
+function login(){
+  let u = username.value.trim();
+  let p = password.value.trim();
+
+  if(!users[u]){
+    error.innerText = "User not found";
+    return;
+  }
+
+  if(users[u].password !== p){
+    error.innerText = "Incorrect password";
+    return;
+  }
+
+  localStorage.setItem("currentUser", u);
+  location.href = "feed.html";
+}
+
+/* CREATE ACCOUNT */
+function create(){
+  let u = username.value.trim();
+  let p = password.value.trim();
+
+  if(users[u]){
+    error.innerText = "Username already in use";
+    return;
+  }
+
+  users[u] = {
+    password: p,
+    followers: [],
+    posts: [],
+    pic: ""
+  };
+
+  localStorage.setItem("users", JSON.stringify(users));
+  error.innerText = "Account created";
+}
+
+</script>
+
+</body>
+</html>

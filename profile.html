@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta charset="UTF-8">
+<title>ermn Profile</title>
+<link rel="icon" href="wicon.png">
+<style>
+body{font-family:Tahoma;margin:0;}
+.topbar{background:#3b5998;color:white;padding:0 10px;height:44px;display:flex;justify-content:space-between;align-items:center;}
+.card{max-width:500px;margin:40px auto;background:white;padding:15px;text-align:center;}
+img{width:100px;height:100px;border-radius:6px;}
+button{background:#3b5998;color:white;border:none;padding:6px 10px;cursor:pointer;margin:4px;}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+  <div><b style="font-size:18px;">ermn</b></div>
+  <div>
+    <button onclick="location='feed.html'">Feed</button>
+    <button onclick="location='settings.html'">Settings</button>
+  </div>
+</div>
+
+<div class="card">
+
+<h3>Profile</h3>
+
+<img id="pic">
+
+<br><br>
+<input type="file" onchange="upload(event)">
+<button onclick="save()">Update Profile Picture</button>
+
+<h3 id="name"></h3>
+<p id="followers"></p>
+
+</div>
+
+<script>
+
+/* THEME */
+function applyTheme(){
+  let t=localStorage.getItem("theme")||"light";
+  if(t==="dark") document.body.style.background="#1e1e1e";
+  else if(t==="dynamic") document.body.style.background="linear-gradient(#3b5998,#8b9dc3)";
+}
+applyTheme();
+
+/* GET USER FROM URL */
+let params=new URLSearchParams(location.search);
+let viewUser=params.get("user")||localStorage.getItem("currentUser");
+
+function getUsers(){
+  let u=JSON.parse(localStorage.getItem("users")||"{}");
+  Object.keys(u).forEach(k=>{
+    u[k].followers||=[];
+    u[k].pic||="";
+  });
+  return u;
+}
+function saveUsers(u){localStorage.setItem("users",JSON.stringify(u));}
+
+let temp=null;
+
+function upload(e){
+  let r=new FileReader();
+  r.onload=()=>temp=r.result;
+  r.readAsDataURL(e.target.files[0]);
+}
+
+function save(){
+  let u=getUsers();
+  if(viewUser===localStorage.getItem("currentUser") && temp){
+    u[viewUser].pic=temp;
+    saveUsers(u);
+    load();
+  }
+}
+
+function verified(u){
+  return u.followers.length>=100 ? " ✓" : "";
+}
+
+function load(){
+  let u=getUsers();
+  pic.src=u[viewUser].pic||"";
+  name.innerHTML="<b>@"+viewUser+verified(u[viewUser])+"</b>";
+  followers.innerText="Followers: "+u[viewUser].followers.length;
+}
+
+load();
+
+</script>
+
+</body>
+</html>
