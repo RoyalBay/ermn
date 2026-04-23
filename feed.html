@@ -2,322 +2,127 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ermn · Feed</title>
 <link rel="icon" href="wicon.png">
 <style>
 :root {
-  --accent: #3b5998;
-  --accent2: #8b9dc3;
+  --accent: #3b5998; --accent2: #8b9dc3;
   --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
-  --card-bg: #fff;
-  --topbar-bg: #3b5998;
-  --text: #333;
-  --border: #b0b7c3;
+  --card-bg: #fff; --topbar-bg: #3b5998;
+  --text: #333; --border: #b0b7c3;
 }
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: Tahoma, Verdana, sans-serif;
-  background: var(--body-bg);
-  color: var(--text);
-  min-height: 100vh;
-  font-size: 13px;
-}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:var(--text); min-height:100vh; font-size:13px; }
 
-/* TOPBAR */
-.topbar {
-  background: var(--topbar-bg);
-  height: 44px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  gap: 10px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-  border-bottom: 2px solid rgba(0,0,0,0.2);
-}
-.topbar-logo {
-  font-size: 22px;
-  font-weight: bold;
-  color: white;
-  letter-spacing: -1px;
-  font-style: italic;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-}
-.topbar-nav { display: flex; gap: 4px; margin-left: 10px; }
-.topbar-nav a {
-  color: rgba(255,255,255,0.85);
-  font-size: 12px;
-  text-decoration: none;
-  padding: 4px 8px;
-  border-radius: 2px;
-}
-.topbar-nav a:hover { background: rgba(255,255,255,0.15); color: white; }
-.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 6px; }
-.topbar-right button {
-  background: rgba(255,255,255,0.2);
-  color: white;
-  border: 1px solid rgba(255,255,255,0.3);
-  padding: 4px 10px;
-  font-size: 12px;
-  cursor: pointer;
-  font-family: inherit;
-}
-.topbar-right button:hover { background: rgba(255,255,255,0.35); }
+.topbar { background:var(--topbar-bg); height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.3); border-bottom:2px solid rgba(0,0,0,0.2); }
+.topbar-logo { font-size:22px; font-weight:bold; color:white; letter-spacing:-1px; font-style:italic; text-shadow:1px 1px 2px rgba(0,0,0,0.3); }
+.topbar-nav { display:flex; gap:4px; margin-left:10px; }
+.topbar-nav a { color:rgba(255,255,255,0.85); font-size:12px; text-decoration:none; padding:4px 8px; border-radius:2px; }
+.topbar-nav a:hover { background:rgba(255,255,255,0.15); color:white; }
+.topbar-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
+.topbar-right button { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; }
+.topbar-right button:hover { background:rgba(255,255,255,0.35); }
 
-/* LAYOUT */
-.container {
-  display: flex;
-  max-width: 1050px;
-  margin: 16px auto;
-  gap: 12px;
-  padding: 0 10px;
-}
+.container { display:flex; max-width:1050px; margin:16px auto; gap:12px; padding:0 10px; }
+.feed-col { flex:1; min-width:0; }
 
-/* FEED */
-.feed-col { flex: 1; min-width: 0; }
+/* SEARCH BAR */
+.search-bar {
+  background:var(--card-bg); border:1px solid var(--border);
+  padding:8px 10px; margin-bottom:10px;
+  display:flex; gap:6px; align-items:center; flex-wrap:wrap;
+}
+.search-bar input {
+  flex:1; min-width:120px; padding:5px 8px; border:1px solid #bbb;
+  font-family:inherit; font-size:13px; background:#fafafa;
+}
+.search-bar input:focus { outline:none; border-color:var(--accent); background:white; }
+.search-bar select {
+  padding:5px 6px; border:1px solid #bbb; font-family:inherit; font-size:12px;
+  background:#fafafa; cursor:pointer;
+}
+.search-bar button {
+  background:linear-gradient(180deg,#5274b3,#3b5998); color:white;
+  border:1px solid #2a4070; padding:5px 12px; font-family:inherit;
+  font-size:12px; font-weight:bold; cursor:pointer;
+}
+.search-bar button:hover { background:linear-gradient(180deg,#6080bf,#4a6aaa); }
+.search-bar .clear-btn { background:none; border:none; color:#888; font-size:12px; cursor:pointer; padding:5px 4px; }
+.search-bar .clear-btn:hover { color:#333; }
+.search-results-label { font-size:11px; color:#888; font-style:italic; width:100%; margin-top:2px; }
 
-.compose-box {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  padding: 10px;
-  margin-bottom: 10px;
-}
-.compose-box h4 {
-  font-size: 12px;
-  color: var(--accent);
-  background: linear-gradient(180deg, #e8edf7, #d8e0f0);
-  margin: -10px -10px 8px;
-  padding: 5px 10px;
-  border-bottom: 1px solid var(--border);
-  font-weight: bold;
-}
-.compose-box textarea {
-  width: 100%;
-  height: 64px;
-  resize: none;
-  border: 1px solid #bbb;
-  padding: 6px;
-  font-family: inherit;
-  font-size: 13px;
-  background: #fafafa;
-}
-.compose-box textarea:focus { outline: none; border-color: var(--accent); background: white; }
-#postBtn {
-  background: linear-gradient(180deg, #5274b3, #3b5998);
-  color: white;
-  border: 1px solid #2a4070;
-  padding: 5px 14px;
-  margin-top: 6px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-}
-#postBtn:hover { background: linear-gradient(180deg, #6080bf, #4a6aaa); }
-#postBtn:disabled { background: #aaa; cursor: default; }
+.compose-box { background:var(--card-bg); border:1px solid var(--border); padding:10px; margin-bottom:10px; }
+.compose-box h4 { font-size:12px; color:var(--accent); background:linear-gradient(180deg,#e8edf7,#d8e0f0); margin:-10px -10px 8px; padding:5px 10px; border-bottom:1px solid var(--border); font-weight:bold; }
+.compose-box textarea { width:100%; height:64px; resize:none; border:1px solid #bbb; padding:6px; font-family:inherit; font-size:13px; background:#fafafa; }
+.compose-box textarea:focus { outline:none; border-color:var(--accent); background:white; }
+#postBtn { background:linear-gradient(180deg,#5274b3,#3b5998); color:white; border:1px solid #2a4070; padding:5px 14px; margin-top:6px; font-family:inherit; font-size:13px; font-weight:bold; cursor:pointer; }
+#postBtn:hover { background:linear-gradient(180deg,#6080bf,#4a6aaa); }
+#postBtn:disabled { background:#aaa; cursor:default; }
 
-/* POSTS */
-.post {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  margin-bottom: 8px;
-  padding: 10px;
-}
-.post-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 6px;
-  position: relative;
-}
-.post-avatar {
-  width: 38px;
-  height: 38px;
-  object-fit: cover;
-  border: 2px solid var(--border);
-  flex-shrink: 0;
-}
-.post-avatar-link { flex-shrink: 0; }
-.post-meta { flex: 1; }
-.user-link {
-  color: var(--accent);
-  font-weight: bold;
-  text-decoration: none;
-  font-size: 13px;
-}
-.user-link:hover { text-decoration: underline; }
-.post-time { font-size: 11px; color: #888; margin-top: 1px; }
-.you-tag {
-  background: var(--accent);
-  color: white;
-  font-size: 10px;
-  padding: 1px 5px;
-  margin-left: 4px;
-  border-radius: 2px;
-}
-.follow-btn {
-  background: linear-gradient(180deg, #f0f4ff, #e0e8f8);
-  color: var(--accent);
-  border: 1px solid var(--border);
-  font-size: 11px;
-  padding: 2px 8px;
-  cursor: pointer;
-  font-family: inherit;
-  margin-left: 4px;
-}
-.follow-btn:hover { background: linear-gradient(180deg, #e0e8f8, #d0d8f0); }
-.follow-btn.following {
-  background: linear-gradient(180deg, #d0f0d0, #b8e8b8);
-  color: #2a6e2a;
-  border-color: #8ec88e;
-}
-.delete {
-  color: #999;
-  cursor: pointer;
-  font-size: 13px;
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding: 2px 4px;
-}
-.delete:hover { color: #c00; }
+.post { background:var(--card-bg); border:1px solid var(--border); margin-bottom:8px; padding:10px; }
+.post-header { display:flex; align-items:flex-start; gap:8px; margin-bottom:6px; position:relative; }
+.post-avatar { width:38px; height:38px; object-fit:cover; border:2px solid var(--border); flex-shrink:0; }
+.post-avatar-link { flex-shrink:0; }
+.post-meta { flex:1; }
+.user-link { color:var(--accent); font-weight:bold; text-decoration:none; font-size:13px; }
+.user-link:hover { text-decoration:underline; }
+.post-time { font-size:11px; color:#888; margin-top:1px; }
+.you-tag { background:var(--accent); color:white; font-size:10px; padding:1px 5px; margin-left:4px; border-radius:2px; }
+.follow-btn { background:linear-gradient(180deg,#f0f4ff,#e0e8f8); color:var(--accent); border:1px solid var(--border); font-size:11px; padding:2px 8px; cursor:pointer; font-family:inherit; margin-left:4px; }
+.follow-btn:hover { background:linear-gradient(180deg,#e0e8f8,#d0d8f0); }
+.follow-btn.following { background:linear-gradient(180deg,#d0f0d0,#b8e8b8); color:#2a6e2a; border-color:#8ec88e; }
+.delete { color:#999; cursor:pointer; font-size:13px; position:absolute; right:0; top:0; padding:2px 4px; }
+.delete:hover { color:#c00; }
+.post-text { padding:4px 0 8px; line-height:1.5; word-break:break-word; }
 
-.post-text {
-  padding: 4px 0 8px;
-  line-height: 1.5;
-  word-break: break-word;
-}
+.post-actions { display:flex; gap:14px; align-items:center; border-top:1px solid #eee; padding-top:6px; font-size:12px; flex-wrap:wrap; }
+.like-wrap { cursor:default; color:#555; }
+.heart { cursor:pointer; color:#bbb; font-size:14px; transition:color 0.15s; }
+.heart:hover { color:#e74c3c; }
+.heart.liked { color:#e74c3c; }
+.comment-toggle { cursor:pointer; color:#555; }
+.comment-toggle:hover { color:var(--accent); }
+.report-btn { cursor:pointer; color:#aaa; font-size:11px; margin-left:auto; }
+.report-btn:hover { color:#e07b00; }
 
-/* POST ACTIONS */
-.post-actions {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  border-top: 1px solid #eee;
-  padding-top: 6px;
-  font-size: 12px;
-}
-.like-wrap { cursor: default; color: #555; }
-.heart {
-  cursor: pointer;
-  color: #bbb;
-  font-size: 14px;
-  transition: color 0.15s;
-}
-.heart:hover { color: #e74c3c; }
-.heart.liked { color: #e74c3c; }
-.comment-toggle {
-  cursor: pointer;
-  color: #555;
-}
-.comment-toggle:hover { color: var(--accent); }
+/* ADMIN BAR */
+.admin-bar { background:#fff8e1; border-top:1px solid #ffe082; padding:4px 8px; margin-top:6px; display:flex; gap:10px; flex-wrap:wrap; }
+.admin-action { font-size:11px; cursor:pointer; color:#555; font-weight:bold; padding:2px 6px; border:1px solid #ddd; background:white; }
+.admin-action:hover { background:#fee; border-color:#e55; color:#c00; }
+.admin-badge { background:#c00; color:white; font-size:9px; padding:1px 4px; border-radius:2px; margin-left:4px; vertical-align:middle; letter-spacing:0.5px; }
 
-/* COMMENTS */
-.comment-box {
-  margin-top: 8px;
-  border-top: 1px solid #eee;
-  padding-top: 6px;
-}
-.comment {
-  font-size: 12px;
-  padding: 4px 0;
-  border-bottom: 1px dotted #eee;
-  color: #444;
-  display: flex;
-  gap: 4px;
-  align-items: baseline;
-  flex-wrap: wrap;
-}
-.comment .user-link { font-size: 12px; }
-.del-comment {
-  color: #bbb;
-  cursor: pointer;
-  font-size: 11px;
-  margin-left: auto;
-}
-.del-comment:hover { color: #c00; }
-.comment-input {
-  display: flex;
-  gap: 4px;
-  margin-top: 6px;
-}
-.comment-input input {
-  flex: 1;
-  border: 1px solid #bbb;
-  padding: 4px 6px;
-  font-size: 12px;
-  font-family: inherit;
-  background: #fafafa;
-}
-.comment-input input:focus { outline: none; border-color: var(--accent); background: white; }
-.comment-input button {
-  background: linear-gradient(180deg, #5274b3, #3b5998);
-  color: white;
-  border: 1px solid #2a4070;
-  padding: 4px 10px;
-  font-size: 12px;
-  cursor: pointer;
-  font-family: inherit;
-  white-space: nowrap;
-}
-.comment-input button:hover { background: linear-gradient(180deg,#6080bf,#4a6aaa); }
+.comment-box { margin-top:8px; border-top:1px solid #eee; padding-top:6px; }
+.comment { font-size:12px; padding:4px 0; border-bottom:1px dotted #eee; color:#444; display:flex; gap:4px; align-items:baseline; flex-wrap:wrap; }
+.comment .user-link { font-size:12px; }
+.del-comment { color:#bbb; cursor:pointer; font-size:11px; margin-left:auto; }
+.del-comment:hover { color:#c00; }
+.comment-input { display:flex; gap:4px; margin-top:6px; }
+.comment-input input { flex:1; border:1px solid #bbb; padding:4px 6px; font-size:12px; font-family:inherit; background:#fafafa; }
+.comment-input input:focus { outline:none; border-color:var(--accent); background:white; }
+.comment-input button { background:linear-gradient(180deg,#5274b3,#3b5998); color:white; border:1px solid #2a4070; padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; }
+.comment-input button:hover { background:linear-gradient(180deg,#6080bf,#4a6aaa); }
 
-#loading { text-align: center; padding: 20px; color: #888; font-style: italic; }
+#loading { text-align:center; padding:20px; color:#888; font-style:italic; }
 
-/* SIDEBAR */
-.sidebar { width: 215px; flex-shrink: 0; }
+.sidebar { width:215px; flex-shrink:0; }
+.sidebar-card { background:var(--card-bg); border:1px solid var(--border); margin-bottom:10px; }
+.sidebar-card .card-title { background:linear-gradient(180deg,#e8edf7,#d8e0f0); border-bottom:1px solid var(--border); padding:5px 10px; font-size:12px; font-weight:bold; color:var(--accent); }
+.sidebar-card .card-body { padding:10px; }
+.sidebar-avatar { width:60px; height:60px; object-fit:cover; border:2px solid var(--border); display:block; margin-bottom:6px; }
+#rightName { font-weight:bold; font-size:13px; margin-bottom:2px; }
+#rightBio { font-size:11px; color:#666; font-style:italic; margin:4px 0; }
+#rightFollowers { font-size:11px; color:#555; margin-bottom:8px; }
+.sidebar-upload { font-size:11px; }
+.sidebar-upload input { width:100%; margin-bottom:4px; font-size:11px; }
+.sidebar-upload button { background:linear-gradient(180deg,#5274b3,#3b5998); color:white; border:1px solid #2a4070; padding:4px 8px; font-size:11px; cursor:pointer; font-family:inherit; width:100%; }
+.sidebar-upload button:hover { background:linear-gradient(180deg,#6080bf,#4a6aaa); }
+.sidebar-links a { display:block; color:var(--accent); font-size:12px; text-decoration:none; padding:2px 10px; }
+.sidebar-links a:hover { text-decoration:underline; }
 
-.sidebar-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  margin-bottom: 10px;
-}
-.sidebar-card .card-title {
-  background: linear-gradient(180deg, #e8edf7, #d8e0f0);
-  border-bottom: 1px solid var(--border);
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: bold;
-  color: var(--accent);
-}
-.sidebar-card .card-body { padding: 10px; }
-
-.sidebar-avatar {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border: 2px solid var(--border);
-  display: block;
-  margin-bottom: 6px;
-}
-#rightName { font-weight: bold; font-size: 13px; margin-bottom: 2px; }
-#rightBio { font-size: 11px; color: #666; font-style: italic; margin: 4px 0; }
-#rightFollowers { font-size: 11px; color: #555; margin-bottom: 8px; }
-
-.sidebar-upload { font-size: 11px; }
-.sidebar-upload input { width: 100%; margin-bottom: 4px; font-size: 11px; }
-.sidebar-upload button {
-  background: linear-gradient(180deg,#5274b3,#3b5998);
-  color: white;
-  border: 1px solid #2a4070;
-  padding: 4px 8px;
-  font-size: 11px;
-  cursor: pointer;
-  font-family: inherit;
-  width: 100%;
-}
-.sidebar-upload button:hover { background: linear-gradient(180deg,#6080bf,#4a6aaa); }
-
-.sidebar-links a {
-  display: block;
-  color: var(--accent);
-  font-size: 12px;
-  text-decoration: none;
-  padding: 2px 10px;
-}
-.sidebar-links a:hover { text-decoration: underline; }
+/* Admin quick link */
+.admin-panel-link { background:#fff8e1; border:1px solid #ffe082; padding:4px 10px; font-size:12px; }
+.admin-panel-link a { color:#b8860b; font-weight:bold; }
 </style>
 </head>
 <body>
@@ -335,8 +140,20 @@ body {
 </div>
 
 <div class="container">
-  <!-- Feed -->
   <div class="feed-col">
+    <!-- SEARCH & SORT -->
+    <div class="search-bar">
+      <input id="searchInput" placeholder="Search posts..." onkeydown="if(event.key==='Enter')doSearch()">
+      <select id="sortSelect" onchange="doSearch()">
+        <option value="newest">Newest first</option>
+        <option value="oldest">Oldest first</option>
+        <option value="popular">Most liked</option>
+      </select>
+      <button onclick="doSearch()">🔍 Search</button>
+      <button class="clear-btn" onclick="clearSearch()">✕ Clear</button>
+      <div class="search-results-label" id="searchLabel"></div>
+    </div>
+
     <div class="compose-box">
       <h4>✏ What's on your mind?</h4>
       <textarea id="text" placeholder="Share something with everyone..."></textarea>
@@ -346,7 +163,6 @@ body {
     <div id="posts"></div>
   </div>
 
-  <!-- Sidebar -->
   <div class="sidebar">
     <div class="sidebar-card">
       <div class="card-title">👤 My Profile</div>
@@ -356,6 +172,12 @@ body {
         <div id="rightBio"></div>
         <div id="rightFollowers"></div>
         <a href="profile.html" style="font-size:12px;color:var(--accent);">Edit profile →</a>
+      </div>
+    </div>
+    <div class="sidebar-card" id="adminPanelCard" style="display:none;">
+      <div class="card-title">🛡 Admin</div>
+      <div class="card-body admin-panel-link" style="padding:8px 10px;">
+        <a href="admin.html">Open Admin Panel</a>
       </div>
     </div>
     <div class="sidebar-card">
@@ -381,11 +203,33 @@ body {
 if (!localStorage.getItem("currentUser")) {
   location.href = "index.html";
 } else {
-  function logout() {
-    localStorage.removeItem("currentUser");
-    location.href = "index.html";
+  function logout() { localStorage.removeItem("currentUser"); location.href="index.html"; }
+
+  let _searchQ = "", _sortMode = "newest";
+
+  function doSearch() {
+    _searchQ = document.getElementById("searchInput").value.trim();
+    _sortMode = document.getElementById("sortSelect").value;
+    const label = document.getElementById("searchLabel");
+    if (_searchQ) label.innerText = 'Showing results for "'+_searchQ+'"';
+    else label.innerText = "";
+    render(_searchQ, _sortMode);
   }
+
+  function clearSearch() {
+    document.getElementById("searchInput").value = "";
+    document.getElementById("sortSelect").value = "newest";
+    _searchQ = ""; _sortMode = "newest";
+    document.getElementById("searchLabel").innerText = "";
+    render();
+  }
+
   applyTheme();
+
+  if (isAdmin()) {
+    document.getElementById("adminPanelCard").style.display = "block";
+  }
+
   render().then(() => {
     const l = document.getElementById("loading");
     if (l) l.style.display = "none";

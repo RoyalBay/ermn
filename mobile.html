@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ermn · mobile</title>
+<link rel="icon" href="wicon.png">
+<style>
+:root { --accent:#3b5998; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);min-height:100vh;font-size:14px;}
+
+.topbar{background:var(--accent);height:48px;display:flex;align-items:center;padding:0 14px;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+.topbar-logo{font-size:26px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
+.topbar-right{margin-left:auto;font-size:12px;color:rgba(255,255,255,0.8);}
+
+.hero{text-align:center;padding:28px 16px 12px;}
+.hero-title{font-size:52px;font-weight:bold;color:var(--accent);letter-spacing:-3px;font-style:italic;}
+.hero-tagline{font-size:13px;color:#667;margin-top:4px;font-style:italic;}
+
+.main{max-width:400px;margin:16px auto;padding:0 14px;}
+
+.login-box{background:white;border:1px solid #b0b7c3;border-radius:4px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.login-box h3{font-size:14px;color:white;background:var(--accent);padding:10px 14px;font-weight:bold;}
+.login-inner{padding:14px;}
+label{display:block;font-size:12px;color:#444;margin-bottom:3px;font-weight:bold;}
+input[type=text],input[type=password]{
+  width:100%;padding:10px 10px;border:1px solid #aaa;font-size:15px;
+  margin-bottom:10px;font-family:inherit;background:#f9f9f9;border-radius:2px;
+  -webkit-appearance:none;
+}
+input:focus{outline:none;border-color:var(--accent);background:white;}
+.btn-blue{
+  width:100%;padding:12px;background:linear-gradient(180deg,#5274b3,var(--accent));
+  color:white;border:1px solid #2a4070;font-size:15px;font-weight:bold;
+  cursor:pointer;font-family:inherit;margin-bottom:8px;border-radius:2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-blue:active{background:linear-gradient(180deg,#4264a3,#2b4888);}
+.btn-green{
+  width:100%;padding:12px;background:linear-gradient(180deg,#5cb85c,#4a9e4a);
+  color:white;border:1px solid #3a7e3a;font-size:15px;font-weight:bold;
+  cursor:pointer;font-family:inherit;border-radius:2px;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn-green:active{background:linear-gradient(180deg,#4aaa4a,#3a8e3a);}
+.divider{border:none;border-top:1px solid #eee;margin:10px 0;}
+#msg{font-size:13px;margin-top:6px;min-height:18px;text-align:center;}
+.err{color:#c00;} .ok{color:#080;}
+
+.features{background:white;border:1px solid #b0b7c3;border-radius:4px;padding:14px;margin-top:14px;}
+.features h4{font-size:14px;color:var(--accent);margin-bottom:8px;border-bottom:1px solid #ddd;padding-bottom:6px;}
+.features ul{list-style:none;}
+.features li{font-size:13px;color:#444;padding:5px 0;border-bottom:1px dotted #eee;}
+.features li::before{content:"✦ ";color:var(--accent);}
+.features li:last-child{border-bottom:none;}
+
+.desktop-link{text-align:center;margin-top:14px;font-size:12px;color:#888;}
+.desktop-link a{color:var(--accent);}
+
+.footer{text-align:center;font-size:11px;color:#888;padding:20px 0;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-logo">ermn</span>
+  <span class="topbar-right">mobile</span>
+</div>
+<div class="hero">
+  <div class="hero-title">ermn.</div>
+  <div class="hero-tagline">whenever. wherever. whoever.</div>
+</div>
+<div class="main">
+  <div class="login-box">
+    <h3>Log In or Sign Up</h3>
+    <div class="login-inner">
+      <label>Username</label>
+      <input id="username" type="text" placeholder="your username" autocomplete="username" autocapitalize="none" autocorrect="off">
+      <label>Password</label>
+      <input id="password" type="password" placeholder="password" autocomplete="current-password">
+      <button class="btn-blue" id="loginBtn" onclick="login()">Log In</button>
+      <hr class="divider">
+      <button class="btn-green" id="createBtn" onclick="create()">Create Account</button>
+      <div id="msg"></div>
+    </div>
+  </div>
+
+  <div class="features">
+    <h4>What's on ermn?</h4>
+    <ul>
+      <li>Post what's on your mind</li>
+      <li>Follow friends &amp; like posts</li>
+      <li>Comment on anything</li>
+      <li>Customize your profile</li>
+      <li>Search &amp; discover posts</li>
+    </ul>
+  </div>
+
+  <div class="desktop-link">
+    On a computer? <a href="index.html?skipMobile=1">Switch to desktop version</a>
+  </div>
+</div>
+<div class="footer">&copy; 2025 ermn</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function setMsg(text, isError) {
+  const el = document.getElementById("msg");
+  el.innerText = text;
+  el.className = isError ? "err" : "ok";
+}
+function setBusy(b) {
+  document.getElementById("loginBtn").disabled = b;
+  document.getElementById("createBtn").disabled = b;
+}
+
+async function login() {
+  const rawU = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
+  setBusy(true); setMsg("Logging in...", false);
+  const { data: banned } = await sb.from("banned_users").select("username").eq("username", rawU.toLowerCase()).maybeSingle();
+  if (banned) { setMsg("This account has been banned.", true); setBusy(false); return; }
+  const { data, error } = await sb.from("users").select("username,password").ilike("username", rawU).maybeSingle();
+  if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
+  if (!data) { setMsg("User not found.", true); setBusy(false); return; }
+  if (data.password !== p) { setMsg("Incorrect password.", true); setBusy(false); return; }
+  localStorage.setItem("currentUser", data.username);
+  location.href = "mobile_feed.html";
+}
+
+async function create() {
+  const rawU = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
+  if (rawU.length < 3) { setMsg("Username must be at least 3 characters.", true); return; }
+  if (p.length < 4) { setMsg("Password must be at least 4 characters.", true); return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(rawU)) { setMsg("Only letters, numbers, underscores.", true); return; }
+  setBusy(true); setMsg("Creating account...", false);
+  const { data: banned } = await sb.from("banned_users").select("username").eq("username", rawU.toLowerCase()).maybeSingle();
+  if (banned) { setMsg("That username is not available.", true); setBusy(false); return; }
+  const { data: existing } = await sb.from("users").select("username").ilike("username", rawU).maybeSingle();
+  if (existing) { setMsg("That username is taken.", true); setBusy(false); return; }
+  const { error } = await sb.from("users").insert({ username:rawU, password:p, pic:"", bio:"" });
+  if (error) { setMsg("Error: "+error.message, true); setBusy(false); return; }
+  setMsg("Account created! Log in now.", false);
+  setBusy(false);
+}
+</script>
+</body>
+</html>

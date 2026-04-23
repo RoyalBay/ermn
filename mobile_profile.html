@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ermn · Profile</title>
+<link rel="icon" href="wicon.png">
+<style>
+:root{--accent:#3b5998;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:linear-gradient(180deg,#dfe7f3,#f0f2f5);min-height:100vh;font-size:14px;padding-bottom:60px;}
+.topbar{background:var(--accent);height:48px;display:flex;align-items:center;padding:0 12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
+.main{padding:12px;}
+.card{background:white;border:1px solid #b0b7c3;border-radius:4px;margin-bottom:12px;overflow:hidden;}
+.card-title{background:linear-gradient(180deg,#e8edf7,#d8e0f0);border-bottom:1px solid #b0b7c3;padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
+.card-body{padding:14px;}
+.profile-header{display:flex;gap:14px;align-items:flex-start;}
+#picDisplay{width:80px;height:80px;object-fit:cover;border:3px solid #b0b7c3;border-radius:2px;}
+.profile-info h2{font-size:18px;color:var(--accent);}
+.stats{display:flex;gap:16px;margin-top:8px;font-size:13px;color:#555;}
+label{display:block;font-size:12px;font-weight:bold;color:#444;margin:10px 0 3px;}
+input,textarea{width:100%;border:1px solid #bbb;padding:10px;font-family:inherit;font-size:14px;background:#fafafa;-webkit-appearance:none;}
+textarea{height:80px;resize:vertical;}
+input[type=file]{font-size:13px;padding:6px 0;}
+.btn{background:var(--accent);color:white;border:none;padding:10px 20px;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:2px;margin-top:8px;width:100%;}
+.ok{color:#080;font-size:12px;margin-top:4px;} .err{color:#c00;font-size:12px;margin-top:4px;}
+.post{border-bottom:1px solid #eee;padding:10px 0;}
+.post:last-child{border-bottom:none;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--accent);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:50;}
+.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;}
+.bottom-nav a .icon{font-size:20px;}
+</style>
+</head>
+<body>
+<div class="topbar"><span class="topbar-logo">ermn</span></div>
+<div class="main">
+  <div class="card">
+    <div class="card-title">👤 My Profile</div>
+    <div class="card-body">
+      <div class="profile-header">
+        <img id="picDisplay" src="empty.jpg" onerror="this.src='empty.jpg'">
+        <div class="profile-info">
+          <h2 id="uname"></h2>
+          <div id="bioDisplay" style="font-style:italic;color:#555;font-size:13px;margin-top:4px;"></div>
+          <div class="stats">
+            <span><strong id="sF">0</strong> followers</span>
+            <span><strong id="sFg">0</strong> following</span>
+            <span><strong id="sP">0</strong> posts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">✏ Edit Profile</div>
+    <div class="card-body">
+      <label>Profile Picture</label>
+      <input type="file" id="fileInput" accept="image/*">
+      <div id="picMsg" class="ok"></div>
+      <label>Bio</label>
+      <textarea id="bioInput" maxlength="160" placeholder="About you..."></textarea>
+      <button class="btn" onclick="saveBio()">Save Bio</button>
+      <div id="bioMsg" class="ok"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📝 My Posts</div>
+    <div class="card-body" id="myPosts"><div style="color:#888;font-style:italic;">Loading...</div></div>
+  </div>
+</div>
+<nav class="bottom-nav">
+  <a href="mobile_feed.html"><span class="icon">🏠</span>Feed</a>
+  <a href="mobile_profile.html"><span class="icon">👤</span>Profile</a>
+  <a href="settings.html"><span class="icon">⚙</span>Settings</a>
+</nav>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL="https://kibepwdosrjxbauxnjtn.supabase.co";
+const SUPABASE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const me=localStorage.getItem("currentUser");
+if(!me)location.href="mobile.html";
+function escapeHtml(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function timeAgo(d){const diff=Math.floor((Date.now()-new Date(d))/1000);if(diff<60)return diff+"s ago";if(diff<3600)return Math.floor(diff/60)+"m ago";if(diff<86400)return Math.floor(diff/3600)+"h ago";return Math.floor(diff/86400)+"d ago";}
+
+let tempPic=null;
+document.getElementById("fileInput").addEventListener("change",function(e){
+  const r=new FileReader();
+  r.onload=async function(){
+    tempPic=r.result;
+    document.getElementById("picDisplay").src=r.result;
+    const{error}=await sb.from("users").update({pic:r.result}).eq("username",me);
+    document.getElementById("picMsg").innerText=error?"Error saving pic.":"Picture updated!";
+  };
+  r.readAsDataURL(e.target.files[0]);
+});
+
+async function saveBio(){
+  const bio=document.getElementById("bioInput").value.trim();
+  const{error}=await sb.from("users").update({bio}).eq("username",me);
+  document.getElementById("bioMsg").innerText=error?"Error saving.":"Bio saved!";
+  document.getElementById("bioDisplay").innerText=bio||"No bio yet.";
+}
+
+async function load(){
+  const{data:user}=await sb.from("users").select("pic,bio").eq("username",me).maybeSingle();
+  const{count:fc}=await sb.from("follows").select("*",{count:"exact",head:true}).eq("following",me);
+  const{count:fgc}=await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower",me);
+  const{data:posts}=await sb.from("posts").select("id,text,created_at").eq("username",me).order("created_at",{ascending:false});
+  document.getElementById("uname").innerText="@"+me;
+  if(user){document.getElementById("picDisplay").src=user.pic||"empty.jpg";document.getElementById("bioDisplay").innerText=user.bio||"No bio yet.";document.getElementById("bioInput").value=user.bio||"";}
+  document.getElementById("sF").innerText=fc||0;
+  document.getElementById("sFg").innerText=fgc||0;
+  document.getElementById("sP").innerText=(posts||[]).length;
+  const el=document.getElementById("myPosts");
+  if(!posts||!posts.length){el.innerHTML="<div style='color:#888;font-style:italic;'>No posts yet.</div>";return;}
+  el.innerHTML="";
+  for(const p of posts){
+    const d=document.createElement("div");d.className="post";
+    d.innerHTML='<div style="line-height:1.5;margin-bottom:4px;">'+escapeHtml(p.text)+'</div><div style="font-size:11px;color:#888;">'+timeAgo(p.created_at)+'</div>';
+    el.appendChild(d);
+  }
+}
+load();
+</script>
+</body>
+</html>

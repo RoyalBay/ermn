@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ermn · Feed</title>
+<link rel="icon" href="wicon.png">
+<style>
+:root{--accent:#3b5998;--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:14px;padding-bottom:60px;}
+
+.topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;position:sticky;top:0;z-index:50;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
+.topbar-right{margin-left:auto;display:flex;gap:8px;}
+.topbar-right button{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;border-radius:2px;}
+
+/* SEARCH */
+.search-row{background:var(--card-bg);border-bottom:1px solid var(--border);padding:8px 10px;display:flex;gap:6px;}
+.search-row input{flex:1;padding:8px;border:1px solid #bbb;font-size:14px;font-family:inherit;background:#fafafa;-webkit-appearance:none;}
+.search-row select{padding:8px 4px;border:1px solid #bbb;font-size:13px;background:#fafafa;}
+.search-row button{background:var(--accent);color:white;border:none;padding:8px 12px;font-size:13px;cursor:pointer;}
+
+.main{padding:10px;}
+
+.compose-box{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:10px;margin-bottom:10px;}
+.compose-box h4{font-size:12px;color:var(--accent);margin-bottom:8px;font-weight:bold;}
+.compose-box textarea{width:100%;height:72px;resize:none;border:1px solid #bbb;padding:8px;font-family:inherit;font-size:14px;-webkit-appearance:none;}
+.compose-box button{background:var(--accent);color:white;border:none;padding:8px 16px;margin-top:6px;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:2px;-webkit-tap-highlight-color:transparent;}
+
+.post{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:10px;padding:10px;}
+.post-header{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;position:relative;}
+.post-avatar{width:40px;height:40px;object-fit:cover;border:2px solid var(--border);border-radius:2px;flex-shrink:0;}
+.post-meta{flex:1;}
+.user-link{color:var(--accent);font-weight:bold;text-decoration:none;font-size:14px;}
+.post-time{font-size:11px;color:#888;}
+.follow-btn{background:#e8edf7;color:var(--accent);border:1px solid var(--border);font-size:12px;padding:3px 8px;cursor:pointer;font-family:inherit;margin-left:4px;border-radius:2px;}
+.follow-btn.following{background:#d0f0d0;color:#2a6e2a;border-color:#8ec88e;}
+.you-tag{background:var(--accent);color:white;font-size:10px;padding:1px 5px;margin-left:4px;border-radius:2px;}
+.delete{color:#bbb;cursor:pointer;position:absolute;right:0;top:0;padding:4px 6px;font-size:14px;}
+.delete:hover,.delete:active{color:#c00;}
+.post-text{line-height:1.5;margin-bottom:8px;word-break:break-word;}
+.post-actions{display:flex;gap:12px;border-top:1px solid #eee;padding-top:8px;font-size:13px;flex-wrap:wrap;}
+.heart{cursor:pointer;color:#bbb;font-size:16px;}
+.heart.liked{color:#e74c3c;}
+.like-wrap{color:#555;}
+.comment-toggle{cursor:pointer;color:#555;}
+.report-btn{color:#bbb;font-size:12px;cursor:pointer;margin-left:auto;}
+.report-btn:active{color:#e07b00;}
+
+/* Admin */
+.admin-bar{background:#fff8e1;border-top:1px solid #ffe082;padding:6px 8px;display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+.admin-action{font-size:12px;cursor:pointer;color:#555;font-weight:bold;padding:4px 8px;border:1px solid #ddd;background:white;border-radius:2px;}
+.admin-badge{background:#c00;color:white;font-size:9px;padding:1px 4px;border-radius:2px;margin-left:4px;}
+
+/* Comments */
+.comment-box{margin-top:8px;border-top:1px solid #eee;padding-top:8px;}
+.comment{font-size:13px;padding:5px 0;border-bottom:1px dotted #eee;color:#444;}
+.del-comment{float:right;color:#bbb;cursor:pointer;}
+.comment-input{display:flex;gap:6px;margin-top:8px;}
+.comment-input input{flex:1;border:1px solid #bbb;padding:8px;font-size:14px;font-family:inherit;-webkit-appearance:none;}
+.comment-input button{background:var(--accent);color:white;border:none;padding:8px 12px;font-size:13px;cursor:pointer;}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:50;}
+.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;-webkit-tap-highlight-color:transparent;}
+.bottom-nav a:active{background:rgba(255,255,255,0.1);}
+.bottom-nav a .icon{font-size:20px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-logo">ermn</span>
+  <div class="topbar-right">
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="search-row">
+  <input id="searchInput" placeholder="Search posts..." onkeydown="if(event.key==='Enter')doSearch()">
+  <select id="sortSelect" onchange="doSearch()">
+    <option value="newest">Newest</option>
+    <option value="oldest">Oldest</option>
+    <option value="popular">Popular</option>
+  </select>
+  <button onclick="doSearch()">🔍</button>
+</div>
+
+<div class="main">
+  <div class="compose-box">
+    <h4>✏ What's on your mind?</h4>
+    <textarea id="text" placeholder="Share something..."></textarea>
+    <button id="postBtn" onclick="mPost()">Post</button>
+  </div>
+  <div id="loading" style="text-align:center;padding:20px;color:#888;font-style:italic;">Loading...</div>
+  <div id="posts"></div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="mobile_feed.html"><span class="icon">🏠</span>Feed</a>
+  <a href="mobile_profile.html"><span class="icon">👤</span>Profile</a>
+  <a href="settings.html"><span class="icon">⚙</span>Settings</a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+const cu = localStorage.getItem("currentUser");
+if (!cu) location.href = "mobile.html";
+
+function logout(){ localStorage.removeItem("currentUser"); location.href="mobile.html"; }
+
+function doSearch(){
+  const q = document.getElementById("searchInput").value.trim();
+  const s = document.getElementById("sortSelect").value;
+  render(q, s);
+}
+
+applyTheme();
+render().then(()=>{ const l=document.getElementById("loading"); if(l)l.style.display="none"; });
+
+function mPost(){
+  post().then(()=>{ const l=document.getElementById("loading"); if(l)l.style.display="none"; });
+}
+</script>
+</body>
+</html>
