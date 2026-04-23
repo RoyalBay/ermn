@@ -1,160 +1,157 @@
+const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 let currentUser = localStorage.getItem("currentUser");
-let users = JSON.parse(localStorage.getItem("users")||"{}");
 
-function save(){
-  localStorage.setItem("users",JSON.stringify(users));
-}
-
-function ensure(u){
-  if(!users[u]) return;
-  users[u].followers ||= [];
-  users[u].posts ||= [];
-  users[u].pic ||= "";
+/* THEME */
+function applyTheme() {
+  const t = localStorage.getItem("theme") || "light";
+  const feed = document.querySelector(".feed");
+  const profile = document.querySelector(".profile");
+  document.body.style.transition = "background 0.3s ease";
+  if (t === "dark") {
+    document.body.style.background = "#1e1e1e";
+    document.body.style.color = "white";
+    if (feed) feed.style.background = "#2b2b2b";
+    if (profile) profile.style.background = "#2b2b2b";
+  } else if (t === "light") {
+    document.body.style.background = "#f5f6f7";
+    document.body.style.color = "black";
+    if (feed) feed.style.background = "white";
+    if (profile) profile.style.background = "white";
+  } else if (t === "dynamic") {
+    const t0 = Date.now() / 800;
+    const r = Math.floor(128 + 127 * Math.sin(t0));
+    const g = Math.floor(128 + 127 * Math.sin(t0 + 2));
+    const b = Math.floor(128 + 127 * Math.sin(t0 + 4));
+    document.body.style.background = "rgb(" + r + "," + g + "," + b + ")";
+  }
 }
 
 /* POST */
-function post(){
-  let t=document.getElementById("text").value;
-  if(!t) return;
-
-  users[currentUser].posts.unshift({
-    id:Date.now(),
-    user:currentUser,
-    text:t,
-    time:new Date().toLocaleString(),
-    likes:0,
-    likedBy:[]
-  });
-
-  save();
-  render();
-  applyTheme();
+async function post() {
+  const textEl = document.getElementById("text");
+  const t = textEl.value.trim();
+  if (!t) return;
+  const { error } = await sb.from("posts").insert({ username: currentUser, text: t });
+  if (error) { alert("Error posting: " + error.message); return; }
+  textEl.value = "";
+  await render();
 }
 
 /* LIKE */
-function like(id){
-  for(let u in users){
-    for(let p of users[u].posts){
-      if(p.id===id){
-
-        p.likedBy ||= [];
-
-        if(p.likedBy.includes(currentUser)){
-          p.likedBy=p.likedBy.filter(x=>x!==currentUser);
-        } else {
-          p.likedBy.push(currentUser);
-        }
-
-        p.likes=p.likedBy.length;
-      }
-    }
+async function like(postId) {
+  const { data: existing } = await sb.from("likes")
+    .select("post_id").eq("post_id", postId).eq("username", currentUser).maybeSingle();
+  if (existing) {
+    await sb.from("likes").delete().eq("post_id", postId).eq("username", currentUser);
+  } else {
+    await sb.from("likes").insert({ post_id: postId, username: currentUser });
   }
-
-  save();
-  render();
+  await render();
 }
 
-/* FOLLOW (UPDATED LIVE POPUP FIX) */
-function follow(u){
-  ensure(u);
-
-  let list=users[u].followers;
-
-  if(list.includes(currentUser)){
-    users[u].followers=list.filter(x=>x!==currentUser);
+/* FOLLOW */
+async function follow(targetUser) {
+  const { data: existing } = await sb.from("follows")
+    .select("follower").eq("follower", currentUser).eq("following", targetUser).maybeSingle();
+  if (existing) {
+    await sb.from("follows").delete().eq("follower", currentUser).eq("following", targetUser);
   } else {
-    list.push(currentUser);
+    await sb.from("follows").insert({ follower: currentUser, following: targetUser });
   }
-
-  save();
-  render();
-
-  // LIVE POPUP UPDATE
-  if(popup.style.display==="block"){
-    let name=pname.innerText.replace("@","");
-    pfollow.innerText="Followers: "+users[name].followers.length;
+  await render();
+  const popup = document.getElementById("popup");
+  if (popup && popup.style.display === "block") {
+    const shown = document.getElementById("pname").innerText.replace("@", "");
+    if (shown === targetUser) await openProfile(targetUser);
   }
 }
 
 /* DELETE */
-function del(id){
-  users[currentUser].posts=
-    users[currentUser].posts.filter(p=>p.id!==id);
-
-  save();
-  render();
+async function del(postId) {
+  await sb.from("posts").delete().eq("id", postId).eq("username", currentUser);
+  await render();
 }
 
 /* UPLOAD PROFILE PIC */
-function upload(file){
-  let r=new FileReader();
-
-  r.onload=()=>{
-    users[currentUser].pic=r.result;
-    save();
-    render();
+async function upload(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const { error } = await sb.from("users").update({ pic: reader.result }).eq("username", currentUser);
+    if (error) { alert("Error uploading pic: " + error.message); return; }
+    await render();
   };
-
-  r.readAsDataURL(file);
+  reader.readAsDataURL(file);
 }
 
-/* OPEN PROFILE */
-function openProfile(u){
-  let p=users[u];
-  if(!p) return;
-
-  popup.style.display="block";
-  pname.innerText="@"+u;
-  ppic.src=p.pic||"";
-  pfollow.innerText="Followers: "+p.followers.length;
+/* OPEN POPUP PROFILE */
+async function openProfile(u) {
+  const popup = document.getElementById("popup");
+  if (!popup) return;
+  const { data: user } = await sb.from("users").select("pic").eq("username", u).maybeSingle();
+  const { count: followerCount } = await sb.from("follows")
+    .select("*", { count: "exact", head: true }).eq("following", u);
+  popup.style.display = "block";
+  document.getElementById("pname").innerText = "@" + u;
+  document.getElementById("ppic").src = (user && user.pic) || "";
+  document.getElementById("pfollow").innerText = "Followers: " + (followerCount || 0);
 }
 
-/* RENDER */
-function render(){
-  let feed=document.getElementById("posts");
-  if(!feed) return;
+/* ESCAPE HTML */
+function escapeHtml(str) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
 
-  feed.innerHTML="";
+/* RENDER FEED */
+async function render() {
+  const feed = document.getElementById("posts");
+  if (!feed) return;
 
-  for(let u in users){
-    ensure(u);
+  const { data: posts, error } = await sb.from("posts")
+    .select("id, username, text, created_at")
+    .order("created_at", { ascending: false });
+  if (error) { feed.innerHTML = "<p>Error loading posts.</p>"; return; }
 
-    for(let p of users[u].posts){
+  const [{ data: myLikes }, { data: myFollows }, { data: allLikes }] = await Promise.all([
+    sb.from("likes").select("post_id").eq("username", currentUser),
+    sb.from("follows").select("following").eq("follower", currentUser),
+    sb.from("likes").select("post_id")
+  ]);
 
-      let div=document.createElement("div");
-      div.className="post";
+  const likedSet = new Set((myLikes || []).map(l => l.post_id));
+  const followSet = new Set((myFollows || []).map(f => f.following));
+  const likeMap = {};
+  (allLikes || []).forEach(l => { likeMap[l.post_id] = (likeMap[l.post_id] || 0) + 1; });
 
-      let isFollow=users[p.user].followers.includes(currentUser);
-
-      div.innerHTML=`
-        <span class="user" onclick="openProfile('${p.user}')">
-          @${p.user}
-        </span>
-
-        <button onclick="follow('${p.user}')">
-          ${isFollow?"Unfollow":"Follow"}
-        </button>
-
-        <div>${p.text}</div>
-        <small>${p.time}</small>
-
-        <div onclick="like(${p.id})">
-          ▲ ${p.likes}
-        </div>
-
-        ${p.user===currentUser?
-          `<div class="delete" onclick="del(${p.id})">delete</div>`:""}
-      `;
-
-      feed.appendChild(div);
-    }
+  feed.innerHTML = "";
+  for (const p of (posts || [])) {
+    const div = document.createElement("div");
+    div.className = "post";
+    const isFollowing = followSet.has(p.username);
+    const liked = likedSet.has(p.id);
+    const likeCount = likeMap[p.id] || 0;
+    const date = new Date(p.created_at).toLocaleString();
+    div.innerHTML =
+      '<span class="user" onclick="openProfile(\'' + p.username + '\')">@' + p.username + '</span> ' +
+      (p.username !== currentUser ? '<button onclick="follow(\'' + p.username + '\')">' + (isFollowing ? "Unfollow" : "Follow") + '</button>' : '') +
+      '<div style="margin:6px 0;">' + escapeHtml(p.text) + '</div>' +
+      '<small>' + date + '</small>' +
+      '<div onclick="like(' + p.id + ')" style="cursor:pointer;margin-top:4px;color:' + (liked ? "#e74c3c" : "inherit") + '">&#9650; ' + likeCount + '</div>' +
+      (p.username === currentUser ? '<div class="delete" onclick="del(' + p.id + ')">delete</div>' : '');
+    feed.appendChild(div);
   }
 
-  if(users[currentUser]){
-    rightName.innerText="@"+currentUser;
-    rightFollowers.innerText="Followers: "+users[currentUser].followers.length;
-    rightPic.src=users[currentUser].pic||"";
-  }
-}
+  const { data: me } = await sb.from("users").select("pic").eq("username", currentUser).maybeSingle();
+  const { count: myFollowers } = await sb.from("follows")
+    .select("*", { count: "exact", head: true }).eq("following", currentUser);
 
-render();
+  const rightPic = document.getElementById("rightPic");
+  const rightName = document.getElementById("rightName");
+  const rightFollowers = document.getElementById("rightFollowers");
+  if (rightPic) rightPic.src = (me && me.pic) || "";
+  if (rightName) rightName.innerText = "@" + currentUser;
+  if (rightFollowers) rightFollowers.innerText = "Followers: " + (myFollowers || 0);
+}

@@ -5,94 +5,57 @@
 <meta charset="UTF-8">
 <title>ermn Settings</title>
 <link rel="icon" href="wicon.png">
-
 <style>
-
-body{
-  margin:0;
-  font-family:Tahoma;
-  background:#f5f6f7;
-}
-
-.topbar{
-  height:44px;
-  background:#3b5998;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 10px;
-}
-
-.topbar .left{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-.backBtn{
-  background:white;
-  color:#3b5998;
-  border:none;
-  padding:6px 10px;
-  cursor:pointer;
-}
-
-.box{
-  width:300px;
-  margin:40px auto;
-  background:white;
-  border:1px solid #ccc;
-  padding:10px;
-  box-sizing:border-box;
-}
-
-h3{
-  margin-top:0;
-}
-
-button{
-  width:100%;
-  margin:5px 0;
-  padding:8px;
-  background:#3b5998;
-  color:white;
-  border:none;
-  cursor:pointer;
-}
-
+body { margin:0; font-family:Tahoma; background:#f5f6f7; }
+.topbar { height:44px; background:#3b5998; color:white; display:flex; align-items:center; justify-content:space-between; padding:0 10px; }
+.backBtn { background:white; color:#3b5998; border:none; padding:6px 10px; cursor:pointer; }
+.box { width:300px; margin:40px auto; background:white; border:1px solid #ccc; padding:10px; box-sizing:border-box; }
+h3 { margin-top:0; }
+button { width:100%; margin:5px 0; padding:8px; background:#3b5998; color:white; border:none; cursor:pointer; }
+.danger { background:#c0392b; }
+#msg { font-size:13px; color:green; margin-top:6px; }
 </style>
 </head>
-
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
-
-  <div class="left">
-    <b style="font-size:18px;">ermn</b>
-  </div>
-
+  <b style="font-size:18px;">ermn</b>
   <button class="backBtn" onclick="location.href='feed.html'">Back</button>
-
 </div>
 
-<!-- SETTINGS -->
 <div class="box">
+  <h3>Settings</h3>
+  <h4>Themes</h4>
+  <button onclick="setTheme('light')">Light</button>
+  <button onclick="setTheme('dark')">Dark</button>
+  <button onclick="setTheme('dynamic')">Dynamic</button>
 
-<h3>Settings</h3>
-
-<h4>Themes</h4>
-
-<button onclick="setTheme('light')">Light</button>
-<button onclick="setTheme('dark')">Dark</button>
-<button onclick="setTheme('dynamic')">Dynamic</button>
-
+  <h4>Account</h4>
+  <button onclick="changePassword()">Change Password</button>
+  <div id="msg"></div>
 </div>
 
 <script>
-function setTheme(t){
-  localStorage.setItem("theme",t);
+const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function setTheme(t) {
+  localStorage.setItem("theme", t);
+  document.getElementById("msg").innerText = "Theme set to " + t + "!";
+}
+
+async function changePassword() {
+  const current = prompt("Enter current password:");
+  if (!current) return;
+  const me = localStorage.getItem("currentUser");
+  const { data } = await sb.from("users").select("password").eq("username", me).maybeSingle();
+  if (!data || data.password !== current) { alert("Incorrect current password."); return; }
+  const newPass = prompt("Enter new password:");
+  if (!newPass || newPass.length < 4) { alert("Password must be at least 4 characters."); return; }
+  const { error } = await sb.from("users").update({ password: newPass }).eq("username", me);
+  if (error) { alert("Error: " + error.message); return; }
+  document.getElementById("msg").innerText = "Password changed!";
 }
 </script>
 

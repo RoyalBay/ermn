@@ -6,143 +6,84 @@
 <title>ermn Login</title>
 <link rel="icon" href="wicon.png">
 <style>
-
-body{
-  margin:0;
-  font-family:Tahoma;
-  background:linear-gradient(#dfe7f3,#f5f6f7);
-}
-
-/* TOP BAR */
-.topbar{
-  height:44px;
-  background:#3b5998;
-  color:white;
-  display:flex;
-  align-items:center;
-  padding:0 10px;
-}
-
-/* TITLE SECTION */
-.title{
-  text-align:center;
-  margin-top:40px;
-}
-
-.title h1{
-  font-weight:bold;
-  margin:0;
-}
-
-.title p{
-  margin:0;
-  color:#555;
-}
-
-/* LOGIN BOX */
-.box{
-  width:300px;
-  margin:60px auto;
-  background:white;
-  padding:20px;
-  border:1px solid #ccc;
-}
-
-/* INPUTS */
-input,button{
-  width:100%;
-  padding:8px;
-  margin-top:5px;
-  box-sizing:border-box;
-}
-
-button{
-  background:#3b5998;
-  color:white;
-  border:none;
-  cursor:pointer;
-}
-
-#error{
-  color:red;
-  font-size:13px;
-}
-
+body { margin:0; font-family:Tahoma; background:linear-gradient(#dfe7f3,#f5f6f7); }
+.topbar { height:44px; background:#3b5998; color:white; display:flex; align-items:center; padding:0 10px; }
+.title { text-align:center; margin-top:40px; }
+.title h1 { font-weight:bold; margin:0; }
+.title p { margin:0; color:#555; }
+.box { width:300px; margin:60px auto; background:white; padding:20px; border:1px solid #ccc; }
+input, button { width:100%; padding:8px; margin-top:5px; box-sizing:border-box; }
+button { background:#3b5998; color:white; border:none; cursor:pointer; }
+button:disabled { background:#aaa; cursor:default; }
+#msg { font-size:13px; margin-top:6px; }
+.err { color:red; }
+.ok { color:green; }
 </style>
 </head>
-
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
-  <div style="display:flex;align-items:center;gap:8px;">
-    <b style="font-size:20px;">ermn</b>
-  </div>
+  <b style="font-size:20px;">ermn</b>
 </div>
 
-<!-- LOGIN HEADER -->
 <div class="title">
   <h1>ermn.</h1>
   <p>whenever. wherever.</p>
 </div>
 
-<!-- LOGIN BOX -->
 <div class="box">
-
-  <input id="username" placeholder="username">
-  <input id="password" type="password" placeholder="password">
-
-  <button onclick="login()">Login</button>
-  <button onclick="create()">Create Account</button>
-
-  <div id="error"></div>
-
+  <input id="username" placeholder="username" autocomplete="username">
+  <input id="password" type="password" placeholder="password" autocomplete="current-password">
+  <button id="loginBtn" onclick="login()">Login</button>
+  <button id="createBtn" onclick="create()">Create Account</button>
+  <div id="msg"></div>
 </div>
 
 <script>
+const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let users = JSON.parse(localStorage.getItem("users") || "{}");
+function setMsg(text, isError) {
+  const el = document.getElementById("msg");
+  el.innerText = text;
+  el.className = isError ? "err" : "ok";
+}
 
-/* LOGIN */
-function login(){
-  let u = username.value.trim();
-  let p = password.value.trim();
+function setBusy(busy) {
+  document.getElementById("loginBtn").disabled = busy;
+  document.getElementById("createBtn").disabled = busy;
+}
 
-  if(!users[u]){
-    error.innerText = "User not found";
-    return;
-  }
-
-  if(users[u].password !== p){
-    error.innerText = "Incorrect password";
-    return;
-  }
-
+async function login() {
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  if (!u || !p) { setMsg("Please enter username and password.", true); return; }
+  setBusy(true);
+  const { data, error } = await sb.from("users").select("username, password").eq("username", u).maybeSingle();
+  if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
+  if (!data) { setMsg("User not found.", true); setBusy(false); return; }
+  if (data.password !== p) { setMsg("Incorrect password.", true); setBusy(false); return; }
   localStorage.setItem("currentUser", u);
   location.href = "feed.html";
 }
 
-/* CREATE ACCOUNT */
-function create(){
-  let u = username.value.trim();
-  let p = password.value.trim();
-
-  if(users[u]){
-    error.innerText = "Username already in use";
-    return;
-  }
-
-  users[u] = {
-    password: p,
-    followers: [],
-    posts: [],
-    pic: ""
-  };
-
-  localStorage.setItem("users", JSON.stringify(users));
-  error.innerText = "Account created";
+async function create() {
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  if (!u || !p) { setMsg("Please enter username and password.", true); return; }
+  if (u.length < 3) { setMsg("Username must be at least 3 characters.", true); return; }
+  setBusy(true);
+  const { data: existing } = await sb.from("users").select("username").eq("username", u).maybeSingle();
+  if (existing) { setMsg("Username already in use.", true); setBusy(false); return; }
+  const { error } = await sb.from("users").insert({ username: u, password: p, pic: "" });
+  if (error) { setMsg("Error creating account: " + error.message, true); setBusy(false); return; }
+  setMsg("Account created! You can now log in.", false);
+  setBusy(false);
 }
 
+// Allow Enter key
+document.addEventListener("keydown", e => { if (e.key === "Enter") login(); });
 </script>
 
 </body>
