@@ -1,17 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta charset="UTF-8">
 <title>ermn Profile</title>
 <link rel="icon" href="wicon.png">
 <style>
-body { font-family:Tahoma; margin:0; }
+body { font-family:Tahoma; margin:0; background:#f5f6f7; }
 .topbar { background:#3b5998; color:white; padding:0 10px; height:44px; display:flex; justify-content:space-between; align-items:center; }
 .card { max-width:500px; margin:40px auto; background:white; padding:20px; text-align:center; border:1px solid #ccc; }
-#pic { width:100px; height:100px; border-radius:6px; object-fit:cover; display:block; margin:0 auto 10px; }
+#pic { width:100px; height:100px; border-radius:6px; object-fit:cover; display:block; margin:0 auto 10px; background:#eee; }
 button { background:#3b5998; color:white; border:none; padding:6px 10px; cursor:pointer; margin:4px; }
-#msg { color:green; font-size:13px; }
+#msg { color:green; font-size:13px; margin-top:6px; }
 </style>
 </head>
 <body>
@@ -27,14 +26,16 @@ button { background:#3b5998; color:white; border:none; padding:6px 10px; cursor:
 <div class="card">
   <h3>Profile</h3>
   <img id="pic" src="">
-  <h3 id="name"></h3>
+  <h3 id="uname"></h3>
   <p id="followers"></p>
-  <hr>
-  <input type="file" id="fileInput" accept="image/*">
-  <button onclick="savepic()">Update Profile Picture</button>
+  <div id="editSection">
+    <input type="file" id="fileInput" accept="image/*">
+    <button onclick="savepic()">Update Profile Picture</button>
+  </div>
   <div id="msg"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
@@ -44,22 +45,23 @@ const me = localStorage.getItem("currentUser");
 const params = new URLSearchParams(location.search);
 const viewUser = params.get("user") || me;
 
-function applyTheme() {
+if (!me) location.href = "index.html";
+
+(function applyTheme() {
   const t = localStorage.getItem("theme") || "light";
   if (t === "dark") document.body.style.background = "#1e1e1e";
   else if (t === "dynamic") document.body.style.background = "linear-gradient(#3b5998,#8b9dc3)";
-}
-applyTheme();
+})();
 
 let tempPic = null;
-document.getElementById("fileInput").addEventListener("change", e => {
+document.getElementById("fileInput").addEventListener("change", function(e) {
   const r = new FileReader();
-  r.onload = () => tempPic = r.result;
+  r.onload = function() { tempPic = r.result; };
   r.readAsDataURL(e.target.files[0]);
 });
 
 async function savepic() {
-  if (viewUser !== me || !tempPic) return;
+  if (!tempPic) { document.getElementById("msg").innerText = "Please select a file first."; return; }
   const { error } = await sb.from("users").update({ pic: tempPic }).eq("username", me);
   if (error) { document.getElementById("msg").innerText = "Error: " + error.message; return; }
   document.getElementById("msg").innerText = "Picture updated!";
@@ -70,19 +72,13 @@ async function load() {
   const { data: user } = await sb.from("users").select("pic").eq("username", viewUser).maybeSingle();
   const { count: followerCount } = await sb.from("follows")
     .select("*", { count: "exact", head: true }).eq("following", viewUser);
-
   document.getElementById("pic").src = (user && user.pic) || "";
-  document.getElementById("name").innerHTML = "<b>@" + viewUser + (followerCount >= 100 ? " ✓" : "") + "</b>";
+  document.getElementById("uname").innerHTML = "<b>@" + viewUser + (followerCount >= 100 ? " ✓" : "") + "</b>";
   document.getElementById("followers").innerText = "Followers: " + (followerCount || 0);
-
-  if (viewUser !== me) {
-    document.getElementById("fileInput").style.display = "none";
-    document.querySelector("button[onclick='savepic()']").style.display = "none";
-  }
+  if (viewUser !== me) document.getElementById("editSection").style.display = "none";
 }
 
 load();
 </script>
-
 </body>
 </html>

@@ -34,7 +34,11 @@ async function post() {
   const textEl = document.getElementById("text");
   const t = textEl.value.trim();
   if (!t) return;
+  if (!currentUser) { alert("Not logged in."); return; }
+  const btn = document.querySelector("button[onclick='post()']");
+  if (btn) btn.disabled = true;
   const { error } = await sb.from("posts").insert({ username: currentUser, text: t });
+  if (btn) btn.disabled = false;
   if (error) { alert("Error posting: " + error.message); return; }
   textEl.value = "";
   await render();

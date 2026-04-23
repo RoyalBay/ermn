@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta charset="UTF-8">
 <title>ermn Settings</title>
 <link rel="icon" href="wicon.png">
@@ -9,11 +8,10 @@
 body { margin:0; font-family:Tahoma; background:#f5f6f7; }
 .topbar { height:44px; background:#3b5998; color:white; display:flex; align-items:center; justify-content:space-between; padding:0 10px; }
 .backBtn { background:white; color:#3b5998; border:none; padding:6px 10px; cursor:pointer; }
-.box { width:300px; margin:40px auto; background:white; border:1px solid #ccc; padding:10px; box-sizing:border-box; }
+.box { width:300px; margin:40px auto; background:white; border:1px solid #ccc; padding:15px; box-sizing:border-box; }
 h3 { margin-top:0; }
 button { width:100%; margin:5px 0; padding:8px; background:#3b5998; color:white; border:none; cursor:pointer; }
-.danger { background:#c0392b; }
-#msg { font-size:13px; color:green; margin-top:6px; }
+#msg { font-size:13px; color:green; margin-top:6px; min-height:18px; }
 </style>
 </head>
 <body>
@@ -25,20 +23,23 @@ button { width:100%; margin:5px 0; padding:8px; background:#3b5998; color:white;
 
 <div class="box">
   <h3>Settings</h3>
-  <h4>Themes</h4>
+  <h4 style="margin-bottom:4px;">Themes</h4>
   <button onclick="setTheme('light')">Light</button>
   <button onclick="setTheme('dark')">Dark</button>
   <button onclick="setTheme('dynamic')">Dynamic</button>
 
-  <h4>Account</h4>
+  <h4 style="margin-bottom:4px;">Account</h4>
   <button onclick="changePassword()">Change Password</button>
   <div id="msg"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+if (!localStorage.getItem("currentUser")) location.href = "index.html";
 
 function setTheme(t) {
   localStorage.setItem("theme", t);
@@ -46,18 +47,17 @@ function setTheme(t) {
 }
 
 async function changePassword() {
-  const current = prompt("Enter current password:");
-  if (!current) return;
   const me = localStorage.getItem("currentUser");
+  const current = prompt("Enter your current password:");
+  if (current === null) return;
   const { data } = await sb.from("users").select("password").eq("username", me).maybeSingle();
   if (!data || data.password !== current) { alert("Incorrect current password."); return; }
-  const newPass = prompt("Enter new password:");
+  const newPass = prompt("Enter new password (min 4 characters):");
   if (!newPass || newPass.length < 4) { alert("Password must be at least 4 characters."); return; }
   const { error } = await sb.from("users").update({ password: newPass }).eq("username", me);
   if (error) { alert("Error: " + error.message); return; }
   document.getElementById("msg").innerText = "Password changed!";
 }
 </script>
-
 </body>
 </html>

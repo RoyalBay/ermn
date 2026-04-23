@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <meta charset="UTF-8">
 <title>ermn Login</title>
 <link rel="icon" href="wicon.png">
@@ -10,12 +9,12 @@ body { margin:0; font-family:Tahoma; background:linear-gradient(#dfe7f3,#f5f6f7)
 .topbar { height:44px; background:#3b5998; color:white; display:flex; align-items:center; padding:0 10px; }
 .title { text-align:center; margin-top:40px; }
 .title h1 { font-weight:bold; margin:0; }
-.title p { margin:0; color:#555; }
-.box { width:300px; margin:60px auto; background:white; padding:20px; border:1px solid #ccc; }
-input, button { width:100%; padding:8px; margin-top:5px; box-sizing:border-box; }
+.title p { margin:4px 0 0; color:#555; }
+.box { width:300px; margin:40px auto; background:white; padding:20px; border:1px solid #ccc; }
+input, button { width:100%; padding:8px; margin-top:8px; box-sizing:border-box; }
 button { background:#3b5998; color:white; border:none; cursor:pointer; }
 button:disabled { background:#aaa; cursor:default; }
-#msg { font-size:13px; margin-top:6px; }
+#msg { font-size:13px; margin-top:8px; min-height:18px; }
 .err { color:red; }
 .ok { color:green; }
 </style>
@@ -39,6 +38,7 @@ button:disabled { background:#aaa; cursor:default; }
   <div id="msg"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
@@ -49,7 +49,6 @@ function setMsg(text, isError) {
   el.innerText = text;
   el.className = isError ? "err" : "ok";
 }
-
 function setBusy(busy) {
   document.getElementById("loginBtn").disabled = busy;
   document.getElementById("createBtn").disabled = busy;
@@ -60,6 +59,7 @@ async function login() {
   const p = document.getElementById("password").value;
   if (!u || !p) { setMsg("Please enter username and password.", true); return; }
   setBusy(true);
+  setMsg("Logging in...", false);
   const { data, error } = await sb.from("users").select("username, password").eq("username", u).maybeSingle();
   if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
   if (!data) { setMsg("User not found.", true); setBusy(false); return; }
@@ -73,18 +73,18 @@ async function create() {
   const p = document.getElementById("password").value;
   if (!u || !p) { setMsg("Please enter username and password.", true); return; }
   if (u.length < 3) { setMsg("Username must be at least 3 characters.", true); return; }
+  if (p.length < 4) { setMsg("Password must be at least 4 characters.", true); return; }
   setBusy(true);
+  setMsg("Creating account...", false);
   const { data: existing } = await sb.from("users").select("username").eq("username", u).maybeSingle();
   if (existing) { setMsg("Username already in use.", true); setBusy(false); return; }
   const { error } = await sb.from("users").insert({ username: u, password: p, pic: "" });
-  if (error) { setMsg("Error creating account: " + error.message, true); setBusy(false); return; }
+  if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
   setMsg("Account created! You can now log in.", false);
   setBusy(false);
 }
 
-// Allow Enter key
-document.addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+document.addEventListener("keydown", function(e) { if (e.key === "Enter") login(); });
 </script>
-
 </body>
 </html>
