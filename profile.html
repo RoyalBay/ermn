@@ -2,37 +2,165 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ermn Profile</title>
+<title>ermn · My Profile</title>
 <link rel="icon" href="wicon.png">
 <style>
-body { font-family:Tahoma; margin:0; background:#f5f6f7; }
-.topbar { background:#3b5998; color:white; padding:0 10px; height:44px; display:flex; justify-content:space-between; align-items:center; }
-.card { max-width:500px; margin:40px auto; background:white; padding:20px; text-align:center; border:1px solid #ccc; }
-#pic { width:100px; height:100px; border-radius:6px; object-fit:cover; display:block; margin:0 auto 10px; background:#eee; }
-button { background:#3b5998; color:white; border:none; padding:6px 10px; cursor:pointer; margin:4px; }
-#msg { color:green; font-size:13px; margin-top:6px; }
+:root {
+  --accent: #3b5998;
+  --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
+  --card-bg: #fff;
+  --topbar-bg: #3b5998;
+  --text: #333;
+  --border: #b0b7c3;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); color: var(--text); min-height: 100vh; font-size: 13px; }
+
+.topbar {
+  background: var(--topbar-bg);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+}
+.topbar-logo { font-size: 22px; font-weight: bold; color: white; letter-spacing: -1px; font-style: italic; }
+.topbar-right { margin-left: auto; display: flex; gap: 6px; }
+.topbar-right button {
+  background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);
+  padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: inherit;
+}
+.topbar-right button:hover { background: rgba(255,255,255,0.35); }
+
+.container { max-width: 600px; margin: 20px auto; padding: 0 10px; }
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.card-title {
+  background: linear-gradient(180deg, #e8edf7, #d8e0f0);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--accent);
+}
+.card-body { padding: 14px; }
+
+/* Profile header */
+.profile-header {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+#picDisplay {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  border: 3px solid var(--border);
+  flex-shrink: 0;
+}
+.profile-info h2 { font-size: 18px; color: var(--accent); margin-bottom: 4px; }
+.profile-info .bio-display { font-style: italic; color: #555; margin-bottom: 6px; font-size: 13px; }
+.stats { display: flex; gap: 12px; font-size: 12px; color: #555; }
+.stats span strong { color: var(--accent); font-size: 14px; }
+
+label { display: block; font-size: 12px; font-weight: bold; color: #444; margin-bottom: 3px; margin-top: 10px; }
+input[type=text], input[type=password], textarea {
+  width: 100%;
+  border: 1px solid #bbb;
+  padding: 5px 7px;
+  font-family: inherit;
+  font-size: 13px;
+  background: #fafafa;
+}
+input:focus, textarea:focus { outline: none; border-color: var(--accent); background: white; }
+textarea { resize: vertical; height: 64px; }
+input[type=file] { font-size: 12px; margin-bottom: 4px; }
+
+.btn {
+  background: linear-gradient(180deg,#5274b3,#3b5998);
+  color: white;
+  border: 1px solid #2a4070;
+  padding: 5px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.btn:hover { background: linear-gradient(180deg,#6080bf,#4a6aaa); }
+.btn-red { background: linear-gradient(180deg,#e55,#c33); border-color: #a22; }
+.btn-red:hover { background: linear-gradient(180deg,#f66,#d44); }
+
+.msg { font-size: 12px; margin-top: 6px; min-height: 16px; }
+.ok { color: #080; }
+.err { color: #c00; }
+
+/* My posts */
+.post { border-bottom: 1px solid #eee; padding: 8px 0; }
+.post:last-child { border-bottom: none; }
+.post-text { margin: 3px 0; line-height: 1.5; }
+.post-time { font-size: 11px; color: #888; }
+.delete-post { color: #bbb; cursor: pointer; font-size: 11px; float: right; }
+.delete-post:hover { color: #c00; }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <b style="font-size:18px;">ermn</b>
-  <div>
-    <button onclick="location='feed.html'">Feed</button>
-    <button onclick="location='settings.html'">Settings</button>
+  <span class="topbar-logo">ermn</span>
+  <div class="topbar-right">
+    <button onclick="location.href='feed.html'">&#127968; Feed</button>
+    <button onclick="location.href='settings.html'">⚙ Settings</button>
   </div>
 </div>
 
-<div class="card">
-  <h3>Profile</h3>
-  <img id="pic" src="">
-  <h3 id="uname"></h3>
-  <p id="followers"></p>
-  <div id="editSection">
-    <input type="file" id="fileInput" accept="image/*">
-    <button onclick="savepic()">Update Profile Picture</button>
+<div class="container">
+  <div class="card">
+    <div class="card-title">👤 My Profile</div>
+    <div class="card-body">
+      <div class="profile-header">
+        <img id="picDisplay" src="empty.jpg" onerror="this.src='empty.jpg'">
+        <div class="profile-info">
+          <h2 id="uname"></h2>
+          <div class="bio-display" id="bioDisplay">No bio yet.</div>
+          <div class="stats">
+            <span><strong id="statFollowers">0</strong> followers</span>
+            <span><strong id="statFollowing">0</strong> following</span>
+            <span><strong id="statPosts">0</strong> posts</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  <div id="msg"></div>
+
+  <div class="card">
+    <div class="card-title">✏ Edit Profile</div>
+    <div class="card-body">
+      <label>Profile Picture</label>
+      <input type="file" id="fileInput" accept="image/*">
+      <button class="btn" onclick="savePic()">Update Picture</button>
+      <div class="msg ok" id="picMsg"></div>
+
+      <label>Bio <span style="font-weight:normal;color:#888">(max 160 chars)</span></label>
+      <textarea id="bioInput" maxlength="160" placeholder="Tell people about yourself..."></textarea>
+      <button class="btn" onclick="saveBio()">Save Bio</button>
+      <div class="msg ok" id="bioMsg"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📝 My Posts</div>
+    <div class="card-body" id="myPosts">
+      <div style="color:#888;font-style:italic;">Loading...</div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -42,40 +170,89 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const me = localStorage.getItem("currentUser");
-const params = new URLSearchParams(location.search);
-const viewUser = params.get("user") || me;
-
 if (!me) location.href = "index.html";
 
-(function applyTheme() {
-  const t = localStorage.getItem("theme") || "light";
-  if (t === "dark") document.body.style.background = "#1e1e1e";
-  else if (t === "dynamic") document.body.style.background = "linear-gradient(#3b5998,#8b9dc3)";
+// Apply theme
+(function(){
+  const t = localStorage.getItem("theme") || "classic";
+  const themes = {
+    classic: { body:"linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%)", topbar:"#3b5998" },
+    bubblegum: { body:"linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)", topbar:"#e91e8c" },
+    midnight: { body:"linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)", topbar:"#0d0d1f" },
+    y2k: { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)", topbar:"#0055cc" },
+    limeade: { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)", topbar:"#2d7a2d" },
+  };
+  const th = themes[t] || themes.classic;
+  document.body.style.background = th.body;
+  document.querySelector(".topbar").style.background = th.topbar;
 })();
 
 let tempPic = null;
 document.getElementById("fileInput").addEventListener("change", function(e) {
   const r = new FileReader();
-  r.onload = function() { tempPic = r.result; };
+  r.onload = function() { tempPic = r.result; document.getElementById("picDisplay").src = r.result; };
   r.readAsDataURL(e.target.files[0]);
 });
 
-async function savepic() {
-  if (!tempPic) { document.getElementById("msg").innerText = "Please select a file first."; return; }
+async function savePic() {
+  if (!tempPic) { document.getElementById("picMsg").innerText = "Please select a file first."; document.getElementById("picMsg").className = "msg err"; return; }
   const { error } = await sb.from("users").update({ pic: tempPic }).eq("username", me);
-  if (error) { document.getElementById("msg").innerText = "Error: " + error.message; return; }
-  document.getElementById("msg").innerText = "Picture updated!";
-  document.getElementById("pic").src = tempPic;
+  if (error) { document.getElementById("picMsg").innerText = "Error: " + error.message; document.getElementById("picMsg").className = "msg err"; return; }
+  document.getElementById("picMsg").innerText = "Picture updated!";
+  document.getElementById("picMsg").className = "msg ok";
+  tempPic = null;
+}
+
+async function saveBio() {
+  const bio = document.getElementById("bioInput").value.trim();
+  const { error } = await sb.from("users").update({ bio }).eq("username", me);
+  if (error) { document.getElementById("bioMsg").innerText = "Error: " + error.message; document.getElementById("bioMsg").className = "msg err"; return; }
+  document.getElementById("bioMsg").innerText = "Bio saved!";
+  document.getElementById("bioMsg").className = "msg ok";
+  document.getElementById("bioDisplay").innerText = bio || "No bio yet.";
+}
+
+function escapeHtml(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+function timeAgo(d) { const diff=Math.floor((Date.now()-new Date(d))/1000); if(diff<60)return diff+"s ago"; if(diff<3600)return Math.floor(diff/60)+"m ago"; if(diff<86400)return Math.floor(diff/3600)+"h ago"; return Math.floor(diff/86400)+"d ago"; }
+
+async function deletePost(postId) {
+  if (!confirm("Delete this post?")) return;
+  await sb.from("likes").delete().eq("post_id", postId);
+  await sb.from("comments").delete().eq("post_id", postId);
+  await sb.from("posts").delete().eq("id", postId).eq("username", me);
+  loadPosts();
+}
+
+async function loadPosts() {
+  const { data: posts } = await sb.from("posts").select("id, text, created_at").eq("username", me).order("created_at", { ascending: false });
+  const el = document.getElementById("myPosts");
+  if (!posts || !posts.length) { el.innerHTML = "<div style='color:#888;font-style:italic;'>No posts yet.</div>"; return; }
+  el.innerHTML = "";
+  for (const p of posts) {
+    const d = document.createElement("div");
+    d.className = "post";
+    d.innerHTML = '<span class="delete-post" onclick="deletePost(' + p.id + ')">✕ delete</span>' +
+      '<div class="post-text">' + escapeHtml(p.text) + '</div>' +
+      '<div class="post-time">' + timeAgo(p.created_at) + '</div>';
+    el.appendChild(d);
+  }
+  document.getElementById("statPosts").innerText = posts.length;
 }
 
 async function load() {
-  const { data: user } = await sb.from("users").select("pic").eq("username", viewUser).maybeSingle();
-  const { count: followerCount } = await sb.from("follows")
-    .select("*", { count: "exact", head: true }).eq("following", viewUser);
-  document.getElementById("pic").src = (user && user.pic) || "";
-  document.getElementById("uname").innerHTML = "<b>@" + viewUser + (followerCount >= 100 ? " ✓" : "") + "</b>";
-  document.getElementById("followers").innerText = "Followers: " + (followerCount || 0);
-  if (viewUser !== me) document.getElementById("editSection").style.display = "none";
+  const { data: user } = await sb.from("users").select("pic, bio").eq("username", me).maybeSingle();
+  const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", me);
+  const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", me);
+
+  document.getElementById("uname").innerText = "@" + me;
+  if (user) {
+    document.getElementById("picDisplay").src = user.pic || "empty.jpg";
+    document.getElementById("bioDisplay").innerText = user.bio || "No bio yet.";
+    document.getElementById("bioInput").value = user.bio || "";
+  }
+  document.getElementById("statFollowers").innerText = fc || 0;
+  document.getElementById("statFollowing").innerText = fgc || 0;
+  await loadPosts();
 }
 
 load();

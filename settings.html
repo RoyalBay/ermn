@@ -2,35 +2,172 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ermn Settings</title>
+<title>ermn · Settings</title>
 <link rel="icon" href="wicon.png">
 <style>
-body { margin:0; font-family:Tahoma; background:#f5f6f7; }
-.topbar { height:44px; background:#3b5998; color:white; display:flex; align-items:center; justify-content:space-between; padding:0 10px; }
-.backBtn { background:white; color:#3b5998; border:none; padding:6px 10px; cursor:pointer; }
-.box { width:300px; margin:40px auto; background:white; border:1px solid #ccc; padding:15px; box-sizing:border-box; }
-h3 { margin-top:0; }
-button { width:100%; margin:5px 0; padding:8px; background:#3b5998; color:white; border:none; cursor:pointer; }
-#msg { font-size:13px; color:green; margin-top:6px; min-height:18px; }
+:root {
+  --accent: #3b5998;
+  --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
+  --card-bg: #fff;
+  --topbar-bg: #3b5998;
+  --text: #333;
+  --border: #b0b7c3;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); color: var(--text); min-height: 100vh; font-size: 13px; }
+
+.topbar {
+  background: var(--topbar-bg);
+  height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  border-bottom: 2px solid rgba(0,0,0,0.2);
+}
+.topbar-logo { font-size: 22px; font-weight: bold; color: white; letter-spacing: -1px; font-style: italic; }
+.topbar-right { margin-left: auto; display: flex; gap: 6px; }
+.topbar-right button {
+  background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);
+  padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: inherit;
+}
+.topbar-right button:hover { background: rgba(255,255,255,0.35); }
+
+.container { max-width: 500px; margin: 20px auto; padding: 0 10px; }
+
+.card { background: var(--card-bg); border: 1px solid var(--border); margin-bottom: 12px; }
+.card-title {
+  background: linear-gradient(180deg, #e8edf7, #d8e0f0);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--accent);
+}
+.card-body { padding: 12px; }
+
+/* Themes */
+.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.theme-swatch {
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+  font-family: inherit;
+  text-align: center;
+}
+.theme-swatch:hover .swatch-preview { border-color: #333; }
+.theme-swatch.active .swatch-preview { border-color: #333; box-shadow: 0 0 0 2px var(--accent); }
+.swatch-preview {
+  width: 100%;
+  height: 40px;
+  border: 2px solid #ccc;
+  display: block;
+  margin-bottom: 3px;
+}
+.swatch-label { font-size: 11px; color: #444; }
+
+/* inputs */
+label { display: block; font-size: 12px; font-weight: bold; color: #444; margin: 10px 0 3px; }
+input[type=text], input[type=password] {
+  width: 100%;
+  border: 1px solid #bbb;
+  padding: 5px 7px;
+  font-family: inherit;
+  font-size: 13px;
+  background: #fafafa;
+}
+input:focus { outline: none; border-color: var(--accent); background: white; }
+.btn {
+  background: linear-gradient(180deg,#5274b3,#3b5998);
+  color: white;
+  border: 1px solid #2a4070;
+  padding: 5px 16px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.btn:hover { background: linear-gradient(180deg,#6080bf,#4a6aaa); }
+.msg { font-size: 12px; margin-top: 6px; min-height: 16px; }
+.ok { color: #080; }
+.err { color: #c00; }
+
+/* Account info */
+.info-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #eee; font-size: 12px; }
+.info-row:last-child { border-bottom: none; }
+.info-row span:first-child { color: #888; }
+.info-row span:last-child { font-weight: bold; color: #333; }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <b style="font-size:18px;">ermn</b>
-  <button class="backBtn" onclick="location.href='feed.html'">Back</button>
+  <span class="topbar-logo">ermn</span>
+  <div class="topbar-right">
+    <button onclick="location.href='feed.html'">&#127968; Feed</button>
+  </div>
 </div>
 
-<div class="box">
-  <h3>Settings</h3>
-  <h4 style="margin-bottom:4px;">Themes</h4>
-  <button onclick="setTheme('light')">Light</button>
-  <button onclick="setTheme('dark')">Dark</button>
-  <button onclick="setTheme('dynamic')">Dynamic</button>
+<div class="container">
+  <div class="card">
+    <div class="card-title">🎨 Theme</div>
+    <div class="card-body">
+      <p style="font-size:12px;color:#666;margin-bottom:10px;">Choose your look. Changes take effect immediately.</p>
+      <div class="theme-grid">
+        <button class="theme-swatch" id="sw-classic" onclick="setTheme('classic')">
+          <div class="swatch-preview" style="background: linear-gradient(180deg,#dfe7f3,#f5f6f7); border-top: 6px solid #3b5998;"></div>
+          <div class="swatch-label">Classic Blue</div>
+        </button>
+        <button class="theme-swatch" id="sw-bubblegum" onclick="setTheme('bubblegum')">
+          <div class="swatch-preview" style="background: linear-gradient(180deg,#ffe4f3,#fff0fb); border-top: 6px solid #e91e8c;"></div>
+          <div class="swatch-label">Bubblegum</div>
+        </button>
+        <button class="theme-swatch" id="sw-midnight" onclick="setTheme('midnight')">
+          <div class="swatch-preview" style="background: linear-gradient(180deg,#0a0a1a,#1a1a2e); border-top: 6px solid #7b68ee;"></div>
+          <div class="swatch-label">Midnight</div>
+        </button>
+        <button class="theme-swatch" id="sw-y2k" onclick="setTheme('y2k')">
+          <div class="swatch-preview" style="background: linear-gradient(180deg,#c0e8ff,#e8f4ff); border-top: 6px solid #0055cc;"></div>
+          <div class="swatch-label">Y2K Ice</div>
+        </button>
+        <button class="theme-swatch" id="sw-limeade" onclick="setTheme('limeade')">
+          <div class="swatch-preview" style="background: linear-gradient(180deg,#e8fce8,#f5fff5); border-top: 6px solid #2d7a2d;"></div>
+          <div class="swatch-label">Limeade</div>
+        </button>
+      </div>
+      <div class="msg ok" id="themeMsg"></div>
+    </div>
+  </div>
 
-  <h4 style="margin-bottom:4px;">Account</h4>
-  <button onclick="changePassword()">Change Password</button>
-  <div id="msg"></div>
+  <div class="card">
+    <div class="card-title">🔒 Change Password</div>
+    <div class="card-body">
+      <label>Current Password</label>
+      <input type="password" id="currentPass" placeholder="Your current password">
+      <label>New Password</label>
+      <input type="password" id="newPass" placeholder="New password (min 4 chars)">
+      <label>Confirm New Password</label>
+      <input type="password" id="confirmPass" placeholder="Repeat new password">
+      <button class="btn" onclick="changePassword()">Change Password</button>
+      <div class="msg" id="passMsg"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">ℹ Account Info</div>
+    <div class="card-body">
+      <div class="info-row">
+        <span>Username</span>
+        <span id="infoUser">—</span>
+      </div>
+      <div class="info-row">
+        <span>Member since</span>
+        <span id="infoJoined">—</span>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -38,26 +175,68 @@ button { width:100%; margin:5px 0; padding:8px; background:#3b5998; color:white;
 const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const me = localStorage.getItem("currentUser");
+if (!me) location.href = "index.html";
 
-if (!localStorage.getItem("currentUser")) location.href = "index.html";
+const themeKeys = ["classic", "bubblegum", "midnight", "y2k", "limeade"];
+const themeColors = {
+  classic: { body: "linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%)", topbar: "#3b5998" },
+  bubblegum: { body: "linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)", topbar: "#e91e8c" },
+  midnight: { body: "linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)", topbar: "#0d0d1f" },
+  y2k: { body: "linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)", topbar: "#0055cc" },
+  limeade: { body: "linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)", topbar: "#2d7a2d" },
+};
 
 function setTheme(t) {
   localStorage.setItem("theme", t);
-  document.getElementById("msg").innerText = "Theme set to " + t + "!";
+  themeKeys.forEach(k => document.getElementById("sw-" + k).classList.remove("active"));
+  document.getElementById("sw-" + t).classList.add("active");
+  const th = themeColors[t];
+  if (th) {
+    document.body.style.background = th.body;
+    document.querySelector(".topbar").style.background = th.topbar;
+  }
+  document.getElementById("themeMsg").innerText = "Theme applied!";
+  setTimeout(() => { document.getElementById("themeMsg").innerText = ""; }, 2000);
 }
 
 async function changePassword() {
-  const me = localStorage.getItem("currentUser");
-  const current = prompt("Enter your current password:");
-  if (current === null) return;
+  const cur = document.getElementById("currentPass").value;
+  const nw = document.getElementById("newPass").value;
+  const cf = document.getElementById("confirmPass").value;
+  const msgEl = document.getElementById("passMsg");
+  msgEl.className = "msg";
+
+  if (!cur || !nw || !cf) { msgEl.innerText = "Please fill all fields."; msgEl.className = "msg err"; return; }
+  if (nw !== cf) { msgEl.innerText = "New passwords don't match."; msgEl.className = "msg err"; return; }
+  if (nw.length < 4) { msgEl.innerText = "Password must be at least 4 characters."; msgEl.className = "msg err"; return; }
+
   const { data } = await sb.from("users").select("password").eq("username", me).maybeSingle();
-  if (!data || data.password !== current) { alert("Incorrect current password."); return; }
-  const newPass = prompt("Enter new password (min 4 characters):");
-  if (!newPass || newPass.length < 4) { alert("Password must be at least 4 characters."); return; }
-  const { error } = await sb.from("users").update({ password: newPass }).eq("username", me);
-  if (error) { alert("Error: " + error.message); return; }
-  document.getElementById("msg").innerText = "Password changed!";
+  if (!data || data.password !== cur) { msgEl.innerText = "Incorrect current password."; msgEl.className = "msg err"; return; }
+
+  const { error } = await sb.from("users").update({ password: nw }).eq("username", me);
+  if (error) { msgEl.innerText = "Error: " + error.message; msgEl.className = "msg err"; return; }
+  msgEl.innerText = "Password changed successfully!";
+  msgEl.className = "msg ok";
+  document.getElementById("currentPass").value = "";
+  document.getElementById("newPass").value = "";
+  document.getElementById("confirmPass").value = "";
 }
+
+// Init
+const cur = localStorage.getItem("theme") || "classic";
+document.getElementById("sw-" + cur).classList.add("active");
+const th = themeColors[cur];
+if (th) { document.body.style.background = th.body; document.querySelector(".topbar").style.background = th.topbar; }
+document.getElementById("infoUser").innerText = "@" + me;
+
+async function loadInfo() {
+  const { data } = await sb.from("users").select("created_at").eq("username", me).maybeSingle();
+  if (data && data.created_at) {
+    document.getElementById("infoJoined").innerText = new Date(data.created_at).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
+  }
+}
+loadInfo();
 </script>
 </body>
 </html>
