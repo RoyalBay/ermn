@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>ermn · User</title>
+<title>ermn. · User</title>
 <link rel="icon" href="wicon.png">
 <style>
 :root {
@@ -146,7 +146,7 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
 <body>
 
 <div class="topbar">
-  <span class="topbar-logo">ermn</span>
+  <span class="topbar-logo">ermn.</span>
   <div class="topbar-right">
     <button onclick="history.back()">← Back</button>
     <button onclick="location.href='feed.html'">&#127968; Feed</button>
@@ -304,7 +304,7 @@ function closeModal() {
 }
 
 async function load() {
-  document.title = "ermn · @" + viewUser;
+  document.title = "ermn. · @" + viewUser;
 
   const { data: user } = await sb.from("users").select("pic, bio").eq("username", viewUser).maybeSingle();
   const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", viewUser);
