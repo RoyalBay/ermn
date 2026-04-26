@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>spenium.github.io · login</title>
+  <title>ermn. · login</title>
   <link rel="icon" href="wicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
   <style>
@@ -269,11 +269,11 @@
 
 <body>
   <div class="topbar">
-    <span class="topbar-logo" id="siteLogo">spenium.github.io</span>
+    <span class="topbar-logo" id="siteLogo">ermn.</span>
     <div class="topbar-links"><a href="#">About</a><a href="#">Help</a><a href="#">Privacy</a></div>
   </div>
   <div class="hero">
-    <div class="hero-title" id="heroTitle">spenium.github.io</div>
+    <div class="hero-title" id="heroTitle">ermn.</div>
     <div class="hero-tagline">whenever. wherever. whoever.</div>
   </div>
   <div class="main">
@@ -288,7 +288,7 @@
         <li>Search &amp; discover posts</li>
       </ul>
       <div style="margin-top:14px;font-size:12px;color:#888;font-style:italic;">
-        Join thousands of users already on spenium.github.io.
+        Join thousands of users already on ermn.
       </div>
     </div>
     <div class="login-box">
@@ -304,7 +304,7 @@
     </div>
   </div>
   <div class="footer">
-    &copy; 2026 spenium.github.io - v1.7 &nbsp;·&nbsp; <a href="#">Terms</a> &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a
+    &copy; 2026 ermn. - v1.7 &nbsp;·&nbsp; <a href="#">Terms</a> &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a
       href="#">Help</a>
   </div>
 
@@ -383,7 +383,7 @@
     // Spenium branding: if spenium.txt exists in the repo, update the site name
     fetch('spenium.txt', { method: 'HEAD' }).then(function (res) {
       if (res.ok) {
-        var brand = "spenium.github.io";
+        var brand = "ermn.";
         document.getElementById("siteLogo").textContent = brand;
         document.getElementById("heroTitle").textContent = brand;
         document.title = brand + " · login";
