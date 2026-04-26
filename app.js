@@ -11,7 +11,7 @@ const _picCache = {};  // username → pic data URL, persists for the session
 let _currentPage = 0;  // 0-based page index
 
 /* ── GLOBALS ── */
-const ADMIN_USER = "spenium.github.io";
+const ADMIN_USER = "ermn";
 
 // Inject Badge Styles
 const style = document.createElement('style');
