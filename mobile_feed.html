@@ -66,6 +66,13 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
 .bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;-webkit-tap-highlight-color:transparent;}
 .bottom-nav a:active{background:rgba(255,255,255,0.1);}
 .bottom-nav a .icon{font-size:20px;}
+
+/* PAGINATION */
+.page-controls{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 0;}
+.page-btn{background:var(--accent);color:white;border:none;padding:8px 14px;font-size:13px;font-weight:bold;cursor:pointer;border-radius:2px;-webkit-tap-highlight-color:transparent;}
+.page-btn:active{opacity:0.8;}
+.page-btn[disabled]{background:#bbb;cursor:default;opacity:0.6;}
+.page-info{font-size:12px;color:#666;font-style:italic;}
 </style>
 </head>
 <body>
@@ -77,6 +84,10 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
 </div>
 
 <div class="search-row">
+  <select id="searchMode" onchange="onModeChange()" style="padding:8px 4px;border:1px solid #bbb;font-size:13px;background:#fafafa;">
+    <option value="posts">📝</option>
+    <option value="users">👤</option>
+  </select>
   <input id="searchInput" placeholder="Search posts..." onkeydown="if(event.key==='Enter')doSearch()">
   <select id="sortSelect" onchange="doSearch()">
     <option value="newest">Newest</option>
@@ -94,27 +105,62 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
   </div>
   <div id="loading" style="text-align:center;padding:20px;color:#888;font-style:italic;">Loading...</div>
   <div id="posts"></div>
+  <div id="pagination"></div>
 </div>
 
 <nav class="bottom-nav">
   <a href="mobile_feed.html"><span class="icon">🏠</span>Feed</a>
   <a href="mobile_profile.html"><span class="icon">👤</span>Profile</a>
-  <a href="settings.html"><span class="icon">⚙</span>Settings</a>
+  <a href="mobile_settings.html"><span class="icon">⚙</span>Settings</a>
 </nav>
 
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
 const cu = localStorage.getItem("currentUser");
 if (!cu) location.href = "mobile.html";
+// Admin always uses desktop
+if (cu && cu.toLowerCase() === "ermn") location.href = "feed.html";
 
 function logout(){ localStorage.removeItem("currentUser"); location.href="mobile.html"; }
 
-function doSearch(){
-  const q = document.getElementById("searchInput").value.trim();
-  const s = document.getElementById("sortSelect").value;
-  render(q, s);
+function onModeChange(){
+  const mode = document.getElementById("searchMode").value;
+  const sortEl = document.getElementById("sortSelect");
+  const inp = document.getElementById("searchInput");
+  if (mode === "users") {
+    sortEl.style.display = "none";
+    inp.placeholder = "Search users...";
+  } else {
+    sortEl.style.display = "";
+    inp.placeholder = "Search posts...";
+  }
+  document.getElementById("posts").innerHTML = "";
+  document.getElementById("pagination").innerHTML = "";
+  inp.value = "";
+  _searchQ = "";
+  if (mode !== "users") render(null, null, 0);
 }
+
+function doSearch(){
+  const mode = document.getElementById("searchMode").value;
+  _searchQ = document.getElementById("searchInput").value.trim();
+  _sortMode = document.getElementById("sortSelect").value;
+  _currentPage = 0;
+  if (mode === "users") {
+    renderUserSearch(_searchQ);
+  } else {
+    render(_searchQ, _sortMode, 0);
+  }
+}
+
+function goPage(p){
+  window.scrollTo(0,0);
+  render(_searchQ || "", _sortMode || "newest", p);
+}
+
+let _searchQ = "", _sortMode = "newest";
 
 applyTheme();
 render().then(()=>{ const l=document.getElementById("loading"); if(l)l.style.display="none"; });

@@ -1,11 +1,70 @@
-const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
+// Keys resolved by config.js (synchronous spenium.txt check)
+const SUPABASE_URL = window.ERMN_URL;
+const SUPABASE_KEY = window.ERMN_KEY;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = localStorage.getItem("currentUser");
 
+/* ── EGRESS OPTIMISATION ── */
+const POST_LIMIT = 20; // posts per page
+const _picCache = {};  // username → pic data URL, persists for the session
+let _currentPage = 0;  // 0-based page index
+
+/* ── GLOBALS ── */
+const ADMIN_USER = "spenium.github.io";
+
+// Inject Badge Styles
+const style = document.createElement('style');
+style.textContent = `
+  .badge-icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-color: var(--accent);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    vertical-align: middle;
+    margin-left: 3px;
+    cursor: pointer;
+    position: relative;
+  }
+  .badge-icon::after {
+    content: attr(data-title);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    z-index: 1000;
+  }
+  .badge-icon:hover::after {
+    opacity: 1;
+  }
+  .badge-verified {
+    -webkit-mask-image: url('verifiedbadge.png');
+    mask-image: url('verifiedbadge.png');
+  }
+  .badge-developer {
+    -webkit-mask-image: url('devbadge.png');
+    mask-image: url('devbadge.png');
+  }
+`;
+document.head.appendChild(style);
+
 /* ── ADMIN ── */
-const ADMIN_USER = "ermn";
 function isAdmin() {
   return currentUser && currentUser.toLowerCase() === ADMIN_USER.toLowerCase();
 }
@@ -54,13 +113,31 @@ async function post() {
   const textEl = document.getElementById("text");
   const t = (textEl.value || "").trim();
   if (!t) return;
-  if (!currentUser) { alert("Not logged in."); return; }
-  if (containsBadWord(t)) { alert("Your post contains prohibited language and cannot be submitted."); return; }
+  if (!currentUser) { await uiAlert("Not logged in."); return; }
+  if (containsBadWord(t)) { await uiAlert("Your post contains prohibited language and cannot be submitted."); return; }
   const btn = document.getElementById("postBtn");
   if (btn) btn.disabled = true;
-  const { error } = await sb.from("posts").insert({ username: currentUser, text: t });
+  
+  // Insert the post
+  const { data: insertedPost, error } = await sb.from("posts").insert({ username: currentUser, text: t }).select().single();
+  if (error) { await uiAlert("Error posting: " + error.message); if (btn) btn.disabled = false; return; }
+  
+  // Check for poll options
+  const pollOpts = [];
+  for (let i=1; i<=4; i++) {
+    const optEl = document.getElementById("pollOpt"+i);
+    if (optEl && optEl.value.trim()) {
+      pollOpts.push({ text: optEl.value.trim(), votes: 0 });
+      optEl.value = "";
+    }
+  }
+  if (pollOpts.length >= 2) {
+    await sb.from("polls").insert({ post_id: insertedPost.id, options: pollOpts });
+  }
+  const pollContainer = document.getElementById("pollInputs");
+  if (pollContainer) pollContainer.style.display = "none";
+  
   if (btn) btn.disabled = false;
-  if (error) { alert("Error posting: " + error.message); return; }
   textEl.value = "";
   await render();
 }
@@ -83,14 +160,28 @@ async function like(postId) {
 async function follow(targetUser) {
   if (!currentUser || targetUser===currentUser) return;
   const { data: existing } = await sb.from("follows").select("follower").eq("follower",currentUser).eq("following",targetUser).maybeSingle();
-  if (existing) { await sb.from("follows").delete().eq("follower",currentUser).eq("following",targetUser); }
-  else { await sb.from("follows").insert({ follower:currentUser, following:targetUser }); }
+  if (existing) {
+    await sb.from("follows").delete().eq("follower",currentUser).eq("following",targetUser);
+  } else {
+    // Check if private
+    const { data: targetData } = await sb.from("users").select("is_private").eq("username", targetUser).maybeSingle();
+    if (targetData && targetData.is_private) {
+      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", currentUser).eq("target", targetUser).maybeSingle();
+      if (existingReq) {
+        await sb.from("follow_requests").delete().eq("requester", currentUser).eq("target", targetUser);
+      } else {
+        await sb.from("follow_requests").insert({ requester: currentUser, target: targetUser });
+      }
+    } else {
+      await sb.from("follows").insert({ follower:currentUser, following:targetUser });
+    }
+  }
   await render();
 }
 
 /* ── DELETE own post ── */
 async function del(postId) {
-  if (!confirm("Delete this post?")) return;
+  if (!(await uiConfirm("Delete this post?"))) return;
   await sb.from("likes").delete().eq("post_id",postId);
   await sb.from("comments").delete().eq("post_id",postId);
   await sb.from("reports").delete().eq("post_id",postId);
@@ -101,7 +192,7 @@ async function del(postId) {
 /* ── ADMIN: delete any post ── */
 async function adminDelPost(postId) {
   if (!isAdmin()) return;
-  if (!confirm("Admin: permanently delete this post?")) return;
+  if (!(await uiConfirm("Admin: permanently delete this post?"))) return;
   await sb.from("likes").delete().eq("post_id",postId);
   await sb.from("comments").delete().eq("post_id",postId);
   await sb.from("reports").delete().eq("post_id",postId);
@@ -110,10 +201,10 @@ async function adminDelPost(postId) {
 }
 
 /* ── ADMIN: ban user ── */
-async function adminBanUser(username) {
+async function adminBanUser(username, skipConfirm=false) {
   if (!isAdmin()) return;
-  if (username.toLowerCase()===ADMIN_USER.toLowerCase()) { alert("Cannot ban admin."); return; }
-  if (!confirm("Admin: ban @"+username+"? This deletes all their content and blocks login.")) return;
+  if (username.toLowerCase()===ADMIN_USER.toLowerCase()) { await uiAlert("Cannot ban admin."); return; }
+  if (!skipConfirm && !(await uiConfirm("Admin: ban @"+username+"? This deletes all their content and blocks login."))) return;
   const { data: userPosts } = await sb.from("posts").select("id").eq("username",username);
   if (userPosts && userPosts.length) {
     const ids = userPosts.map(p=>p.id);
@@ -127,27 +218,27 @@ async function adminBanUser(username) {
   await sb.from("follows").delete().eq("follower",username);
   await sb.from("follows").delete().eq("following",username);
   await sb.from("banned_users").upsert({ username: username.toLowerCase() });
-  await render();
-  alert("@"+username+" has been banned.");
+  if (typeof render === "function") await render();
+  await uiAlert("@"+username+" has been banned.");
 }
 
 /* ── ADMIN: delete any comment ── */
 async function adminDelComment(commentId, postId) {
   if (!isAdmin()) return;
-  if (!confirm("Admin: delete this comment?")) return;
+  if (!(await uiConfirm("Admin: delete this comment?"))) return;
   await sb.from("comments").delete().eq("id",commentId);
   await loadComments(postId);
 }
 
 /* ── REPORT ── */
 async function reportPost(postId, postUsername) {
-  if (!currentUser) { alert("Log in to report posts."); return; }
-  const reason = prompt("Report this post to admin?\nOptionally describe the issue:");
+  if (!currentUser) { await uiAlert("Log in to report posts."); return; }
+  const reason = await uiPrompt("Report this post to admin?\nOptionally describe the issue:");
   if (reason === null) return;
   const { data: existing } = await sb.from("reports").select("id").eq("post_id",postId).eq("reporter",currentUser).maybeSingle();
-  if (existing) { alert("You already reported this post."); return; }
+  if (existing) { await uiAlert("You already reported this post."); return; }
   await sb.from("reports").insert({ post_id:postId, reporter:currentUser, reported_user:postUsername, reason:reason||"No reason given" });
-  alert("Report submitted. Thank you.");
+  await uiAlert("Report submitted. Thank you.");
 }
 
 /* ── COMMENTS ── */
@@ -185,10 +276,10 @@ async function addComment(postId) {
   if (!inp) return;
   const t = inp.value.trim();
   if (!t||!currentUser) return;
-  if (containsBadWord(t)) { alert("Your comment contains prohibited language."); return; }
+  if (containsBadWord(t)) { await uiAlert("Your comment contains prohibited language."); return; }
   inp.value = "";
   const { error } = await sb.from("comments").insert({ post_id:postId, username:currentUser, text:t });
-  if (error) { alert("Error: "+error.message); return; }
+  if (error) { await uiAlert("Error: "+error.message); return; }
   await loadComments(postId);
 }
 
@@ -203,7 +294,8 @@ async function upload(file) {
   const reader = new FileReader();
   reader.onload = async () => {
     const { error } = await sb.from("users").update({ pic:reader.result }).eq("username",currentUser);
-    if (error) { alert("Error uploading pic: "+error.message); return; }
+    if (error) { await uiAlert("Error uploading pic: "+error.message); return; }
+    delete _picCache[currentUser]; // invalidate so next render fetches fresh pic
     const rp = document.getElementById("rightPic");
     if (rp) rp.src = reader.result;
     await render();
@@ -211,9 +303,35 @@ async function upload(file) {
   reader.readAsDataURL(file);
 }
 
-/* ── ESCAPE ── */
+/* ── ESCAPE & TEXT RENDERING ── */
 function escapeHtml(str) {
   return (str||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function getUserPageLink(username) {
+  const isMobile = window.location.pathname.includes("mobile_");
+  const page = isMobile ? "mobile_userpage.html" : "userpage.html";
+  return page + "?user=" + encodeURIComponent(username);
+}
+
+function getHomeLink() {
+  const isMobile = window.location.pathname.includes("mobile_");
+  return isMobile ? "mobile_feed.html" : "feed.html";
+}
+
+function renderPostText(text) {
+  let escaped = escapeHtml(filterText(text));
+  // Linkify @username
+  escaped = escaped.replace(/@([a-zA-Z0-9_]+)/g, (match, p1) => {
+    return '<a href="' + getUserPageLink(p1) + '" style="color:var(--accent);text-decoration:none;">@' + p1 + '</a>';
+  });
+  // Linkify #hashtag
+  escaped = escaped.replace(/#([a-zA-Z0-9_]+)/g, (match, p1) => {
+    const isMobile = window.location.pathname.includes("mobile_");
+    const feedPage = isMobile ? "mobile_feed.html" : "feed.html";
+    return '<a href="' + feedPage + '?tag=' + p1 + '" class="hashtag" style="color:var(--accent);text-decoration:none;font-weight:bold;">#' + p1 + '</a>';
+  });
+  return escaped;
 }
 
 /* ── TIME AGO ── */
@@ -226,32 +344,69 @@ function timeAgo(dateStr) {
 }
 
 /* ── RENDER FEED ── */
-async function render(searchQuery, sortMode) {
+async function render(searchQuery, sortMode, page) {
   const feedEl = document.getElementById("posts");
   if (!feedEl) return;
 
-  let query = sb.from("posts").select("id,username,text,created_at");
+  // Allow callers to set the page; default to current global page
+  if (typeof page === "number") _currentPage = page;
+
+  // ── 1. Fetch posts for current page only ──
+  const from = _currentPage * POST_LIMIT;
+  const to   = from + POST_LIMIT - 1;
+  let query = sb.from("posts").select("id,username,text,created_at,edited_at,repost_of", { count: "exact" });
   if (searchQuery && searchQuery.trim()) {
-    query = query.ilike("text", "%"+searchQuery.trim()+"%");
+    if (searchQuery.startsWith("#")) {
+      query = query.ilike("text", "%" + searchQuery.trim() + "%");
+    } else {
+      query = query.ilike("text", "%"+searchQuery.trim()+"%");
+    }
   }
   if (sortMode==="oldest") {
     query = query.order("created_at",{ascending:true});
   } else {
     query = query.order("created_at",{ascending:false});
   }
+  query = query.range(from, to);
 
-  const { data: posts, error } = await query;
+  const { data: posts, error, count: totalPosts } = await query;
   if (error) { feedEl.innerHTML = "<p>Error loading posts.</p>"; return; }
 
-  const [{ data: myLikes },{ data: myFollows },{ data: allLikes },{ data: allUsers }] = await Promise.all([
+  const postIds = (posts||[]).map(p=>p.id);
+
+  // ── 2. Scope queries to visible data only ──
+  const visibleAuthors = [...new Set((posts||[]).map(p=>p.username))];
+  if (!visibleAuthors.includes(currentUser)) visibleAuthors.push(currentUser);
+
+  const [{ data: myLikes },{ data: myFollows },{ data: allLikes },{ data: commentCounts }, { data: blockedUsers }, { data: polls }, { data: pollVotes }, { data: repostedPosts }] = await Promise.all([
     sb.from("likes").select("post_id").eq("username",currentUser),
     sb.from("follows").select("following").eq("follower",currentUser),
-    sb.from("likes").select("post_id"),
-    sb.from("users").select("username,pic,bio"),
+    postIds.length ? sb.from("likes").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
+    postIds.length ? sb.from("comments").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("blocked_users").select("blocked").eq("blocker", currentUser) : Promise.resolve({data:[]}),
+    postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({data:[]}),
+    postIds.length && currentUser ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", currentUser) : Promise.resolve({data:[]}),
+    (posts||[]).filter(p=>p.repost_of).length ? sb.from("posts").select("id,username,text").in("id", posts.filter(p=>p.repost_of).map(p=>p.repost_of)) : Promise.resolve({data:[]})
   ]);
 
-  const postIds = (posts||[]).map(p=>p.id);
-  const { data: commentCounts } = postIds.length ? await sb.from("comments").select("post_id").in("post_id",postIds) : { data:[] };
+  const blockedSet = new Set((blockedUsers||[]).map(b => b.blocked));
+  const repostMap = {};
+  (repostedPosts||[]).forEach(rp => { repostMap[rp.id] = rp; visibleAuthors.push(rp.username); });
+
+  const pollMap = {};
+  (polls||[]).forEach(p => { pollMap[p.post_id] = p.options; });
+  const myVoteMap = {};
+  (pollVotes||[]).forEach(pv => { myVoteMap[pv.post_id] = pv.option_index; });
+
+  // ── 3. Pic cache: only fetch users whose pic isn't cached yet ──
+  const uncached = visibleAuthors.filter(u => !_picCache[u]);
+  if (uncached.length) {
+    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer").in("username",uncached);
+    (freshUsers||[]).forEach(u => { _picCache[u.username] = u; });
+  }
+  const userMap = {};
+  visibleAuthors.forEach(u => { userMap[u] = _picCache[u] || {}; });
+
   const commentMap = {};
   (commentCounts||[]).forEach(c=>{ commentMap[c.post_id]=(commentMap[c.post_id]||0)+1; });
 
@@ -259,8 +414,6 @@ async function render(searchQuery, sortMode) {
   const followSet = new Set((myFollows||[]).map(f=>f.following));
   const likeMap = {};
   (allLikes||[]).forEach(l=>{ likeMap[l.post_id]=(likeMap[l.post_id]||0)+1; });
-  const userMap = {};
-  (allUsers||[]).forEach(u=>{ userMap[u.username]=u; });
 
   let sortedPosts = posts||[];
   if (sortMode==="popular") {
@@ -274,8 +427,12 @@ async function render(searchQuery, sortMode) {
 
   feedEl.innerHTML = "";
 
+  // Filter out blocked users' posts
+  sortedPosts = sortedPosts.filter(p => !blockedSet.has(p.username));
+
   if (!sortedPosts.length) {
     feedEl.innerHTML = "<div style='text-align:center;padding:24px;color:#888;font-style:italic;'>No posts found.</div>";
+    updateTrendingHashtags([]);
     return;
   }
 
@@ -297,27 +454,70 @@ async function render(searchQuery, sortMode) {
         '</div>'
       : '';
 
+    const isVerified = uInfo.verified || false;
+    const isDeveloper = uInfo.is_developer || false;
+    const editedLabel = p.edited_at ? ' <span class="edited-label" style="font-size:10px;color:#999;font-style:italic;" title="Edited at '+new Date(p.edited_at).toLocaleString()+'">(edited)</span>' : '';
+    
+    let badges = '';
+    if (isVerified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
+    if (isDeveloper) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
+    
+    let repostHtml = '';
+    if (p.repost_of && repostMap[p.repost_of]) {
+      const rp = repostMap[p.repost_of];
+      repostHtml = '<div class="repost-banner" style="font-size:11px;color:#666;margin-bottom:6px;">&#128257; Reposted from <a href="'+getUserPageLink(rp.username)+'" style="color:var(--accent);text-decoration:none;">@'+escapeHtml(rp.username)+'</a></div>'+
+                   '<div class="repost-content" style="border-left:3px solid var(--accent);padding-left:10px;margin-bottom:10px;color:#555;">'+renderPostText(rp.text)+'</div>';
+    }
+
+    let pollHtml = '';
+    if (pollMap[p.id]) {
+      const options = pollMap[p.id];
+      const myVote = myVoteMap[p.id];
+      const totalVotes = options.reduce((sum, opt) => sum + (opt.votes||0), 0);
+      pollHtml = '<div class="poll-container" style="margin:10px 0;background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:10px;">';
+      options.forEach((opt, idx) => {
+        const pct = totalVotes > 0 ? Math.round(((opt.votes||0) / totalVotes) * 100) : 0;
+        const isMyVote = myVote === idx;
+        pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
+                      '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'#d0e0ff':'#e0e0e0')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
+                      '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
+                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'✓':'')+'</span><span>'+pct+'%</span>'+
+                      '</div>'+
+                    '</div>';
+      });
+      pollHtml += '<div style="font-size:11px;color:#888;text-align:right;">'+totalVotes+' vote'+(totalVotes!==1?'s':'')+'</div></div>';
+    }
+
+    const editTimeWindow = 15 * 60 * 1000; // 15 mins
+    const canEdit = isOwn && (Date.now() - new Date(p.created_at).getTime() < editTimeWindow);
+
     const div = document.createElement("div");
     div.className = "post";
+    div.id = "post-"+p.id;
     div.innerHTML =
       '<div class="post-header">'+
-        '<a href="userpage.html?user='+encodeURIComponent(p.username)+'" class="post-avatar-link">'+
+        '<a href="'+getUserPageLink(p.username)+'" class="post-avatar-link">'+
           '<img class="post-avatar" src="'+escapeHtml(pic)+'" onerror="this.src=\'empty.jpg\'">'+
         '</a>'+
         '<div class="post-meta">'+
-          '<a href="userpage.html?user='+encodeURIComponent(p.username)+'" class="user-link">@'+escapeHtml(p.username)+'</a>'+
+          '<a href="'+getUserPageLink(p.username)+'" class="user-link">@'+escapeHtml(p.username)+'</a>'+
+          badges +
           (p.username!==currentUser
             ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')\">'+(isFollowing?"✓ Following":"+ Follow")+'</button>'
             : ' <span class="you-tag">you</span>')+
-          '<div class="post-time">'+timeAgo(p.created_at)+'</div>'+
+          '<div class="post-time">'+timeAgo(p.created_at)+editedLabel+'</div>'+
         '</div>'+
         (isOwn ? '<span class="delete" onclick="del('+p.id+')">✕</span>' : '')+
       '</div>'+
-      '<div class="post-text">'+escapeHtml(filterText(p.text))+'</div>'+
+      repostHtml +
+      '<div class="post-text" id="post-text-'+p.id+'">'+renderPostText(p.text)+'</div>'+
+      pollHtml +
       '<div class="post-actions">'+
         '<span id="likes-'+p.id+'" class="like-wrap"><span class="heart'+(liked?" liked":"")+'" onclick="like('+p.id+')">&#9829;</span> '+likeCount+' likes</span>'+
         '<span class="comment-toggle" onclick="toggleComments('+p.id+')">&#128172; '+commentCount+' comments</span>'+
-        (!isOwn ? '<span class="report-btn" onclick="reportPost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" title="Report this post">⚑ Report</span>' : '')+
+        (currentUser ? ' <span class="repost-btn" onclick="repost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" style="cursor:pointer;color:#555;">&#128257; Share</span>' : '')+
+        (canEdit ? ' <span class="edit-btn" onclick="editPostPrompt('+p.id+',\''+escapeHtml(p.text.replace(/'/g,"\\'"))+'\')" style="cursor:pointer;color:#555;margin-left:auto;">&#9998; Edit</span>' : '')+
+        (!isOwn ? '<span class="report-btn" onclick="reportPost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" title="Report this post" style="margin-left:auto;">⚑ Report</span>' : '')+
       '</div>'+
       adminBar+
       '<div id="comments-'+p.id+'" class="comment-box" data-postid="'+p.id+'" style="display:'+(isOpen?"block":"none")+'">'+
@@ -331,15 +531,252 @@ async function render(searchQuery, sortMode) {
     if (isOpen) loadComments(p.id);
   }
 
-  // Sidebar
+  // ── 4. Pagination controls ──
+  const totalPages = Math.ceil((totalPosts || 0) / POST_LIMIT);
+  const paginationEl = document.getElementById("pagination");
+  if (paginationEl) {
+    if (totalPages <= 1) {
+      paginationEl.innerHTML = "";
+    } else {
+      const hasPrev = _currentPage > 0;
+      const hasNext = _currentPage < totalPages - 1;
+      paginationEl.innerHTML =
+        '<div class="page-controls">'+
+          (hasPrev ? '<button class="page-btn" onclick="goPage('+ (_currentPage-1) +',this)">← Prev</button>' : '<button class="page-btn" disabled>← Prev</button>')+
+          '<span class="page-info">Page '+(_currentPage+1)+' of '+totalPages+'</span>'+
+          (hasNext ? '<button class="page-btn" onclick="goPage('+ (_currentPage+1) +',this)">Next →</button>' : '<button class="page-btn" disabled>Next →</button>')+
+        '</div>';
+    }
+  }
+
+  // ── 5. Sidebar: use cached user data, only fetch follow counts ──
   const me = userMap[currentUser]||{};
-  const { count: myFollowers } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following",currentUser);
-  const { count: myFollowing } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower",currentUser);
+  const [{ count: myFollowers },{ count: myFollowing }] = await Promise.all([
+    sb.from("follows").select("*",{count:"exact",head:true}).eq("following",currentUser),
+    sb.from("follows").select("*",{count:"exact",head:true}).eq("follower",currentUser),
+  ]);
 
   const rp=document.getElementById("rightPic"), rn=document.getElementById("rightName");
   const rf=document.getElementById("rightFollowers"), rb=document.getElementById("rightBio");
   if (rp) rp.src = me.pic||"empty.jpg";
-  if (rn) rn.innerHTML = '<a href="userpage.html?user='+encodeURIComponent(currentUser)+'" style="color:var(--accent);text-decoration:none;">@'+currentUser+'</a>'+(isAdmin()?' <span class="admin-badge">ADMIN</span>':'');
+  if (rn) rn.innerHTML = '<a href="'+getUserPageLink(currentUser)+'" style="color:var(--accent);text-decoration:none;">@'+currentUser+'</a>'+(isAdmin()?' <span class="admin-badge">ADMIN</span>':'');
   if (rf) rf.innerHTML = '<span>'+(myFollowers||0)+' followers</span> · <span>'+(myFollowing||0)+' following</span>';
   if (rb) rb.innerText = me.bio||"";
+}
+
+/* ── USER SEARCH ── */
+async function renderUserSearch(query) {
+  const feedEl = document.getElementById("posts");
+  const paginationEl = document.getElementById("pagination");
+  if (!feedEl) return;
+  if (paginationEl) paginationEl.innerHTML = "";
+
+  if (!query || !query.trim()) {
+    feedEl.innerHTML = "<div style='text-align:center;padding:24px;color:#888;font-style:italic;'>Type a username to search.</div>";
+    return;
+  }
+
+  feedEl.innerHTML = "<div style='text-align:center;padding:20px;color:#888;font-style:italic;'>Searching users...</div>";
+
+  const { data: users } = await sb.from("users")
+    .select("username,pic,bio,verified,is_developer")
+    .ilike("username", "%" + query.trim() + "%")
+    .limit(30);
+
+  if (!users || !users.length) {
+    feedEl.innerHTML = "<div style='text-align:center;padding:24px;color:#888;font-style:italic;'>No users found.</div>";
+    return;
+  }
+
+  const usernames = users.map(u => u.username);
+  const [{ data: myFollows }, { data: allFollowers }] = await Promise.all([
+    currentUser ? sb.from("follows").select("following").eq("follower", currentUser).in("following", usernames) : Promise.resolve({data:[]}),
+    sb.from("follows").select("following").in("following", usernames),
+  ]);
+
+  const followSet = new Set((myFollows||[]).map(f => f.following));
+  const followerMap = {};
+  (allFollowers||[]).forEach(f => { followerMap[f.following] = (followerMap[f.following]||0)+1; });
+
+  feedEl.innerHTML = "";
+  for (const u of users) {
+    const isMe = u.username === currentUser;
+    const isFollowing = followSet.has(u.username);
+    const fc = followerMap[u.username] || 0;
+    const isVerified = u.verified || false;
+    const isDeveloper = u.is_developer || false;
+    let badges = '';
+    if (isVerified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
+    if (isDeveloper) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
+    
+    const div = document.createElement("div");
+    div.className = "post";
+    div.innerHTML =
+      '<div class="post-header">'+
+        '<a href="'+getUserPageLink(u.username)+'" class="post-avatar-link">'+
+          '<img class="post-avatar" src="'+escapeHtml(u.pic||'')+'" onerror="this.src=\'empty.jpg\'">'+
+        '</a>'+
+        '<div class="post-meta">'+
+          '<a href="'+getUserPageLink(u.username)+'" class="user-link">@'+escapeHtml(u.username)+'</a>'+
+          badges +
+          (!isMe
+            ? ' <button class="follow-btn '+(isFollowing?'following':'')+'" onclick="searchFollow(\''+u.username+'\')">'+(isFollowing?'\u2713 Following':'+ Follow')+'</button>'
+            : ' <span class="you-tag">you</span>')+
+          '<div class="post-time">'+fc+' follower'+(fc!==1?'s':'')+'</div>'+
+          (u.bio ? '<div style="font-size:12px;color:#666;font-style:italic;margin-top:3px;">'+escapeHtml(u.bio)+'</div>' : '')+
+        '</div>'+
+      '</div>';
+    feedEl.appendChild(div);
+  }
+}
+
+async function searchFollow(targetUser) {
+  if (!currentUser || targetUser === currentUser) return;
+  // Check if target is private
+  const { data: targetData } = await sb.from("users").select("is_private").eq("username", targetUser).maybeSingle();
+  if (targetData && targetData.is_private) {
+    const { data: existingFollow } = await sb.from("follows").select("follower").eq("follower", currentUser).eq("following", targetUser).maybeSingle();
+    if (existingFollow) {
+      await sb.from("follows").delete().eq("follower", currentUser).eq("following", targetUser);
+    } else {
+      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", currentUser).eq("target", targetUser).maybeSingle();
+      if (existingReq) await sb.from("follow_requests").delete().eq("requester", currentUser).eq("target", targetUser);
+      else await sb.from("follow_requests").insert({ requester: currentUser, target: targetUser });
+      await uiAlert("Follow request sent to @" + targetUser);
+    }
+  } else {
+    const { data: existing } = await sb.from("follows").select("follower").eq("follower",currentUser).eq("following",targetUser).maybeSingle();
+    if (existing) { await sb.from("follows").delete().eq("follower",currentUser).eq("following",targetUser); }
+    else { await sb.from("follows").insert({ follower:currentUser, following:targetUser }); }
+  }
+  const inp = document.getElementById("searchInput");
+  if (inp) renderUserSearch(inp.value.trim());
+}
+
+/* ── HASHTAGS ── */
+function updateTrendingHashtags(posts) {
+  const trendingCard = document.getElementById("trendingCard");
+  if (!trendingCard) return;
+  const counts = {};
+  posts.forEach(p => {
+    const matches = p.text.match(/#([a-zA-Z0-9_]+)/g);
+    if (matches) {
+      matches.forEach(m => {
+        const tag = m.substring(1).toLowerCase();
+        counts[tag] = (counts[tag]||0) + 1;
+      });
+    }
+  });
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0, 5);
+  if (!sorted.length) {
+    trendingCard.style.display = "none";
+    return;
+  }
+  trendingCard.style.display = "block";
+  const list = trendingCard.querySelector(".card-body");
+  list.innerHTML = sorted.map(([tag, count]) => 
+    '<div style="margin-bottom:6px;"><a href="feed.html?tag='+tag+'" style="color:var(--accent);text-decoration:none;font-weight:bold;">#'+escapeHtml(tag)+'</a> <span style="font-size:11px;color:#888;">'+count+' posts</span></div>'
+  ).join('');
+}
+
+/* ── REPOST ── */
+async function repost(postId, originalAuthor) {
+  if (!currentUser) { await uiAlert("Log in to repost."); return; }
+  if (originalAuthor === currentUser) { await uiAlert("You cannot repost your own post."); return; }
+  const t = await uiPrompt("Repost @" + originalAuthor + "'s post?\nAdd your own comment (optional):");
+  if (t === null) return;
+  if (containsBadWord(t)) { await uiAlert("Your post contains prohibited language."); return; }
+  const { error } = await sb.from("posts").insert({ username: currentUser, text: t.trim()||" ", repost_of: postId });
+  if (error) { await uiAlert("Error reposting: " + error.message); return; }
+  await render();
+}
+
+/* ── EDIT POST ── */
+function editPostPrompt(postId, currentText) {
+  const pt = document.getElementById("post-text-"+postId);
+  if (!pt) return;
+  pt.innerHTML = '<textarea id="edit-input-'+postId+'" style="width:100%;height:60px;padding:6px;border:1px solid var(--border);border-radius:4px;font-family:inherit;resize:vertical;"></textarea>'+
+                 '<div style="margin-top:6px;text-align:right;">'+
+                   '<button onclick="render()" style="padding:4px 10px;background:#ddd;border:1px solid #ccc;cursor:pointer;margin-right:6px;">Cancel</button>'+
+                   '<button onclick="saveEditPost('+postId+')" style="padding:4px 10px;background:var(--accent);color:white;border:1px solid var(--accent);cursor:pointer;">Save Edit</button>'+
+                 '</div>';
+  const textarea = document.getElementById("edit-input-"+postId);
+  // Decode HTML entities safely using a dummy element
+  const doc = new DOMParser().parseFromString(currentText, "text/html");
+  textarea.value = doc.documentElement.textContent;
+  textarea.focus();
+}
+
+async function saveEditPost(postId) {
+  const textarea = document.getElementById("edit-input-"+postId);
+  if (!textarea) return;
+  const newText = textarea.value.trim();
+  if (!newText) { await uiAlert("Post cannot be empty."); return; }
+  if (containsBadWord(newText)) { await uiAlert("Your post contains prohibited language."); return; }
+  
+  const { error } = await sb.from("posts").update({ text: newText, edited_at: new Date().toISOString() }).eq("id", postId).eq("username", currentUser);
+  if (error) { await uiAlert("Error editing post: " + error.message); return; }
+  await render();
+}
+
+/* ── POLLS ── */
+async function votePoll(postId, optionIndex) {
+  if (!currentUser) { await uiAlert("Log in to vote."); return; }
+  const { data: existingVote } = await sb.from("poll_votes").select("*").eq("post_id", postId).eq("username", currentUser).maybeSingle();
+  if (existingVote) {
+    if (existingVote.option_index === optionIndex) return; // already voted for this option
+    // Update existing vote
+    await sb.from("poll_votes").update({ option_index: optionIndex }).eq("post_id", postId).eq("username", currentUser);
+    // Update poll options count
+    const { data: poll } = await sb.from("polls").select("options").eq("post_id", postId).single();
+    if (poll) {
+      poll.options[existingVote.option_index].votes = Math.max(0, (poll.options[existingVote.option_index].votes||0) - 1);
+      poll.options[optionIndex].votes = (poll.options[optionIndex].votes||0) + 1;
+      await sb.from("polls").update({ options: poll.options }).eq("post_id", postId);
+    }
+  } else {
+    // Insert new vote
+    await sb.from("poll_votes").insert({ post_id: postId, username: currentUser, option_index: optionIndex });
+    // Update poll options count
+    const { data: poll } = await sb.from("polls").select("options").eq("post_id", postId).single();
+    if (poll) {
+      poll.options[optionIndex].votes = (poll.options[optionIndex].votes||0) + 1;
+      await sb.from("polls").update({ options: poll.options }).eq("post_id", postId);
+    }
+  }
+  if (typeof render === "function") await render();
+  if (typeof load === "function") await load();
+}
+
+/* ── BLOCK USER ── */
+async function blockUserFromFeed(targetUser) {
+  if (!currentUser) return;
+  if (!(await uiConfirm("Block @"+targetUser+"? You won't see their posts and they will be removed from your followers/following."))) return;
+  
+  await sb.from("blocked_users").upsert({ blocker: currentUser, blocked: targetUser });
+  // Remove mutual follows
+  await sb.from("follows").delete().eq("follower", currentUser).eq("following", targetUser);
+  await sb.from("follows").delete().eq("follower", targetUser).eq("following", currentUser);
+  await uiAlert("@"+targetUser+" is now blocked.");
+  
+  if (location.href.includes("userpage.html")) {
+    location.reload();
+  } else {
+    await render();
+  }
+}
+
+async function unblockUser(targetUser) {
+  if (!currentUser) return;
+  await sb.from("blocked_users").delete().eq("blocker", currentUser).eq("blocked", targetUser);
+  await uiAlert("@"+targetUser+" has been unblocked.");
+  location.reload();
+}
+
+/* ── UI HELPERS ── */
+function togglePollInputs() {
+  const el = document.getElementById("pollInputs");
+  if (el) {
+    el.style.display = el.style.display === "none" ? "block" : "none";
+  }
 }

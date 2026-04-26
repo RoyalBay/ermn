@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ermn. · Profile</title>
+<link rel="icon" href="wicon.png">
+<style>
+:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:100vh;font-size:14px;padding-bottom:60px;color:var(--text);}
+.topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
+.main{padding:12px;}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:12px;overflow:hidden;}
+.card-title{background:linear-gradient(180deg,#e8edf7,#d8e0f0);border-bottom:1px solid var(--border);padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
+.card-body{padding:14px;}
+.profile-header{display:flex;gap:14px;align-items:flex-start;}
+#userPic{width:80px;height:80px;object-fit:cover;border:3px solid var(--border);border-radius:2px;}
+.profile-info h2{font-size:18px;color:var(--accent);}
+.stats{display:flex;gap:16px;margin-top:8px;font-size:13px;color:#555;}
+.stats span{cursor:pointer;}
+.stats strong{color:var(--accent);}
+.post{border-bottom:1px solid #eee;padding:10px 0;}
+.post:last-child{border-bottom:none;}
+.post-text{line-height:1.5;margin-bottom:4px;}
+.post-time{font-size:11px;color:#888;}
+.btn{background:var(--accent);color:white;border:none;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:bold;cursor:pointer;border-radius:2px;margin-top:10px;}
+.btn.following{background:#d0f0d0;color:#2a6e2a;border:1px solid #8ec88e;}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:50;}
+.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;}
+.bottom-nav a .icon{font-size:20px;}
+/* Modal */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;}
+.modal-backdrop.open{display:flex;}
+.modal{background:white;width:90%;max-width:300px;max-height:80vh;border-radius:8px;display:flex;flex-direction:column;overflow:hidden;}
+.modal-title{padding:12px;background:#f0f2f5;font-weight:bold;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;}
+.modal-list{flex:1;overflow-y:auto;padding:10px;}
+.modal-user{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee;}
+.modal-user img{width:32px;height:32px;object-fit:cover;border-radius:2px;}
+.modal-user a{text-decoration:none;color:var(--accent);font-weight:bold;font-size:14px;}
+</style>
+</head>
+<body>
+<div class="topbar"><span class="topbar-logo">ermn.</span></div>
+<div class="main">
+  <div class="card">
+    <div id="userBanner" style="height:100px;background:#ddd;background-size:cover;background-position:center;border-bottom:1px solid var(--border);display:none;"></div>
+    <div class="card-body">
+      <div class="profile-header">
+        <img id="userPic" src="empty.jpg" onerror="this.src='empty.jpg'">
+        <div class="profile-info">
+          <h2 id="userName">@loading</h2>
+          <div id="userBio" style="font-style:italic;color:#555;font-size:13px;margin-top:4px;"></div>
+          <div class="stats">
+            <span onclick="openModal('followers')"><strong id="statFollowers">0</strong> followers</span>
+            <span onclick="openModal('following')"><strong id="statFollowing">0</strong> following</span>
+          </div>
+          <div id="actions" style="margin-top:10px;">
+             <button id="followBtn" class="btn" onclick="toggleFollow()" style="display:none">Follow</button>
+             <button id="blockBtn" class="btn" onclick="blockUser()" style="display:none;background:#e55;margin-left:5px;">Block</button>
+             <div id="itsYou" style="display:none;font-size:12px;color:#888;">This is you · <a href="mobile_profile.html" style="color:var(--accent)">Edit</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title" id="postsTitle">Posts</div>
+    <div class="card-body" id="userPosts"><div style="color:#888;font-style:italic;">Loading...</div></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="mobile_feed.html"><span class="icon">🏠</span>Feed</a>
+  <a href="mobile_profile.html"><span class="icon">👤</span>Profile</a>
+  <a href="mobile_settings.html"><span class="icon">⚙</span>Settings</a>
+</nav>
+
+<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title"><span id="modalTitle">Users</span><span onclick="closeModal()" style="cursor:pointer">✕</span></div>
+    <div class="modal-list" id="modalList"></div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+const me = localStorage.getItem("currentUser");
+const params = new URLSearchParams(location.search);
+const viewUser = params.get("user") || me;
+let isFollowing = false, isBlocked = false;
+
+applyTheme();
+
+async function toggleFollow() {
+  if (!me) return;
+  const btn = document.getElementById("followBtn");
+  if (isFollowing) {
+    await sb.from("follows").delete().eq("follower", me).eq("following", viewUser);
+    isFollowing = false;
+    btn.innerText = "Follow"; btn.classList.remove("following");
+    const fc = parseInt(document.getElementById("statFollowers").innerText);
+    if (!isNaN(fc)) document.getElementById("statFollowers").innerText = Math.max(0, fc - 1);
+  } else {
+    const { data: targetData } = await sb.from("users").select("is_private").eq("username", viewUser).maybeSingle();
+    if (targetData && targetData.is_private) {
+      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
+      if (existingReq) {
+        await sb.from("follow_requests").delete().eq("requester", me).eq("target", viewUser);
+        btn.innerText = "Follow";
+      } else {
+        await sb.from("follow_requests").insert({ requester: me, target: viewUser });
+        btn.innerText = "⏳ Requested";
+      }
+    } else {
+      await sb.from("follows").insert({ follower: me, following: viewUser });
+      isFollowing = true;
+      btn.innerText = "✓ Following"; btn.classList.add("following");
+      const fc = parseInt(document.getElementById("statFollowers").innerText);
+      if (!isNaN(fc)) document.getElementById("statFollowers").innerText = fc + 1;
+    }
+  }
+}
+
+async function blockUser() {
+  if (!me || me === viewUser) return;
+  if (isBlocked) await unblockUser(viewUser); else await blockUserFromFeed(viewUser);
+}
+
+async function openModal(type) {
+  const bg = document.getElementById("modalBackdrop");
+  bg.classList.add("open");
+  document.getElementById("modalTitle").innerText = type==="followers"?"Followers":"Following";
+  const list = document.getElementById("modalList");
+  list.innerHTML = "<div style='color:#888'>Loading...</div>";
+  let usernames = [];
+  if (type === "followers") {
+    const { data } = await sb.from("follows").select("follower").eq("following", viewUser);
+    usernames = (data || []).map(r => r.follower);
+  } else {
+    const { data } = await sb.from("follows").select("following").eq("follower", viewUser);
+    usernames = (data || []).map(r => r.following);
+  }
+  if (!usernames.length) { list.innerHTML = "<div style='color:#888;font-style:italic;'>Nobody here yet.</div>"; return; }
+  const { data: users } = await sb.from("users").select("username, pic").in("username", usernames);
+  const uMap = {}; (users || []).forEach(u => { uMap[u.username] = u; });
+  list.innerHTML = "";
+  for (const u of usernames) {
+    const info = uMap[u] || {};
+    const d = document.createElement("div"); d.className = "modal-user";
+    d.innerHTML = '<img src="' + (info.pic || "empty.jpg") + '" onerror="this.src=\'empty.jpg\'">' +
+      '<a href="' + getUserPageLink(u) + '">@' + escapeHtml(u) + '</a>';
+    list.appendChild(d);
+  }
+}
+function closeModal(){ document.getElementById("modalBackdrop").classList.remove("open"); }
+
+async function load() {
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private").eq("username", viewUser).maybeSingle();
+  const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", viewUser);
+  const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", viewUser);
+  const { data: posts } = await sb.from("posts").select("id, text, created_at").eq("username", viewUser).order("created_at", { ascending: false });
+
+  let badges = '';
+  if (user && user.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
+  if (user && user.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
+  document.getElementById("userName").innerHTML = "@" + escapeHtml(viewUser) + badges;
+  document.getElementById("userBio").innerText = (user && user.bio) || "";
+  document.getElementById("userPic").src = (user && user.pic) || "empty.jpg";
+  if (user && user.banner) {
+    document.getElementById("userBanner").style.backgroundImage = "url('" + user.banner + "')";
+    document.getElementById("userBanner").style.display = "block";
+  }
+  document.getElementById("statFollowers").innerText = fc || 0;
+  document.getElementById("statFollowing").innerText = fgc || 0;
+  document.getElementById("postsTitle").innerText = "📝 Posts by @" + viewUser;
+
+  if (me && viewUser !== me) {
+    document.getElementById("followBtn").style.display = "inline-block";
+    document.getElementById("blockBtn").style.display = "inline-block";
+    const { data: blockCheck } = await sb.from("blocked_users").select("blocked").eq("blocker", me).eq("blocked", viewUser).maybeSingle();
+    isBlocked = !!blockCheck;
+    if (isBlocked) document.getElementById("blockBtn").innerText = "Unblock";
+    const { data: fcheck } = await sb.from("follows").select("follower").eq("follower", me).eq("following", viewUser).maybeSingle();
+    isFollowing = !!fcheck;
+    const btn = document.getElementById("followBtn");
+    if (isFollowing) { btn.innerText = "✓ Following"; btn.classList.add("following"); }
+    else {
+      const { data: reqCheck } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
+      if (reqCheck) btn.innerText = "⏳ Requested"; else btn.innerText = "Follow";
+    }
+  } else if (viewUser === me) {
+    document.getElementById("itsYou").style.display = "block";
+  }
+
+  if (user && user.is_private && me !== viewUser && !isFollowing) {
+    document.getElementById("userPosts").innerHTML = "<div style='color:#888;font-style:italic;padding:20px;text-align:center;'>🔒 This account is private.</div>";
+    document.getElementById("statFollowers").innerText = "-";
+    document.getElementById("statFollowing").innerText = "-";
+    return;
+  }
+
+  const postIds = (posts || []).map(p => p.id);
+  const [{ data: polls }, { data: pollVotes }] = await Promise.all([
+    postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({ data: [] }),
+    postIds.length && me ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", me) : Promise.resolve({ data: [] })
+  ]);
+
+  const pollMap = {};
+  (polls || []).forEach(pl => { pollMap[pl.post_id] = pl.options; });
+  const myVoteMap = {};
+  (pollVotes || []).forEach(pv => { myVoteMap[pv.post_id] = pv.option_index; });
+
+  const postsEl = document.getElementById("userPosts");
+  if (!posts || !posts.length) { postsEl.innerHTML = "<div style='color:#888;font-style:italic;'>No posts yet.</div>"; return; }
+  postsEl.innerHTML = "";
+  for (const p of posts) {
+    let pollHtml = '';
+    if (pollMap[p.id]) {
+      const options = pollMap[p.id];
+      const myVote = myVoteMap[p.id];
+      const totalVotes = options.reduce((sum, opt) => sum + (opt.votes||0), 0);
+      pollHtml = '<div class="poll-container" style="margin:10px 0;background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:10px;">';
+      options.forEach((opt, idx) => {
+        const pct = totalVotes > 0 ? Math.round(((opt.votes||0) / totalVotes) * 100) : 0;
+        const isMyVote = myVote === idx;
+        pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
+                      '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'#d0e0ff':'#e0e0e0')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
+                      '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
+                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'✓':'')+'</span><span>'+pct+'%</span>'+
+                      '</div>'+
+                    '</div>';
+      });
+      pollHtml += '<div style="font-size:11px;color:#888;text-align:right;">'+totalVotes+' vote'+(totalVotes!==1?'s':'')+'</div></div>';
+    }
+
+    const d = document.createElement("div"); d.className = "post";
+    d.innerHTML = '<div class="post-text">' + escapeHtml(p.text) + '</div>' +
+      pollHtml +
+      '<div class="post-time">' + timeAgo(p.created_at) + '</div>';
+    postsEl.appendChild(d);
+  }
+}
+load();
+</script>
+</body>
+</html>

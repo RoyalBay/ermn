@@ -1,158 +1,395 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ermn. · login</title>
-<link rel="icon" href="wicon.png">
-<link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
-<style>
-:root { --accent:#3b5998; --accent2:#8b9dc3; --bg1:#dfe7f3; --bg2:#f5f6f7; }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Tahoma,Verdana,sans-serif;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 100%);min-height:100vh;}
-.topbar{background:var(--accent);height:42px;display:flex;align-items:center;padding:0 12px;border-bottom:2px solid #2a4070;box-shadow:0 2px 4px rgba(0,0,0,0.3);}
-.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;text-shadow:1px 1px 2px rgba(0,0,0,0.4);}
-.topbar-links{margin-left:auto;display:flex;gap:12px;font-size:12px;color:#ccd5e8;}
-.topbar-links a{color:#ccd5e8;text-decoration:none;}
-.topbar-links a:hover{color:white;text-decoration:underline;}
-.hero{text-align:center;padding:32px 16px 10px;}
-.hero-title{font-size:48px;font-weight:bold;color:var(--accent);letter-spacing:-3px;font-style:italic;text-shadow:2px 2px 0px rgba(59,89,152,0.2);}
-.hero-tagline{font-size:14px;color:#667;margin-top:4px;font-style:italic;}
-.main{display:flex;max-width:700px;margin:20px auto;gap:16px;padding:0 12px;flex-wrap:wrap;}
-.info-box{flex:1;min-width:200px;background:white;border:1px solid #b0b7c3;padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.9);}
-.info-box h2{font-size:16px;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:4px;margin-bottom:10px;}
-.info-box ul{list-style:none;padding:0;}
-.info-box ul li{font-size:13px;color:#444;padding:4px 0;border-bottom:1px dotted #ddd;}
-.info-box ul li::before{content:"✦ ";color:var(--accent);}
-.login-box{width:240px;background:white;border:1px solid #b0b7c3;padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.9);}
-.login-box h3{font-size:14px;color:white;background:var(--accent);margin:-14px -14px 12px;padding:8px 14px;font-weight:bold;}
-.login-box label{display:block;font-size:12px;color:#444;margin-bottom:2px;font-weight:bold;}
-.login-box input{width:100%;padding:5px 6px;border:1px solid #aaa;font-size:13px;margin-bottom:8px;font-family:inherit;background:#f9f9f9;}
-.login-box input:focus{outline:none;border-color:var(--accent);background:white;}
-.btn-blue{width:100%;padding:6px;background:linear-gradient(180deg,#5274b3,var(--accent));color:white;border:1px solid #2a4070;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;margin-bottom:6px;}
-.btn-blue:hover{background:linear-gradient(180deg,#6080bf,#4a6aaa);}
-.btn-blue:disabled{background:#aaa;border-color:#888;cursor:default;}
-.btn-green{width:100%;padding:6px;background:linear-gradient(180deg,#5cb85c,#4a9e4a);color:white;border:1px solid #3a7e3a;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit;}
-.btn-green:hover{background:linear-gradient(180deg,#6cca6c,#5aad5a);}
-.btn-green:disabled{background:#aaa;cursor:default;}
-#msg{font-size:12px;margin-top:6px;min-height:16px;}
-.err{color:#c00;} .ok{color:#080;}
-.divider{border:none;border-top:1px solid #ddd;margin:8px 0;}
-.footer{text-align:center;font-size:11px;color:#888;padding:20px;border-top:1px solid #ccc;margin-top:20px;}
-.footer a{color:#3b5998;}
-.mobile-hint{font-size:11px;color:#888;text-align:center;margin-top:8px;font-style:italic;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>spenium.github.io · login</title>
+  <link rel="icon" href="wicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
+  <style>
+    .username {
+      font-weight: bold;
+      font-family: Tahoma, Arial, sans-serif;
+    }
+
+    .dev-badge {
+      width: 14px;
+      height: 14px;
+      margin-left: 4px;
+      vertical-align: middle;
+      opacity: 0.9;
+      filter: drop-shadow(0 0 1px #000);
+    }
+
+    :root {
+      --accent: #3b5998;
+      --accent2: #8b9dc3;
+      --bg1: #dfe7f3;
+      --bg2: #f5f6f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Tahoma, Verdana, sans-serif;
+      background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      min-height: 100vh;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--accent);
+      height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-bottom: 2px solid #2a4070;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .topbar-logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+      letter-spacing: -1px;
+      font-style: italic;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+    }
+
+    .topbar-links {
+      margin-left: auto;
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: #ccd5e8;
+    }
+
+    .topbar-links a {
+      color: #ccd5e8;
+      text-decoration: none;
+    }
+
+    .topbar-links a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 32px 16px 10px;
+    }
+
+    .hero-title {
+      font-size: 48px;
+      font-weight: bold;
+      color: var(--accent);
+      letter-spacing: -3px;
+      font-style: italic;
+      text-shadow: 2px 2px 0px rgba(59, 89, 152, 0.2);
+    }
+
+    .hero-tagline {
+      font-size: 14px;
+      color: #667;
+      margin-top: 4px;
+      font-style: italic;
+    }
+
+    /* MAIN LAYOUT */
+    .main {
+      display: flex;
+      max-width: 700px;
+      margin: 20px auto;
+      gap: 16px;
+      padding: 0 12px;
+    }
+
+    /* LEFT INFO */
+    .info-box {
+      flex: 1;
+      background: white;
+      border: 1px solid #b0b7c3;
+      padding: 14px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .info-box h2 {
+      font-size: 16px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+    }
+
+    .info-box ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .info-box ul li {
+      font-size: 13px;
+      color: #444;
+      padding: 4px 0;
+      border-bottom: 1px dotted #ddd;
+    }
+
+    .info-box ul li::before {
+      content: "✦ ";
+      color: var(--accent);
+    }
+
+    /* LOGIN BOX */
+    .login-box {
+      width: 240px;
+      background: white;
+      border: 1px solid #b0b7c3;
+      padding: 14px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .login-box h3 {
+      font-size: 14px;
+      color: white;
+      background: var(--accent);
+      margin: -14px -14px 12px;
+      padding: 8px 14px;
+      font-weight: bold;
+    }
+
+    .login-box label {
+      display: block;
+      font-size: 12px;
+      color: #444;
+      margin-bottom: 2px;
+      font-weight: bold;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 5px 6px;
+      border: 1px solid #aaa;
+      font-size: 13px;
+      margin-bottom: 8px;
+      font-family: inherit;
+      background: #f9f9f9;
+    }
+
+    .login-box input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+    }
+
+    .btn-blue {
+      width: 100%;
+      padding: 6px;
+      background: linear-gradient(180deg, #5274b3, var(--accent));
+      color: white;
+      border: 1px solid #2a4070;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+      margin-bottom: 6px;
+    }
+
+    .btn-blue:hover {
+      background: linear-gradient(180deg, #6080bf, #4a6aaa);
+    }
+
+    .btn-blue:disabled {
+      background: #aaa;
+      border-color: #888;
+      cursor: default;
+    }
+
+    .btn-green {
+      width: 100%;
+      padding: 6px;
+      background: linear-gradient(180deg, #5cb85c, #4a9e4a);
+      color: white;
+      border: 1px solid #3a7e3a;
+      font-size: 13px;
+      font-weight: bold;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-green:hover {
+      background: linear-gradient(180deg, #6cca6c, #5aad5a);
+    }
+
+    .btn-green:disabled {
+      background: #aaa;
+      cursor: default;
+    }
+
+    #msg {
+      font-size: 12px;
+      margin-top: 6px;
+      min-height: 16px;
+    }
+
+    .err {
+      color: #c00;
+    }
+
+    .ok {
+      color: #080;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #ddd;
+      margin: 8px 0;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #888;
+      padding: 20px;
+      border-top: 1px solid #ccc;
+      margin-top: 20px;
+    }
+
+    .footer a {
+      color: #3b5998;
+    }
+
+  </style>
 </head>
+
 <body>
-<div class="topbar">
-  <span class="topbar-logo">ermn.</span>
-  <div class="topbar-links"><a href="#">About</a><a href="#">Help</a><a href="#">Privacy</a></div>
-</div>
-<div class="hero">
-  <div class="hero-title">ermn.</div>
-  <div class="hero-tagline">whenever. wherever. whoever.</div>
-</div>
-<div class="main">
-  <div class="info-box">
-    <h2>Connect with friends</h2>
-    <ul>
-      <li>Post what's on your mind</li>
-      <li>Follow people you know</li>
-      <li>Like and comment on posts</li>
-      <li>Customize your profile &amp; bio</li>
-      <li>Personalize your theme</li>
-      <li>Search &amp; discover posts</li>
-    </ul>
-    <div style="margin-top:14px;font-size:12px;color:#888;font-style:italic;">
-      Join thousands of users already on ermn.
+  <div class="topbar">
+    <span class="topbar-logo" id="siteLogo">spenium.github.io</span>
+    <div class="topbar-links"><a href="#">About</a><a href="#">Help</a><a href="#">Privacy</a></div>
+  </div>
+  <div class="hero">
+    <div class="hero-title" id="heroTitle">spenium.github.io</div>
+    <div class="hero-tagline">whenever. wherever. whoever.</div>
+  </div>
+  <div class="main">
+    <div class="info-box">
+      <h2>Connect with friends</h2>
+      <ul>
+        <li>Post what's on your mind</li>
+        <li>Follow people you know</li>
+        <li>Like and comment on posts</li>
+        <li>Customize your profile &amp; bio</li>
+        <li>Personalize your theme</li>
+        <li>Search &amp; discover posts</li>
+      </ul>
+      <div style="margin-top:14px;font-size:12px;color:#888;font-style:italic;">
+        Join thousands of users already on spenium.github.io.
+      </div>
+    </div>
+    <div class="login-box">
+      <h3>Log In or Sign Up</h3>
+      <label>Username</label>
+      <input id="username" placeholder="your username" autocomplete="username">
+      <label>Password</label>
+      <input id="password" type="password" placeholder="password" autocomplete="current-password">
+      <button class="btn-blue" id="loginBtn" onclick="login()">Log In</button>
+      <hr class="divider">
+      <button class="btn-green" id="createBtn" onclick="create()">Create New Account</button>
+      <div id="msg"></div>
     </div>
   </div>
-  <div class="login-box">
-    <h3>Log In or Sign Up</h3>
-    <label>Username</label>
-    <input id="username" placeholder="your username" autocomplete="username">
-    <label>Password</label>
-    <input id="password" type="password" placeholder="password" autocomplete="current-password">
-    <button class="btn-blue" id="loginBtn" onclick="login()">Log In</button>
-    <hr class="divider">
-    <button class="btn-green" id="createBtn" onclick="create()">Create New Account</button>
-    <div id="msg"></div>
+  <div class="footer">
+    &copy; 2026 spenium.github.io - v1.7 &nbsp;·&nbsp; <a href="#">Terms</a> &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a
+      href="#">Help</a>
   </div>
-</div>
-<div class="footer">
-  &copy; 2025 ermn. &nbsp;·&nbsp; <a href="#">Terms</a> &nbsp;·&nbsp; <a href="#">Privacy</a> &nbsp;·&nbsp; <a href="#">Help</a>
-</div>
 
+  <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  <script>
+    const SUPABASE_URL = window.ERMN_URL;
+    const SUPABASE_KEY = window.ERMN_KEY;
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Redirect mobile users to mobile site
-(function() {
-  const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    || window.innerWidth < 600;
-  if (isMobile && !location.href.includes('mobile.html')) {
-    location.replace('mobile.html');
-  }
-})();
+    // Redirect mobile users to mobile site
+    (function () {
+      const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+        || window.innerWidth < 600;
+      if (isMobile && !location.href.includes('mobile.html')) {
+        location.replace('mobile.html');
+      }
+    })();
 
-function setMsg(text, isError) {
-  const el = document.getElementById("msg");
-  el.innerText = text;
-  el.className = isError ? "err" : "ok";
-}
-function setBusy(b) {
-  document.getElementById("loginBtn").disabled = b;
-  document.getElementById("createBtn").disabled = b;
-}
+    function setMsg(text, isError) {
+      const el = document.getElementById("msg");
+      el.innerText = text;
+      el.className = isError ? "err" : "ok";
+    }
+    function setBusy(b) {
+      document.getElementById("loginBtn").disabled = b;
+      document.getElementById("createBtn").disabled = b;
+    }
 
-async function login() {
-  const rawU = document.getElementById("username").value.trim();
-  const u = rawU.toLowerCase(); // case-insensitive
-  const p = document.getElementById("password").value;
-  if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
-  setBusy(true); setMsg("Logging in...", false);
+    async function login() {
+      const rawU = document.getElementById("username").value.trim();
+      const u = rawU.toLowerCase(); // case-insensitive
+      const p = document.getElementById("password").value;
+      if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
+      setBusy(true); setMsg("Logging in...", false);
 
-  // Check if banned
-  const { data: banned } = await sb.from("banned_users").select("username").eq("username", u).maybeSingle();
-  if (banned) { setMsg("This account has been banned.", true); setBusy(false); return; }
+      // Check if banned
+      const { data: banned } = await sb.from("banned_users").select("username").eq("username", u).maybeSingle();
+      if (banned) { setMsg("This account has been banned.", true); setBusy(false); return; }
 
-  // Case-insensitive lookup using ilike
-  const { data, error } = await sb.from("users").select("username, password").ilike("username", u).maybeSingle();
-  if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
-  if (!data) { setMsg("User not found.", true); setBusy(false); return; }
-  if (data.password !== p) { setMsg("Incorrect password.", true); setBusy(false); return; }
-  localStorage.setItem("currentUser", data.username); // store canonical casing
-  location.href = "feed.html";
-}
+      // Case-insensitive lookup using ilike
+      const { data, error } = await sb.from("users").select("username, password").ilike("username", u).maybeSingle();
+      if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
+      if (!data) { setMsg("User not found.", true); setBusy(false); return; }
+      if (data.password !== p) { setMsg("Incorrect password.", true); setBusy(false); return; }
+      localStorage.setItem("currentUser", data.username); // store canonical casing
+      location.href = "feed.html";
+    }
 
-async function create() {
-  const rawU = document.getElementById("username").value.trim();
-  const u = rawU.toLowerCase();
-  const p = document.getElementById("password").value;
-  if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
-  if (rawU.length < 3) { setMsg("Username must be at least 3 characters.", true); return; }
-  if (p.length < 4) { setMsg("Password must be at least 4 characters.", true); return; }
-  if (!/^[a-zA-Z0-9_]+$/.test(rawU)) { setMsg("Username can only contain letters, numbers, and underscores.", true); return; }
-  setBusy(true); setMsg("Creating account...", false);
+    async function create() {
+      const rawU = document.getElementById("username").value.trim();
+      const u = rawU.toLowerCase();
+      const p = document.getElementById("password").value;
+      if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
+      if (rawU.length < 3) { setMsg("Username must be at least 3 characters.", true); return; }
+      if (p.length < 4) { setMsg("Password must be at least 4 characters.", true); return; }
+      if (!/^[a-zA-Z0-9_]+$/.test(rawU)) { setMsg("Username can only contain letters, numbers, and underscores.", true); return; }
+      setBusy(true); setMsg("Creating account...", false);
 
-  // Check banned
-  const { data: banned } = await sb.from("banned_users").select("username").eq("username", u).maybeSingle();
-  if (banned) { setMsg("That username is not available.", true); setBusy(false); return; }
+      // Check banned
+      const { data: banned } = await sb.from("banned_users").select("username").eq("username", u).maybeSingle();
+      if (banned) { setMsg("That username is not available.", true); setBusy(false); return; }
 
-  // Case-insensitive duplicate check
-  const { data: existing } = await sb.from("users").select("username").ilike("username", rawU).maybeSingle();
-  if (existing) { setMsg("That username is taken.", true); setBusy(false); return; }
+      // Case-insensitive duplicate check
+      const { data: existing } = await sb.from("users").select("username").ilike("username", rawU).maybeSingle();
+      if (existing) { setMsg("That username is taken.", true); setBusy(false); return; }
 
-  const { error } = await sb.from("users").insert({ username: rawU, password: p, pic: "", bio: "" });
-  if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
-  setMsg("Account created! You can now log in.", false);
-  setBusy(false);
-}
+      const { error } = await sb.from("users").insert({ username: rawU, password: p, pic: "", bio: "" });
+      if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
+      setMsg("Account created! You can now log in.", false);
+      setBusy(false);
+    }
 
-document.addEventListener("keydown", function(e) { if (e.key === "Enter") login(); });
-</script>
+    document.addEventListener("keydown", function (e) { if (e.key === "Enter") login(); });
+
+    // Spenium branding: if spenium.txt exists in the repo, update the site name
+    fetch('spenium.txt', { method: 'HEAD' }).then(function (res) {
+      if (res.ok) {
+        var brand = "spenium.github.io";
+        document.getElementById("siteLogo").textContent = brand;
+        document.getElementById("heroTitle").textContent = brand;
+        document.title = brand + " · login";
+      }
+    }).catch(function () { });
+  </script>
 </body>
+
 </html>

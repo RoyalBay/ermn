@@ -2,138 +2,83 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ermn. · Settings</title>
 <link rel="icon" href="wicon.png">
 <style>
-:root {
-  --accent: #3b5998;
-  --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
-  --card-bg: #fff;
-  --topbar-bg: #3b5998;
-  --text: #333;
-  --border: #b0b7c3;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); color: var(--text); min-height: 100vh; font-size: 13px; }
+:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);--topbar-bg:#3b5998;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:100vh;font-size:14px;padding-bottom:70px;}
 
-.topbar {
-  background: var(--topbar-bg);
-  height: 44px;
-  display: flex;
-  align-items: center;
-  padding: 0 12px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-  border-bottom: 2px solid rgba(0,0,0,0.2);
-}
-.topbar-logo { font-size: 22px; font-weight: bold; color: white; letter-spacing: -1px; font-style: italic; }
-.topbar-right { margin-left: auto; display: flex; gap: 6px; }
-.topbar-right button {
-  background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);
-  padding: 4px 10px; font-size: 12px; cursor: pointer; font-family: inherit;
-}
-.topbar-right button:hover { background: rgba(255,255,255,0.35); }
+.topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
 
-.container { max-width: 500px; margin: 20px auto; padding: 0 10px; }
+.main{padding:12px;}
 
-.card { background: var(--card-bg); border: 1px solid var(--border); margin-bottom: 12px; }
-.card-title {
-  background: linear-gradient(180deg, #e8edf7, #d8e0f0);
-  border-bottom: 1px solid var(--border);
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: bold;
-  color: var(--accent);
-}
-.card-body { padding: 12px; }
+.card{background:white;border:1px solid #b0b7c3;border-radius:4px;margin-bottom:12px;overflow:hidden;}
+.card-title{background:linear-gradient(180deg,#e8edf7,#d8e0f0);border-bottom:1px solid #b0b7c3;padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
+.card-body{padding:14px;}
 
 /* Themes */
-.theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.theme-swatch {
-  border: 2px solid transparent;
-  cursor: pointer;
-  padding: 0;
-  background: none;
-  font-family: inherit;
-  text-align: center;
-}
-.theme-swatch:hover .swatch-preview { border-color: #333; }
-.theme-swatch.active .swatch-preview { border-color: #333; box-shadow: 0 0 0 2px var(--accent); }
-.swatch-preview {
-  width: 100%;
-  height: 40px;
-  border: 2px solid #ccc;
-  display: block;
-  margin-bottom: 3px;
-}
-.swatch-label { font-size: 11px; color: #444; }
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.theme-swatch{border:2px solid transparent;cursor:pointer;padding:0;background:none;font-family:inherit;text-align:center;-webkit-tap-highlight-color:transparent;}
+.theme-swatch.active .swatch-preview{border-color:#333;box-shadow:0 0 0 2px var(--accent);}
+.swatch-preview{width:100%;height:36px;border:2px solid #ccc;display:block;margin-bottom:3px;}
+.swatch-label{font-size:11px;color:#444;}
 
-/* inputs */
-label { display: block; font-size: 12px; font-weight: bold; color: #444; margin: 10px 0 3px; }
-input[type=text], input[type=password] {
-  width: 100%;
-  border: 1px solid #bbb;
-  padding: 5px 7px;
-  font-family: inherit;
-  font-size: 13px;
-  background: #fafafa;
-}
-input:focus { outline: none; border-color: var(--accent); background: white; }
-.btn {
-  background: linear-gradient(180deg,#5274b3,#3b5998);
-  color: white;
-  border: 1px solid #2a4070;
-  padding: 5px 16px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 8px;
-}
-.btn:hover { background: linear-gradient(180deg,#6080bf,#4a6aaa); }
-.msg { font-size: 12px; margin-top: 6px; min-height: 16px; }
-.ok { color: #080; }
-.err { color: #c00; }
+label{display:block;font-size:12px;font-weight:bold;color:#444;margin:10px 0 3px;}
+input[type=password]{width:100%;border:1px solid #bbb;padding:10px;font-family:inherit;font-size:14px;background:#fafafa;-webkit-appearance:none;border-radius:2px;}
+input:focus{outline:none;border-color:var(--accent);background:white;}
 
-/* Account info */
-.info-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px dotted #eee; font-size: 12px; }
-.info-row:last-child { border-bottom: none; }
-.info-row span:first-child { color: #888; }
-.info-row span:last-child { font-weight: bold; color: #333; }
+.btn{background:var(--accent);color:white;border:none;padding:12px 20px;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:2px;margin-top:8px;width:100%;-webkit-tap-highlight-color:transparent;}
+.btn:active{opacity:0.85;}
+.msg{font-size:12px;margin-top:6px;min-height:16px;}
+.ok{color:#080;} .err{color:#c00;}
+
+.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dotted #eee;font-size:13px;}
+.info-row:last-child{border-bottom:none;}
+.info-row span:first-child{color:#888;}
+.info-row span:last-child{font-weight:bold;color:#333;}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:50;}
+.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;-webkit-tap-highlight-color:transparent;}
+.bottom-nav a:active{background:rgba(255,255,255,0.1);}
+.bottom-nav a .icon{font-size:20px;}
+.bottom-nav a:active{background:rgba(255,255,255,0.1);}
+.bottom-nav a .icon{font-size:20px;}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <span class="topbar-logo">ermn.</span>
-  <div class="topbar-right">
-    <button onclick="location.href='feed.html'">&#127968; Feed</button>
-  </div>
-</div>
+<div class="topbar"><span class="topbar-logo">ermn.</span></div>
 
-<div class="container">
+<div class="main">
+
+  <!-- Theme -->
   <div class="card">
     <div class="card-title">🎨 Theme</div>
     <div class="card-body">
-      <p style="font-size:12px;color:#666;margin-bottom:10px;">Choose your look. Changes take effect immediately.</p>
+      <p style="font-size:12px;color:#666;margin-bottom:10px;">Choose your look. Changes apply everywhere.</p>
       <div class="theme-grid">
         <button class="theme-swatch" id="sw-classic" onclick="setTheme('classic')">
-          <div class="swatch-preview" style="background: linear-gradient(180deg,#dfe7f3,#f5f6f7); border-top: 6px solid #3b5998;"></div>
-          <div class="swatch-label">Classic Blue</div>
+          <div class="swatch-preview" style="background:linear-gradient(180deg,#dfe7f3,#f5f6f7);border-top:6px solid #3b5998;"></div>
+          <div class="swatch-label">Classic</div>
         </button>
         <button class="theme-swatch" id="sw-bubblegum" onclick="setTheme('bubblegum')">
-          <div class="swatch-preview" style="background: linear-gradient(180deg,#ffe4f3,#fff0fb); border-top: 6px solid #e91e8c;"></div>
+          <div class="swatch-preview" style="background:linear-gradient(180deg,#ffe4f3,#fff0fb);border-top:6px solid #e91e8c;"></div>
           <div class="swatch-label">Bubblegum</div>
         </button>
         <button class="theme-swatch" id="sw-midnight" onclick="setTheme('midnight')">
-          <div class="swatch-preview" style="background: linear-gradient(180deg,#0a0a1a,#1a1a2e); border-top: 6px solid #7b68ee;"></div>
+          <div class="swatch-preview" style="background:linear-gradient(180deg,#0a0a1a,#1a1a2e);border-top:6px solid #7b68ee;"></div>
           <div class="swatch-label">Midnight</div>
         </button>
         <button class="theme-swatch" id="sw-y2k" onclick="setTheme('y2k')">
-          <div class="swatch-preview" style="background: linear-gradient(180deg,#c0e8ff,#e8f4ff); border-top: 6px solid #0055cc;"></div>
+          <div class="swatch-preview" style="background:linear-gradient(180deg,#c0e8ff,#e8f4ff);border-top:6px solid #0055cc;"></div>
           <div class="swatch-label">Y2K Ice</div>
         </button>
         <button class="theme-swatch" id="sw-limeade" onclick="setTheme('limeade')">
-          <div class="swatch-preview" style="background: linear-gradient(180deg,#e8fce8,#f5fff5); border-top: 6px solid #2d7a2d;"></div>
+          <div class="swatch-preview" style="background:linear-gradient(180deg,#e8fce8,#f5fff5);border-top:6px solid #2d7a2d;"></div>
           <div class="swatch-label">Limeade</div>
         </button>
       </div>
@@ -141,11 +86,12 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
     </div>
   </div>
 
+  <!-- Change Password -->
   <div class="card">
     <div class="card-title">🔒 Change Password</div>
     <div class="card-body">
       <label>Current Password</label>
-      <input type="password" id="currentPass" placeholder="Your current password">
+      <input type="password" id="currentPass" placeholder="Current password">
       <label>New Password</label>
       <input type="password" id="newPass" placeholder="New password (min 4 chars)">
       <label>Confirm New Password</label>
@@ -155,13 +101,14 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
     </div>
   </div>
 
+  <!-- Privacy & Follow Requests -->
   <div class="card">
     <div class="card-title">🔒 Privacy & Follow Requests</div>
     <div class="card-body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #eee;">
         <div>
           <strong style="display:block;font-size:14px;color:var(--accent);">Private Account</strong>
-          <span style="font-size:11px;color:#666;">When enabled, new followers must request to follow you.</span>
+          <span style="font-size:11px;color:#666;">New followers must request to follow you.</span>
         </div>
         <button id="privateToggleBtn" onclick="togglePrivate()" style="padding:6px 12px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;">...</button>
       </div>
@@ -172,20 +119,22 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
     </div>
   </div>
 
+  <!-- Account Info -->
   <div class="card">
     <div class="card-title">ℹ Account Info</div>
     <div class="card-body">
-      <div class="info-row">
-        <span>Username</span>
-        <span id="infoUser">—</span>
-      </div>
-      <div class="info-row">
-        <span>Member since</span>
-        <span id="infoJoined">—</span>
-      </div>
+      <div class="info-row"><span>Username</span><span id="infoUser">—</span></div>
+      <div class="info-row"><span>Member since</span><span id="infoJoined">—</span></div>
     </div>
   </div>
+
 </div>
+
+<nav class="bottom-nav">
+  <a href="mobile_feed.html"><span class="icon">🏠</span>Feed</a>
+  <a href="mobile_profile.html"><span class="icon">👤</span>Profile</a>
+  <a href="mobile_settings.html"><span class="icon">⚙</span>Settings</a>
+</nav>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -193,10 +142,11 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
 const SUPABASE_URL = window.ERMN_URL;
 const SUPABASE_KEY = window.ERMN_KEY;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-const me = localStorage.getItem("currentUser");
-if (!me) location.href = "index.html";
 
-const themeKeys = ["classic", "bubblegum", "midnight", "y2k", "limeade"];
+const me = localStorage.getItem("currentUser");
+if (!me) location.href = "mobile.html";
+
+const themeKeys = ["classic","bubblegum","midnight","y2k","limeade"];
 const themeColors = {
     classic:   { body:"linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%)",card:"#fff",topbar:"#3b5998",text:"#333",border:"#b0b7c3",accent:"#3b5998" },
     bubblegum: { body:"linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)",card:"#fff5fb",topbar:"#e91e8c",text:"#5a0030",border:"#f9a8d4",accent:"#e91e8c" },
@@ -207,8 +157,8 @@ const themeColors = {
 
 function setTheme(t) {
   localStorage.setItem("theme", t);
-  themeKeys.forEach(k => document.getElementById("sw-" + k).classList.remove("active"));
-  document.getElementById("sw-" + t).classList.add("active");
+  themeKeys.forEach(k => document.getElementById("sw-"+k).classList.remove("active"));
+  document.getElementById("sw-"+t).classList.add("active");
   const th = themeColors[t];
   if (th) {
     document.documentElement.style.setProperty("--body-bg", th.body);
@@ -219,6 +169,7 @@ function setTheme(t) {
     document.documentElement.style.setProperty("--accent", th.accent);
     document.body.style.background = th.body;
     document.querySelector(".topbar").style.background = th.topbar;
+    document.querySelector(".bottom-nav").style.background = th.topbar;
   }
   document.getElementById("themeMsg").innerText = "Theme applied!";
   setTimeout(() => { document.getElementById("themeMsg").innerText = ""; }, 2000);
@@ -226,41 +177,39 @@ function setTheme(t) {
 
 async function changePassword() {
   const cur = document.getElementById("currentPass").value;
-  const nw = document.getElementById("newPass").value;
-  const cf = document.getElementById("confirmPass").value;
+  const nw  = document.getElementById("newPass").value;
+  const cf  = document.getElementById("confirmPass").value;
   const msgEl = document.getElementById("passMsg");
   msgEl.className = "msg";
-
   if (!cur || !nw || !cf) { msgEl.innerText = "Please fill all fields."; msgEl.className = "msg err"; return; }
-  if (nw !== cf) { msgEl.innerText = "New passwords don't match."; msgEl.className = "msg err"; return; }
-  if (nw.length < 4) { msgEl.innerText = "Password must be at least 4 characters."; msgEl.className = "msg err"; return; }
-
+  if (nw !== cf)           { msgEl.innerText = "New passwords don't match."; msgEl.className = "msg err"; return; }
+  if (nw.length < 4)       { msgEl.innerText = "Password must be at least 4 characters."; msgEl.className = "msg err"; return; }
   const { data } = await sb.from("users").select("password").eq("username", me).maybeSingle();
   if (!data || data.password !== cur) { msgEl.innerText = "Incorrect current password."; msgEl.className = "msg err"; return; }
-
   const { error } = await sb.from("users").update({ password: nw }).eq("username", me);
   if (error) { msgEl.innerText = "Error: " + error.message; msgEl.className = "msg err"; return; }
-  msgEl.innerText = "Password changed successfully!";
+  msgEl.innerText = "Password changed!";
   msgEl.className = "msg ok";
   document.getElementById("currentPass").value = "";
   document.getElementById("newPass").value = "";
   document.getElementById("confirmPass").value = "";
 }
 
-// Init
+// Init — apply saved theme
 const cur = localStorage.getItem("theme") || "classic";
-document.getElementById("sw-" + cur).classList.add("active");
-const th = themeColors[cur] || themeColors.classic;
-if (th) {
-  document.documentElement.style.setProperty("--body-bg", th.body);
-  document.documentElement.style.setProperty("--card-bg", th.card);
-  document.documentElement.style.setProperty("--topbar-bg", th.topbar);
-  document.documentElement.style.setProperty("--text", th.text);
-  document.documentElement.style.setProperty("--border", th.border);
-  document.documentElement.style.setProperty("--accent", th.accent);
-  document.body.style.background = th.body;
-  document.querySelector(".topbar").style.background = th.topbar;
+const curTheme = themeColors[cur] || themeColors.classic;
+if (curTheme) {
+  document.documentElement.style.setProperty("--body-bg", curTheme.body);
+  document.documentElement.style.setProperty("--card-bg", curTheme.card);
+  document.documentElement.style.setProperty("--topbar-bg", curTheme.topbar);
+  document.documentElement.style.setProperty("--text", curTheme.text);
+  document.documentElement.style.setProperty("--border", curTheme.border);
+  document.documentElement.style.setProperty("--accent", curTheme.accent);
+  document.body.style.background = curTheme.body;
+  document.querySelector(".topbar").style.background = curTheme.topbar;
+  document.querySelector(".bottom-nav").style.background = curTheme.topbar;
 }
+document.getElementById("sw-"+cur).classList.add("active");
 document.getElementById("infoUser").innerText = "@" + me;
 
 async function loadInfo() {
@@ -297,7 +246,7 @@ async function loadRequests() {
     div.style.alignItems = "center";
     div.style.padding = "6px 0";
     div.style.borderBottom = "1px solid #f0f0f0";
-    div.innerHTML = '<span><a href="userpage.html?user='+encodeURIComponent(r.requester)+'" style="color:var(--accent);text-decoration:none;font-weight:bold;">@'+escapeHtml(r.requester)+'</a></span>' +
+    div.innerHTML = '<span><a href="'+getUserPageLink(r.requester)+'" style="color:var(--accent);text-decoration:none;font-weight:bold;">@'+escapeHtml(r.requester)+'</a></span>' +
       '<div>' +
         '<button onclick="approveRequest(\''+r.requester+'\')" style="background:#5cb85c;color:white;border:1px solid #4cae4c;padding:3px 8px;margin-right:4px;cursor:pointer;">Approve</button>' +
         '<button onclick="denyRequest(\''+r.requester+'\')" style="background:#d9534f;color:white;border:1px solid #d43f3a;padding:3px 8px;cursor:pointer;">Deny</button>' +

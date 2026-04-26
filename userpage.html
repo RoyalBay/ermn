@@ -149,13 +149,14 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
   <span class="topbar-logo">ermn.</span>
   <div class="topbar-right">
     <button onclick="history.back()">← Back</button>
-    <button onclick="location.href='feed.html'">&#127968; Feed</button>
+    <button onclick="location.href=getHomeLink()">&#127968; Feed</button>
   </div>
 </div>
 
 <div class="container">
   <div class="card">
     <div class="card-title">👤 Profile</div>
+    <div id="userBanner" style="height:120px;background:#ddd;background-size:cover;background-position:center;border-bottom:1px solid var(--border);display:none;"></div>
     <div class="card-body">
       <div class="profile-header">
         <img id="userPic" src="empty.jpg" onerror="this.src='empty.jpg'">
@@ -177,6 +178,7 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
             </div>
           </div>
           <button id="followBtn" onclick="toggleFollow()" style="display:none">Follow</button>
+          <button id="blockBtn" onclick="blockUser()" style="display:none;background:#e55;color:white;border:1px solid #c33;padding:5px 10px;font-size:13px;font-weight:bold;cursor:pointer;margin-left:6px;">Block</button>
           <span id="itsYou" style="display:none;font-style:italic;color:#888;font-size:12px;">This is you · <a href="profile.html" style="color:var(--accent)">Edit profile</a></span>
         </div>
       </div>
@@ -202,34 +204,17 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
   </div>
 </div>
 
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
 <script>
-const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const me = localStorage.getItem("currentUser");
 const params = new URLSearchParams(location.search);
 const viewUser = params.get("user") || me;
 let isFollowing = false;
+let isBlocked = false;
 
-// Theme
-(function(){
-  const t = localStorage.getItem("theme") || "classic";
-  const themes = {
-    classic: { body:"linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%)", topbar:"#3b5998" },
-    bubblegum: { body:"linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)", topbar:"#e91e8c" },
-    midnight: { body:"linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)", topbar:"#0d0d1f" },
-    y2k: { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)", topbar:"#0055cc" },
-    limeade: { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)", topbar:"#2d7a2d" },
-  };
-  const th = themes[t] || themes.classic;
-  document.body.style.background = th.body;
-  document.querySelector(".topbar").style.background = th.topbar;
-})();
-
-function escapeHtml(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function timeAgo(d) { const diff=Math.floor((Date.now()-new Date(d))/1000); if(diff<60)return diff+"s ago"; if(diff<3600)return Math.floor(diff/60)+"m ago"; if(diff<86400)return Math.floor(diff/3600)+"h ago"; return Math.floor(diff/86400)+"d ago"; }
+applyTheme();
 
 async function toggleFollow() {
   if (!me) return;
@@ -240,14 +225,36 @@ async function toggleFollow() {
     btn.innerText = "Follow";
     btn.className = "";
     const fc = parseInt(document.getElementById("statFollowers").innerText);
-    document.getElementById("statFollowers").innerText = Math.max(0, fc - 1);
+    if (!isNaN(fc)) document.getElementById("statFollowers").innerText = Math.max(0, fc - 1);
   } else {
-    await sb.from("follows").insert({ follower: me, following: viewUser });
-    isFollowing = true;
-    btn.innerText = "✓ Following";
-    btn.className = "following";
-    const fc = parseInt(document.getElementById("statFollowers").innerText);
-    document.getElementById("statFollowers").innerText = fc + 1;
+    // Check if target is private
+    const { data: targetData } = await sb.from("users").select("is_private").eq("username", viewUser).maybeSingle();
+    if (targetData && targetData.is_private) {
+      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
+      if (existingReq) {
+        await sb.from("follow_requests").delete().eq("requester", me).eq("target", viewUser);
+        btn.innerText = "Follow";
+      } else {
+        await sb.from("follow_requests").insert({ requester: me, target: viewUser });
+        btn.innerText = "⏳ Requested";
+      }
+    } else {
+      await sb.from("follows").insert({ follower: me, following: viewUser });
+      isFollowing = true;
+      btn.innerText = "✓ Following";
+      btn.className = "following";
+      const fc = parseInt(document.getElementById("statFollowers").innerText);
+      if (!isNaN(fc)) document.getElementById("statFollowers").innerText = fc + 1;
+    }
+  }
+}
+
+async function blockUser() {
+  if (!me || me === viewUser) return;
+  if (isBlocked) {
+    await unblockUser(viewUser);
+  } else {
+    await blockUserFromFeed(viewUser);
   }
 }
 
@@ -294,7 +301,7 @@ async function openModal(type) {
     const d = document.createElement("div");
     d.className = "modal-user";
     d.innerHTML = '<img src="' + escapeHtml(info.pic || "") + '" onerror="this.src=\'empty.jpg\'">' +
-      '<a href="userpage.html?user=' + encodeURIComponent(u) + '">@' + escapeHtml(u) + '</a>';
+      '<a href="' + getUserPageLink(u) + '">@' + escapeHtml(u) + '</a>';
     list.appendChild(d);
   }
 }
@@ -306,14 +313,21 @@ function closeModal() {
 async function load() {
   document.title = "ermn. · @" + viewUser;
 
-  const { data: user } = await sb.from("users").select("pic, bio").eq("username", viewUser).maybeSingle();
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private").eq("username", viewUser).maybeSingle();
   const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", viewUser);
   const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", viewUser);
   const { data: posts } = await sb.from("posts").select("id, text, created_at").eq("username", viewUser).order("created_at", { ascending: false });
 
-  document.getElementById("userName").innerText = "@" + viewUser + (fc >= 100 ? " ✓" : "");
+  let badges = '';
+  if (user && user.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
+  if (user && user.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
+  document.getElementById("userName").innerHTML = "@" + escapeHtml(viewUser) + badges;
   document.getElementById("userBio").innerText = (user && user.bio) ? user.bio : "";
   document.getElementById("userPic").src = (user && user.pic) || "empty.jpg";
+  if (user && user.banner) {
+    document.getElementById("userBanner").style.backgroundImage = "url('" + user.banner + "')";
+    document.getElementById("userBanner").style.display = "block";
+  }
   document.getElementById("statFollowers").innerText = fc || 0;
   document.getElementById("statFollowing").innerText = fgc || 0;
   document.getElementById("statPosts").innerText = (posts || []).length;
@@ -321,11 +335,25 @@ async function load() {
 
   if (me && viewUser !== me) {
     document.getElementById("followBtn").style.display = "inline-block";
+    document.getElementById("blockBtn").style.display = "inline-block";
+    
+    const { data: blockCheck } = await sb.from("blocked_users").select("blocked").eq("blocker", me).eq("blocked", viewUser).maybeSingle();
+    isBlocked = !!blockCheck;
+    if (isBlocked) {
+      document.getElementById("blockBtn").innerText = "Unblock";
+    }
     const { data: fcheck } = await sb.from("follows").select("follower").eq("follower", me).eq("following", viewUser).maybeSingle();
     isFollowing = !!fcheck;
     const btn = document.getElementById("followBtn");
-    btn.innerText = isFollowing ? "✓ Following" : "Follow";
-    if (isFollowing) btn.className = "following";
+    
+    if (isFollowing) {
+      btn.innerText = "✓ Following";
+      btn.className = "following";
+    } else {
+      const { data: reqCheck } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
+      if (reqCheck) btn.innerText = "⏳ Requested";
+      else btn.innerText = "Follow";
+    }
   } else if (viewUser === me) {
     document.getElementById("itsYou").style.display = "block";
   }
@@ -337,9 +365,32 @@ async function load() {
     likedSet = new Set((myLikes || []).map(l => l.post_id));
   }
   const postIds = (posts || []).map(p => p.id);
-  const { data: allLikes } = postIds.length ? await sb.from("likes").select("post_id").in("post_id", postIds) : { data: [] };
+  const [{ data: allLikes }, { data: polls }, { data: pollVotes }] = await Promise.all([
+    postIds.length ? sb.from("likes").select("post_id").in("post_id", postIds) : Promise.resolve({ data: [] }),
+    postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({ data: [] }),
+    postIds.length && me ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", me) : Promise.resolve({ data: [] })
+  ]);
+
   const likeMap = {};
   (allLikes || []).forEach(l => { likeMap[l.post_id] = (likeMap[l.post_id] || 0) + 1; });
+
+  const pollMap = {};
+  (polls || []).forEach(pl => { pollMap[pl.post_id] = pl.options; });
+  const myVoteMap = {};
+  (pollVotes || []).forEach(pv => { myVoteMap[pv.post_id] = pv.option_index; });
+
+  let isPrivateAndNotFollowing = false;
+  if (user && user.is_private && me !== viewUser) {
+    isPrivateAndNotFollowing = !isFollowing;
+  }
+
+  if (isPrivateAndNotFollowing) {
+    document.getElementById("userPosts").innerHTML = "<div style='color:#888;font-style:italic;padding:20px;text-align:center;'>🔒 This account is private. Follow to see their posts.</div>";
+    document.getElementById("statFollowers").innerText = "-";
+    document.getElementById("statFollowing").innerText = "-";
+    document.getElementById("statPosts").innerText = "-";
+    return;
+  }
 
   const postsEl = document.getElementById("userPosts");
   if (!posts || !posts.length) { postsEl.innerHTML = "<div style='color:#888;font-style:italic;'>No posts yet.</div>"; return; }
@@ -347,9 +398,30 @@ async function load() {
   for (const p of posts) {
     const liked = likedSet.has(p.id);
     const likeCount = likeMap[p.id] || 0;
+    
+    let pollHtml = '';
+    if (pollMap[p.id]) {
+      const options = pollMap[p.id];
+      const myVote = myVoteMap[p.id];
+      const totalVotes = options.reduce((sum, opt) => sum + (opt.votes||0), 0);
+      pollHtml = '<div class="poll-container" style="margin:10px 0;background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:10px;">';
+      options.forEach((opt, idx) => {
+        const pct = totalVotes > 0 ? Math.round(((opt.votes||0) / totalVotes) * 100) : 0;
+        const isMyVote = myVote === idx;
+        pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
+                      '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'#d0e0ff':'#e0e0e0')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
+                      '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
+                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'✓':'')+'</span><span>'+pct+'%</span>'+
+                      '</div>'+
+                    '</div>';
+      });
+      pollHtml += '<div style="font-size:11px;color:#888;text-align:right;">'+totalVotes+' vote'+(totalVotes!==1?'s':'')+'</div></div>';
+    }
+
     const d = document.createElement("div");
     d.className = "post";
     d.innerHTML = '<div class="post-text">' + escapeHtml(p.text) + '</div>' +
+      pollHtml +
       '<div class="post-footer">' +
         '<span id="hlikes-' + p.id + '">' +
           '<span class="heart' + (liked ? " liked" : "") + '" onclick="likePost(' + p.id + ',this)">&#9829;</span> ' +

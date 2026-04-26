@@ -10,6 +10,29 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:13px;}
 .topbar{background:#8b0000;height:44px;display:flex;align-items:center;padding:0 12px;gap:10px;box-shadow:0 2px 5px rgba(0,0,0,0.4);}
+.badge-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: var(--accent);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  vertical-align: middle;
+  margin-left: 3px;
+  cursor: help;
+}
+.badge-verified {
+  -webkit-mask-image: url('verifiedbadge.png');
+  mask-image: url('verifiedbadge.png');
+}
+.badge-developer {
+  -webkit-mask-image: url('devbadge.png');
+  mask-image: url('devbadge.png');
+}
 .topbar-logo{font-size:20px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
 .topbar-badge{background:rgba(255,255,255,0.2);color:white;font-size:11px;padding:2px 8px;border:1px solid rgba(255,255,255,0.4);}
 .topbar-right{margin-left:auto;display:flex;gap:8px;}
@@ -108,25 +131,34 @@ tr:hover td{background:#fef8f8;}
   </div>
 </div>
 
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
-// Guard: admin only
-const me = localStorage.getItem("currentUser");
-if (!me || me.toLowerCase() !== "ermn") {
-  alert("Access denied.");
-  location.href = "feed.html";
+async function initAdmin() {
+  const me = localStorage.getItem("currentUser");
+  if (!me || me.toLowerCase() !== "ermn") { 
+    if (window.uiAlert) await uiAlert("Access denied.");
+    else alert("Access denied.");
+    location.href = "feed.html"; 
+    return; 
+  }
+  loadStats();
+  loadReports();
 }
 
 function logout(){ localStorage.removeItem("currentUser"); location.href="index.html"; }
 
 function showTab(id) {
-  document.querySelectorAll(".tab").forEach((t,i)=>{ t.classList.remove("active"); });
-  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.remove("active"));
-  document.getElementById("tab-"+id).classList.add("active");
-  const tabs = document.querySelectorAll(".tab");
-  const names = ["reports","users","banned"];
-  tabs[names.indexOf(id)].classList.add("active");
+  // Update Tabs
+  document.querySelectorAll(".tab").forEach(t => {
+    t.classList.toggle("active", t.getAttribute("onclick").includes(`'${id}'`));
+  });
+  // Update Panels
+  document.querySelectorAll(".tab-panel").forEach(p => {
+    p.classList.toggle("active", p.id === "tab-" + id);
+  });
+  
   if (id==="reports") loadReports();
   if (id==="users") loadUsers();
   if (id==="banned") loadBanned();
@@ -138,6 +170,14 @@ async function loadStats() {
     sb.from("posts").select("*",{count:"exact",head:true}),
     sb.from("reports").select("*",{count:"exact",head:true}),
   ]);
+  if(user){
+    let badges = '';
+    if(user.verified) badges += ' <span class="badge-icon badge-verified" title="Verified User"></span>';
+    if(user.is_developer) badges += ' <span class="badge-icon badge-developer" title="Developer"></span>';
+    document.getElementById("uname").innerHTML = "@" + escapeHtml(me) + badges;
+    document.getElementById("picDisplay").src=user.pic||"empty.jpg";
+    document.getElementById("bioDisplay").innerText=user.bio||"No bio yet.";
+  }
   document.getElementById("statUsers").innerText = uc||0;
   document.getElementById("statPosts").innerText = pc||0;
   document.getElementById("statReports").innerText = rc||0;
@@ -169,7 +209,7 @@ async function loadReports() {
 }
 
 async function reportDelPost(postId, reportId) {
-  if (!confirm("Delete post #"+postId+"?")) return;
+  if (!(await uiConfirm("Delete post #"+postId+"?"))) return;
   await sb.from("likes").delete().eq("post_id",postId);
   await sb.from("comments").delete().eq("post_id",postId);
   await sb.from("reports").delete().eq("post_id",postId);
@@ -178,9 +218,9 @@ async function reportDelPost(postId, reportId) {
 }
 
 async function reportBanUser(username, reportId) {
-  if (username.toLowerCase()==="ermn") { alert("Cannot ban admin."); return; }
-  if (!confirm("Ban @"+username+"?")) return;
-  await adminBanUser(username);
+  if (username.toLowerCase()==="ermn") { await uiAlert("Cannot ban admin."); return; }
+  if (!(await uiConfirm("Ban @"+username+"?"))) return;
+  await adminBanUser(username, true);
   await sb.from("reports").delete().eq("reported_user",username);
   await loadReports(); await loadStats();
 }
@@ -194,7 +234,7 @@ let allUsers = [];
 async function loadUsers() {
   const el = document.getElementById("usersBody");
   el.innerHTML = "<div class='empty-msg'>Loading...</div>";
-  const { data: users } = await sb.from("users").select("username,pic,bio,created_at").order("created_at",{ascending:false});
+  const { data: users } = await sb.from("users").select("username,pic,bio,verified,is_developer,created_at").order("created_at",{ascending:false});
   allUsers = users||[];
   renderUsers(allUsers);
 }
@@ -205,9 +245,12 @@ function renderUsers(users) {
   let html = "";
   for (const u of users) {
     const isAdminUser = u.username.toLowerCase()==="ermn";
+    let badges = '';
+    if (u.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
+    if (u.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
     html += `<div class="user-row">
       <img src="${escapeHtml(u.pic||"")}" onerror="this.src='empty.jpg'">
-      <a class="uname" href="userpage.html?user=${encodeURIComponent(u.username)}" target="_blank">@${escapeHtml(u.username)}${isAdminUser?' 🛡':''}</a>
+      <a class="uname" href="userpage.html?user=${encodeURIComponent(u.username)}" target="_blank">@${escapeHtml(u.username)}${badges}${isAdminUser?' 🛡':''}</a>
       <span style="font-size:11px;color:#888;">${new Date(u.created_at).toLocaleDateString()}</span>
       ${!isAdminUser ? `<button class="action-btn btn-ban" onclick="adminBanUser('${u.username.replace(/'/g,"\\'")}').then(()=>{loadUsers();loadStats();})">Ban</button>` : ''}
     </div>`;
@@ -239,16 +282,14 @@ async function loadBanned() {
 }
 
 async function unban(username) {
-  if (!confirm("Unban @"+username+"?")) return;
+  if (!(await uiConfirm("Unban @"+username+"?"))) return;
   await sb.from("banned_users").delete().eq("username",username);
   await loadBanned();
 }
 
 function escapeHtml(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
-// Init
-loadStats();
-loadReports();
+initAdmin();
 </script>
 </body>
 </html>

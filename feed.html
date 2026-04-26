@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ermn. · Feed</title>
+<title>spenium.github.io · Feed</title>
 <link rel="icon" href="wicon.png">
 <style>
 :root {
@@ -105,6 +105,13 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 
 #loading { text-align:center; padding:20px; color:#888; font-style:italic; }
 
+/* PAGINATION */
+.page-controls { display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 0; margin-top:4px; }
+.page-btn { background:linear-gradient(180deg,#5274b3,#3b5998); color:white; border:1px solid #2a4070; padding:5px 14px; font-family:inherit; font-size:12px; font-weight:bold; cursor:pointer; }
+.page-btn:hover:not([disabled]) { background:linear-gradient(180deg,#6080bf,#4a6aaa); }
+.page-btn[disabled] { background:#bbb; border-color:#aaa; cursor:default; opacity:0.6; }
+.page-info { font-size:12px; color:#666; font-style:italic; }
+
 .sidebar { width:215px; flex-shrink:0; }
 .sidebar-card { background:var(--card-bg); border:1px solid var(--border); margin-bottom:10px; }
 .sidebar-card .card-title { background:linear-gradient(180deg,#e8edf7,#d8e0f0); border-bottom:1px solid var(--border); padding:5px 10px; font-size:12px; font-weight:bold; color:var(--accent); }
@@ -128,7 +135,7 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 <body>
 
 <div class="topbar">
-  <span class="topbar-logo">ermn.</span>
+  <span class="topbar-logo">spenium.github.io</span>
   <nav class="topbar-nav">
     <a href="feed.html">&#127968; Feed</a>
     <a href="profile.html">&#128100; Profile</a>
@@ -143,6 +150,10 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
   <div class="feed-col">
     <!-- SEARCH & SORT -->
     <div class="search-bar">
+      <select id="searchMode" onchange="onModeChange()" style="flex-shrink:0;">
+        <option value="posts">📝 Posts</option>
+        <option value="users">👤 Users</option>
+      </select>
       <input id="searchInput" placeholder="Search posts..." onkeydown="if(event.key==='Enter')doSearch()">
       <select id="sortSelect" onchange="doSearch()">
         <option value="newest">Newest first</option>
@@ -157,10 +168,20 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
     <div class="compose-box">
       <h4>✏ What's on your mind?</h4>
       <textarea id="text" placeholder="Share something with everyone..."></textarea>
-      <button id="postBtn" onclick="post()">Post</button>
+      <div id="pollInputs" style="display:none;margin-top:8px;padding-top:8px;border-top:1px dashed #ddd;">
+        <input id="pollOpt1" placeholder="Option 1" style="width:100%;margin-bottom:4px;padding:4px;border:1px solid #ccc;font-size:12px;">
+        <input id="pollOpt2" placeholder="Option 2" style="width:100%;margin-bottom:4px;padding:4px;border:1px solid #ccc;font-size:12px;">
+        <input id="pollOpt3" placeholder="Option 3 (optional)" style="width:100%;margin-bottom:4px;padding:4px;border:1px solid #ccc;font-size:12px;">
+        <input id="pollOpt4" placeholder="Option 4 (optional)" style="width:100%;margin-bottom:4px;padding:4px;border:1px solid #ccc;font-size:12px;">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+        <button onclick="togglePollInputs()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;">📊 Add Poll</button>
+        <button id="postBtn" onclick="post()">Post</button>
+      </div>
     </div>
     <div id="loading">Loading posts...</div>
     <div id="posts"></div>
+    <div id="pagination"></div>
   </div>
 
   <div class="sidebar">
@@ -187,6 +208,10 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
         <button onclick="upload(document.getElementById('file').files[0])">Upload</button>
       </div>
     </div>
+    <div class="sidebar-card" id="trendingCard" style="display:none;">
+      <div class="card-title">🔥 Trending</div>
+      <div class="card-body sidebar-links"></div>
+    </div>
     <div class="sidebar-card">
       <div class="card-title">🔗 Quick Links</div>
       <div class="card-body sidebar-links" style="padding:6px 0;">
@@ -197,6 +222,7 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
   </div>
 </div>
 
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
@@ -207,24 +233,66 @@ if (!localStorage.getItem("currentUser")) {
 
   let _searchQ = "", _sortMode = "newest";
 
+  function onModeChange() {
+    const mode = document.getElementById("searchMode").value;
+    const sortEl = document.getElementById("sortSelect");
+    const inp = document.getElementById("searchInput");
+    if (mode === "users") {
+      sortEl.style.display = "none";
+      inp.placeholder = "Search users...";
+    } else {
+      sortEl.style.display = "";
+      inp.placeholder = "Search posts...";
+    }
+    clearSearch();
+  }
+
   function doSearch() {
+    const mode = document.getElementById("searchMode").value;
     _searchQ = document.getElementById("searchInput").value.trim();
     _sortMode = document.getElementById("sortSelect").value;
     const label = document.getElementById("searchLabel");
-    if (_searchQ) label.innerText = 'Showing results for "'+_searchQ+'"';
-    else label.innerText = "";
-    render(_searchQ, _sortMode);
+    if (mode === "users") {
+      label.innerText = _searchQ ? 'Searching users for "'+_searchQ+'"' : "";
+      renderUserSearch(_searchQ);
+    } else {
+      _currentPage = 0;
+      if (_searchQ) label.innerText = 'Showing results for "'+_searchQ+'"';
+      else label.innerText = "";
+      render(_searchQ, _sortMode, 0);
+    }
   }
 
   function clearSearch() {
     document.getElementById("searchInput").value = "";
     document.getElementById("sortSelect").value = "newest";
     _searchQ = ""; _sortMode = "newest";
+    _currentPage = 0;
     document.getElementById("searchLabel").innerText = "";
-    render();
+    const mode = document.getElementById("searchMode").value;
+    if (mode === "users") {
+      document.getElementById("posts").innerHTML = "";
+      document.getElementById("pagination").innerHTML = "";
+    } else {
+      render(null, null, 0);
+    }
+  }
+
+  function goPage(p) {
+    window.scrollTo(0,0);
+    render(_searchQ, _sortMode, p);
   }
 
   applyTheme();
+
+  const params = new URLSearchParams(location.search);
+  const initTag = params.get("tag");
+  if (initTag) {
+    document.getElementById("searchInput").value = "#" + initTag;
+    doSearch();
+  } else {
+    render(null, null, 0);
+  }
 
   if (isAdmin()) {
     document.getElementById("adminPanelCard").style.display = "block";

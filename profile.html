@@ -109,6 +109,29 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
 .post-time { font-size: 11px; color: #888; }
 .delete-post { color: #bbb; cursor: pointer; font-size: 11px; float: right; }
 .delete-post:hover { color: #c00; }
+.badge-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: var(--accent);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  vertical-align: middle;
+  margin-left: 3px;
+  cursor: help;
+}
+.badge-verified {
+  -webkit-mask-image: url('verifiedbadge.png');
+  mask-image: url('verifiedbadge.png');
+}
+.badge-developer {
+  -webkit-mask-image: url('devbadge.png');
+  mask-image: url('devbadge.png');
+}
 </style>
 </head>
 <body>
@@ -124,6 +147,7 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
 <div class="container">
   <div class="card">
     <div class="card-title">👤 My Profile</div>
+    <div id="userBanner" style="height:120px;background:#ddd;background-size:cover;background-position:center;border-bottom:1px solid var(--border);display:none;"></div>
     <div class="card-body">
       <div class="profile-header">
         <img id="picDisplay" src="empty.jpg" onerror="this.src='empty.jpg'">
@@ -143,10 +167,15 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
   <div class="card">
     <div class="card-title">✏ Edit Profile</div>
     <div class="card-body">
-      <label>Profile Picture</label>
+      <label>Profile Picture <span style="font-weight:normal;color:#888">(Recommended: 400x400px Square)</span></label>
       <input type="file" id="fileInput" accept="image/*">
       <button class="btn" onclick="savePic()">Update Picture</button>
       <div class="msg ok" id="picMsg"></div>
+
+      <label>Profile Banner <span style="font-weight:normal;color:#888">(Recommended: 1500x500px 3:1 Ratio)</span></label>
+      <input type="file" id="bannerInput" accept="image/*">
+      <button class="btn" onclick="saveBanner()">Update Banner</button>
+      <div class="msg ok" id="bannerMsg"></div>
 
       <label>Bio <span style="font-weight:normal;color:#888">(max 160 chars)</span></label>
       <textarea id="bioInput" maxlength="160" placeholder="Tell people about yourself..."></textarea>
@@ -163,10 +192,11 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
   </div>
 </div>
 
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
+const SUPABASE_URL = window.ERMN_URL;
+const SUPABASE_KEY = window.ERMN_KEY;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const me = localStorage.getItem("currentUser");
@@ -176,13 +206,19 @@ if (!me) location.href = "index.html";
 (function(){
   const t = localStorage.getItem("theme") || "classic";
   const themes = {
-    classic: { body:"linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%)", topbar:"#3b5998" },
-    bubblegum: { body:"linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)", topbar:"#e91e8c" },
-    midnight: { body:"linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)", topbar:"#0d0d1f" },
-    y2k: { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)", topbar:"#0055cc" },
-    limeade: { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)", topbar:"#2d7a2d" },
+    classic:   { body:"linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%)",card:"#fff",topbar:"#3b5998",text:"#333",border:"#b0b7c3",accent:"#3b5998" },
+    bubblegum: { body:"linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)",card:"#fff5fb",topbar:"#e91e8c",text:"#5a0030",border:"#f9a8d4",accent:"#e91e8c" },
+    midnight:  { body:"linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)",card:"#1a1a2e",topbar:"#0d0d1f",text:"#c8d0e8",border:"#2a2a4a",accent:"#7b68ee" },
+    y2k:       { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)",card:"#fff",topbar:"#0055cc",text:"#002266",border:"#99bbff",accent:"#0055cc" },
+    limeade:   { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)",card:"#f9fff9",topbar:"#2d7a2d",text:"#1a3d1a",border:"#a3d9a3",accent:"#2d7a2d" },
   };
   const th = themes[t] || themes.classic;
+  document.documentElement.style.setProperty("--body-bg", th.body);
+  document.documentElement.style.setProperty("--card-bg", th.card);
+  document.documentElement.style.setProperty("--topbar-bg", th.topbar);
+  document.documentElement.style.setProperty("--text", th.text);
+  document.documentElement.style.setProperty("--border", th.border);
+  document.documentElement.style.setProperty("--accent", th.accent);
   document.body.style.background = th.body;
   document.querySelector(".topbar").style.background = th.topbar;
 })();
@@ -198,9 +234,34 @@ async function savePic() {
   if (!tempPic) { document.getElementById("picMsg").innerText = "Please select a file first."; document.getElementById("picMsg").className = "msg err"; return; }
   const { error } = await sb.from("users").update({ pic: tempPic }).eq("username", me);
   if (error) { document.getElementById("picMsg").innerText = "Error: " + error.message; document.getElementById("picMsg").className = "msg err"; return; }
-  document.getElementById("picMsg").innerText = "Picture updated!";
-  document.getElementById("picMsg").className = "msg ok";
-  tempPic = null;
+  const file = document.getElementById("fileInput").files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    const { error } = await sb.from("users").update({ pic: r.result }).eq("username", me);
+    if (!error) {
+      document.getElementById("picDisplay").src = r.result;
+      document.getElementById("picMsg").innerText = "Picture updated!";
+      setTimeout(()=>document.getElementById("picMsg").innerText="", 3000);
+    }
+  };
+  r.readAsDataURL(file);
+}
+
+function saveBanner() {
+  const file = document.getElementById("bannerInput").files[0];
+  if (!file) return;
+  const r = new FileReader();
+  r.onload = async () => {
+    const { error } = await sb.from("users").update({ banner: r.result }).eq("username", me);
+    if (!error) {
+      document.getElementById("userBanner").style.backgroundImage = "url('" + r.result + "')";
+      document.getElementById("userBanner").style.display = "block";
+      document.getElementById("bannerMsg").innerText = "Banner updated!";
+      setTimeout(()=>document.getElementById("bannerMsg").innerText="", 3000);
+    }
+  };
+  r.readAsDataURL(file);
 }
 
 async function saveBio() {
@@ -215,8 +276,31 @@ async function saveBio() {
 function escapeHtml(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function timeAgo(d) { const diff=Math.floor((Date.now()-new Date(d))/1000); if(diff<60)return diff+"s ago"; if(diff<3600)return Math.floor(diff/60)+"m ago"; if(diff<86400)return Math.floor(diff/3600)+"h ago"; return Math.floor(diff/86400)+"d ago"; }
 
+async function votePoll(postId, optionIndex) {
+  if (!me) return;
+  const { data: existingVote } = await sb.from("poll_votes").select("*").eq("post_id", postId).eq("username", me).maybeSingle();
+  if (existingVote) {
+    if (existingVote.option_index === optionIndex) return;
+    await sb.from("poll_votes").update({ option_index: optionIndex }).eq("post_id", postId).eq("username", me);
+    const { data: poll } = await sb.from("polls").select("options").eq("post_id", postId).single();
+    if (poll) {
+      poll.options[existingVote.option_index].votes = Math.max(0, (poll.options[existingVote.option_index].votes||0) - 1);
+      poll.options[optionIndex].votes = (poll.options[optionIndex].votes||0) + 1;
+      await sb.from("polls").update({ options: poll.options }).eq("post_id", postId);
+    }
+  } else {
+    await sb.from("poll_votes").insert({ post_id: postId, username: me, option_index: optionIndex });
+    const { data: poll } = await sb.from("polls").select("options").eq("post_id", postId).single();
+    if (poll) {
+      poll.options[optionIndex].votes = (poll.options[optionIndex].votes||0) + 1;
+      await sb.from("polls").update({ options: poll.options }).eq("post_id", postId);
+    }
+  }
+  loadPosts();
+}
+
 async function deletePost(postId) {
-  if (!confirm("Delete this post?")) return;
+  if (!(await uiConfirm("Delete this post?"))) return;
   await sb.from("likes").delete().eq("post_id", postId);
   await sb.from("comments").delete().eq("post_id", postId);
   await sb.from("posts").delete().eq("id", postId).eq("username", me);
@@ -225,14 +309,44 @@ async function deletePost(postId) {
 
 async function loadPosts() {
   const { data: posts } = await sb.from("posts").select("id, text, created_at").eq("username", me).order("created_at", { ascending: false });
+  const postIds = (posts || []).map(p => p.id);
+  const [{ data: polls }, { data: pollVotes }] = await Promise.all([
+    postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({ data: [] }),
+    postIds.length ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", me) : Promise.resolve({ data: [] })
+  ]);
+  const pollMap = {};
+  (polls || []).forEach(pl => { pollMap[pl.post_id] = pl.options; });
+  const myVoteMap = {};
+  (pollVotes || []).forEach(pv => { myVoteMap[pv.post_id] = pv.option_index; });
+
   const el = document.getElementById("myPosts");
   if (!posts || !posts.length) { el.innerHTML = "<div style='color:#888;font-style:italic;'>No posts yet.</div>"; return; }
   el.innerHTML = "";
   for (const p of posts) {
+    let pollHtml = '';
+    if (pollMap[p.id]) {
+      const options = pollMap[p.id];
+      const myVote = myVoteMap[p.id];
+      const totalVotes = options.reduce((sum, opt) => sum + (opt.votes||0), 0);
+      pollHtml = '<div class="poll-container" style="margin:10px 0;background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:10px;">';
+      options.forEach((opt, idx) => {
+        const pct = totalVotes > 0 ? Math.round(((opt.votes||0) / totalVotes) * 100) : 0;
+        const isMyVote = myVote === idx;
+        pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
+                      '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'#d0e0ff':'#e0e0e0')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
+                      '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
+                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'✓':'')+'</span><span>'+pct+'%</span>'+
+                      '</div>'+
+                    '</div>';
+      });
+      pollHtml += '<div style="font-size:11px;color:#888;text-align:right;">'+totalVotes+' vote'+(totalVotes!==1?'s':'')+'</div></div>';
+    }
+
     const d = document.createElement("div");
     d.className = "post";
     d.innerHTML = '<span class="delete-post" onclick="deletePost(' + p.id + ')">✕ delete</span>' +
       '<div class="post-text">' + escapeHtml(p.text) + '</div>' +
+      pollHtml +
       '<div class="post-time">' + timeAgo(p.created_at) + '</div>';
     el.appendChild(d);
   }
@@ -240,15 +354,24 @@ async function loadPosts() {
 }
 
 async function load() {
-  const { data: user } = await sb.from("users").select("pic, bio").eq("username", me).maybeSingle();
   const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", me);
   const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", me);
-
   document.getElementById("uname").innerText = "@" + me;
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner").eq("username", me).maybeSingle();
   if (user) {
-    document.getElementById("picDisplay").src = user.pic || "empty.jpg";
-    document.getElementById("bioDisplay").innerText = user.bio || "No bio yet.";
-    document.getElementById("bioInput").value = user.bio || "";
+    if (user.pic) document.getElementById("picDisplay").src = user.pic;
+    if (user.bio) {
+      document.getElementById("bioDisplay").innerText = user.bio;
+      document.getElementById("bioInput").value = user.bio;
+    }
+    if (user.banner) {
+      document.getElementById("userBanner").style.backgroundImage = "url('" + user.banner + "')";
+      document.getElementById("userBanner").style.display = "block";
+    }
+    let badges = '';
+    if (user.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
+    if (user.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
+    document.getElementById("uname").innerHTML = "@" + escapeHtml(me) + badges;
   }
   document.getElementById("statFollowers").innerText = fc || 0;
   document.getElementById("statFollowing").innerText = fgc || 0;

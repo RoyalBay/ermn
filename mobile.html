@@ -102,10 +102,11 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
 </div>
 <div class="footer">&copy; 2025 ermn.</div>
 
+<script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
+const SUPABASE_URL = window.ERMN_URL;
+const SUPABASE_KEY = window.ERMN_KEY;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 function setMsg(text, isError) {
@@ -130,7 +131,8 @@ async function login() {
   if (!data) { setMsg("User not found.", true); setBusy(false); return; }
   if (data.password !== p) { setMsg("Incorrect password.", true); setBusy(false); return; }
   localStorage.setItem("currentUser", data.username);
-  location.href = "mobile_feed.html";
+  // Admin always uses desktop
+  location.href = data.username.toLowerCase() === "ermn" ? "feed.html" : "mobile_feed.html";
 }
 
 async function create() {
