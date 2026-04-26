@@ -1,10 +1,9 @@
 /**
  * config.js — loaded first on every page.
- * Hardcoded to spenium's ermn Supabase project.
- * All other scripts reference window.ERMN_URL / window.ERMN_KEY / window.ERMN_SPENIUM.
+ * Hardcoded to the ermn Supabase project.
+ * All other scripts reference window.ERMN_URL / window.ERMN_KEY.
  */
 (function () {
-  window.ERMN_SPENIUM = true;
   window.ERMN_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
   window.ERMN_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
 })();

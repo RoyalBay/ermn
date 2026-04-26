@@ -1,4 +1,4 @@
-// Keys resolved by config.js (synchronous spenium.txt check)
+// Keys resolved by config.js
 const SUPABASE_URL = window.ERMN_URL;
 const SUPABASE_KEY = window.ERMN_KEY;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
