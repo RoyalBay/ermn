@@ -173,6 +173,13 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
   </div>
 
   <div class="card">
+    <div class="card-title">🚫 Blocked Users</div>
+    <div class="card-body">
+      <div id="blockedList" style="font-size:13px;color:#888;">Loading blocked users...</div>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-title">ℹ Account Info</div>
     <div class="card-body">
       <div class="info-row">
@@ -185,7 +192,6 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
       </div>
     </div>
   </div>
-</div>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -319,7 +325,31 @@ async function denyRequest(requester) {
 
 function escapeHtml(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
+async function loadBlockedUsers() {
+  const list = document.getElementById("blockedList");
+  const { data: blocked } = await sb.from("blocked_users").select("blocked").eq("blocker", me);
+  if (!blocked || !blocked.length) {
+    list.innerHTML = "No blocked users.";
+    return;
+  }
+  list.innerHTML = "";
+  for (const b of blocked) {
+    const div = document.createElement("div");
+    div.className = "info-row";
+    div.innerHTML = '<span><a href="userpage.html?user='+encodeURIComponent(b.blocked)+'" style="color:var(--accent);text-decoration:none;font-weight:bold;">@'+escapeHtml(b.blocked)+'</a></span>' +
+      '<span><button onclick="unblockUser(\''+b.blocked+'\')" class="btn" style="margin-top:0;padding:2px 8px;font-size:11px;background:linear-gradient(180deg,#e55,#c33);border-color:#a22;">Unblock</button></span>';
+    list.appendChild(div);
+  }
+}
+
+async function unblockUser(target) {
+  if (!(await uiConfirm("Unblock @"+target+"?"))) return;
+  await sb.from("blocked_users").delete().eq("blocker", me).eq("blocked", target);
+  loadBlockedUsers();
+}
+
 loadInfo();
+loadBlockedUsers();
 </script>
 </body>
 </html>

@@ -138,8 +138,7 @@ tr:hover td{background:#fef8f8;}
 async function initAdmin() {
   const me = localStorage.getItem("currentUser");
   if (!me || me.toLowerCase() !== "ermn") { 
-    if (window.uiAlert) await uiAlert("Access denied.");
-    else alert("Access denied.");
+    await uiAlert("Access denied.");
     location.href = "feed.html"; 
     return; 
   }
