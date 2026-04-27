@@ -4,8 +4,8 @@
  * All other scripts reference window.ERMN_URL / window.ERMN_KEY.
  */
 (function () {
-  window.ERMN_URL = "https://kibepwdosrjxbauxnjtn.supabase.co";
-  window.ERMN_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtpYmVwd2Rvc3JqeGJhdXhuanRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5MDczMzAsImV4cCI6MjA5MjQ4MzMzMH0._bfs8jCBRSKCkHJ6T-0SIl2j_TnGliAW6zw7OLl08Sk";
+  window.ERMN_URL = "https://https://glxkfdltajezuvptippt.supabase.co";
+  window.ERMN_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdseGtmZGx0YWplenV2cHRpcHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNDA0NDcsImV4cCI6MjA5MjgxNjQ0N30.2PTpFCp20SHOlLcgxldYNHAtVxnsB8UuP6n8HpCa944";
 })();
 
 window.uiPrompt = function (msg, def) {
