@@ -232,7 +232,15 @@ async function selectMusic(track) {
     albumArt: track.artworkUrl100
   };
   
-  const { error } = await sb.from("users").update({ spotify_data: musicData }).eq("username", me);
+  const { data: { session } } = await sb.auth.getSession();
+  const userId = session?.user?.id;
+  if (!userId) {
+    document.getElementById("musicMsg").innerText = "Session expired.";
+    document.getElementById("musicMsg").className = "err";
+    return;
+  }
+  
+  const { error } = await sb.from("users").update({ spotify_data: musicData }).eq("id", userId);
   if (error) {
     document.getElementById("musicMsg").innerText = "Error: " + error.message;
     document.getElementById("musicMsg").className = "err";
@@ -248,7 +256,10 @@ async function selectMusic(track) {
 }
 
 async function removeMusic() {
-  const { error } = await sb.from("users").update({ spotify_data: null }).eq("username", me);
+  const { data: { session } } = await sb.auth.getSession();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  const { error } = await sb.from("users").update({ spotify_data: null }).eq("id", userId);
   if (error) return;
   document.getElementById("selectedMusic").style.display = "none";
   document.getElementById("musicOptions").style.display = "none";
@@ -276,10 +287,13 @@ function updateStartVal(val) {
 }
 
 async function saveMusicStart(val) {
-  const { data: user } = await sb.from("users").select("spotify_data").eq("username", me).maybeSingle();
+  const { data: { session } } = await sb.auth.getSession();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  const { data: user } = await sb.from("users").select("spotify_data").eq("id", userId).maybeSingle();
   if (user && user.spotify_data) {
     user.spotify_data.startTime = val;
-    await sb.from("users").update({ spotify_data: user.spotify_data }).eq("username", me);
+    await sb.from("users").update({ spotify_data: user.spotify_data }).eq("id", userId);
     document.getElementById("musicMsg").innerText = "Start time updated!";
     setTimeout(() => document.getElementById("musicMsg").innerText = "", 2000);
   }

@@ -135,7 +135,7 @@ async function login() {
   const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
   if (error) { setMsg("Login failed: " + error.message, true); setBusy(false); return; }
   localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);
-  location.href = rawU.toLowerCase() === "ermn" ? "feed.html" : "mobile_feed.html";
+  location.href = "mobile_feed.html";
 }
 
 async function create() {
@@ -156,7 +156,7 @@ async function create() {
   if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
   if (data.user && data.session) {
     localStorage.setItem("currentUser", rawU);
-    location.href = rawU.toLowerCase() === "ermn" ? "feed.html" : "mobile_feed.html";
+    location.href = "mobile_feed.html";
   } else {
     setMsg("Account created! Please log in.", false);
     setBusy(false);
