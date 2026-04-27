@@ -10,42 +10,22 @@
 :root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:13px;}
-.topbar{background:#8b0000;height:44px;display:flex;align-items:center;padding:0 12px;gap:10px;box-shadow:0 2px 5px rgba(0,0,0,0.4);}
-.badge-icon {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  background-color: var(--accent);
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  vertical-align: middle;
-  margin-left: 3px;
-  cursor: help;
-}
-.badge-verified {
-  -webkit-mask-image: url('verifiedbadge.png');
-  mask-image: url('verifiedbadge.png');
-}
-.badge-developer {
-  -webkit-mask-image: url('devbadge.png');
-  mask-image: url('devbadge.png');
-}
-.topbar-logo{font-size:20px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
-.topbar-badge{background:rgba(255,255,255,0.2);color:white;font-size:11px;padding:2px 8px;border:1px solid rgba(255,255,255,0.4);}
-.topbar-right{margin-left:auto;display:flex;gap:8px;}
-.topbar-right a,.topbar-right button{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:none;}
-.container{max-width:900px;margin:16px auto;padding:0 12px;}
-.card{background:var(--card-bg);border:1px solid var(--border);margin-bottom:14px;}
-.card-title{background:linear-gradient(180deg,#f8e8e8,#f0d0d0);border-bottom:2px solid #c55;padding:6px 12px;font-size:13px;font-weight:bold;color:#800;}
-.card-body{padding:12px;}
-.tabs{display:flex;gap:0;border-bottom:2px solid #c55;margin-bottom:12px;}
-.tab{padding:7px 16px;cursor:pointer;font-size:13px;color:#800;background:#f8e8e8;border:1px solid #c55;border-bottom:none;margin-right:4px;font-weight:bold;}
-.tab.active{background:white;color:#500;border-bottom:2px solid white;margin-bottom:-2px;}
-.tab:hover:not(.active){background:#fee;}
+.topbar { background:#800; height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.4); border-bottom:2px solid rgba(0,0,0,0.2); }
+.topbar-logo { font-size:22px; font-weight:bold; color:white; letter-spacing:-1px; font-style:italic; text-shadow:1px 1px 2px rgba(0,0,0,0.3); }
+.topbar-nav { display:flex; gap:4px; margin-left:10px; }
+.topbar-nav a { color:rgba(255,255,255,0.85); font-size:12px; text-decoration:none; padding:4px 8px; border-radius:2px; }
+.topbar-nav a:hover { background:rgba(255,255,255,0.15); color:white; }
+.topbar-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
+.topbar-right button, .topbar-right a { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; text-decoration:none; }
+.topbar-right button:hover, .topbar-right a:hover { background:rgba(255,255,255,0.35); }
+.container { max-width:900px; margin:16px auto; padding:0 12px; }
+.card { background:var(--card-bg); border:1px solid var(--border); margin-bottom:14px; }
+.card-title { background:linear-gradient(180deg,#fcf4f4,#f8e8e8); border-bottom:1px solid #c55; padding:6px 12px; font-size:13px; font-weight:bold; color:#800; display:flex; align-items:center; gap:6px; }
+.card-body { padding:12px; }
+.tabs { display:flex; gap:2px; border-bottom:1px solid #c55; margin-bottom:12px; }
+.tab { padding:8px 16px; cursor:pointer; font-size:12px; color:#800; background:#f8e8e8; border:1px solid #c55; border-bottom:none; border-radius:4px 4px 0 0; font-weight:bold; transition: 0.2s; }
+.tab.active { background:white; color:#500; border-bottom:2px solid white; margin-bottom:-1px; }
+.tab:hover:not(.active) { background:#fee; }
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 
@@ -83,10 +63,13 @@ tr:hover td{background:#fef8f8;}
 <body>
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
-  <span class="topbar-badge"><span class="material-icons" style="font-size:14px;">security</span> ADMIN PANEL</span>
+  <nav class="topbar-nav">
+    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="profile.html"><span class="material-icons">person</span> Profile</a>
+  </nav>
   <div class="topbar-right">
-    <a href="feed.html"><span class="material-icons">arrow_back</span> Back to Feed</a>
-    <button onclick="logout()"><span class="material-icons">logout</span> Logout</button>
+    <span class="topbar-badge" style="background:rgba(255,255,255,0.2);color:white;font-size:11px;padding:2px 8px;border:1px solid rgba(255,255,255,0.4);"><span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:4px;">security</span> ADMIN</span>
+    <button onclick="logout()">Logout</button>
   </div>
 </div>
 

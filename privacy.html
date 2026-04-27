@@ -28,16 +28,15 @@
       color: #333;
     }
 
-    /* TOP BAR */
-    .topbar {
-      background: var(--accent);
-      height: 42px;
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
-      border-bottom: 2px solid #2a4070;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
+.topbar { background:var(--accent); height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.3); border-bottom:2px solid rgba(0,0,0,0.2); }
+.topbar-logo { font-size:22px; font-weight:bold; color:white; letter-spacing:-1px; font-style:italic; text-shadow:1px 1px 2px rgba(0,0,0,0.3); text-decoration:none; }
+.topbar-nav { display:flex; gap:4px; margin-left:10px; }
+.topbar-nav a { color:rgba(255,255,255,0.85); font-size:12px; text-decoration:none; padding:4px 8px; border-radius:2px; display:flex; align-items:center; }
+.topbar-nav a:hover { background:rgba(255,255,255,0.15); color:white; }
+.topbar-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
+.topbar-right button, .topbar-right a.btn-top { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; text-decoration:none; border-radius:0; }
+.topbar-right button:hover, .topbar-right a.btn-top:hover { background:rgba(255,255,255,0.35); }
+.material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
 
     .topbar-logo {
       font-size: 22px;
@@ -139,14 +138,16 @@
 </head>
 
 <body>
-  <div class="topbar">
-    <a href="index.html" class="topbar-logo" id="siteLogo">ermn.</a>
-    <div class="topbar-links">
-      <a href="about.html">About</a>
-      <a href="terms.html">Terms</a>
-      <a href="help.html">Help</a>
-    </div>
+<div class="topbar">
+  <span class="topbar-logo">ermn.</span>
+  <nav class="topbar-nav">
+    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="profile.html"><span class="material-icons">person</span> Profile</a>
+  </nav>
+  <div class="topbar-right">
+    <a href="feed.html" class="btn-top"><span class="material-icons" style="font-size:14px;">arrow_back</span> Back</a>
   </div>
+</div>
 
   <div class="hero">
     <div class="hero-title">Privacy Policy</div>
