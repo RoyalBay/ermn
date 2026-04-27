@@ -150,6 +150,8 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
   <div class="topbar-right">
     <button onclick="history.back()">← Back</button>
     <button onclick="location.href=getHomeLink()">&#127968; Feed</button>
+    <button onclick="location.href='about.html'">ℹ About</button>
+    <button onclick="location.href='help.html'">❓ Help</button>
   </div>
 </div>
 
@@ -163,23 +165,63 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
         <div class="profile-info">
           <h2 id="userName">Loading...</h2>
           <div class="bio-text" id="userBio"></div>
-          <div class="stats">
-            <div class="stat-item" onclick="openModal('followers')">
-              <strong id="statFollowers">0</strong>
-              <span>followers</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap; margin-top: 15px;">
+            <div class="stats" style="margin-top: 0;">
+              <div class="stat-item" onclick="openModal('followers')">
+                <strong id="statFollowers">0</strong>
+                <span>followers</span>
+              </div>
+              <div class="stat-item" onclick="openModal('following')">
+                <strong id="statFollowing">0</strong>
+                <span>following</span>
+              </div>
+              <div class="stat-item">
+                <strong id="statPosts">0</strong>
+                <span>posts</span>
+              </div>
             </div>
-            <div class="stat-item" onclick="openModal('following')">
-              <strong id="statFollowing">0</strong>
-              <span>following</span>
-            </div>
-            <div class="stat-item">
-              <strong id="statPosts">0</strong>
-              <span>posts</span>
+
+            <style>
+              .music-banner {
+                margin: 0;
+                background: linear-gradient(180deg, #f8f9fb, #eceef2);
+                border: 1px solid #9196a1;
+                border-radius: 0px;
+                padding: 4px 8px 4px 4px;
+                box-shadow: 1px 1px 0px white inset;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                width: fit-content;
+                max-width: 100%;
+                cursor: pointer;
+                transition: transform 0.2s;
+              }
+              .music-banner:hover { background: #f0f2f5; }
+              .music-art-wrap { width: 36px; height: 36px; position: relative; flex-shrink: 0; }
+              .music-art { width: 100%; height: 100%; object-fit: cover; border: 1px solid #777; }
+              .music-info { display: flex; flex-direction: column; overflow: hidden; max-width: 180px; }
+              .music-title { font-size: 11px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+              .music-artist { font-size: 9px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+              .music-controls { color: var(--accent); font-size: 14px; margin-left: 4px; }
+            </style>
+
+            <div id="musicBanner" class="music-banner" style="display:none;" onclick="toggleMusic()">
+              <div class="music-art-wrap">
+                <img id="musicArt" src="" class="music-art">
+              </div>
+              <div class="music-info">
+                <div id="musicTitle" class="music-title"></div>
+                <div id="musicArtist" class="music-artist"></div>
+              </div>
+              <div class="music-controls" id="musicStatus">▶</div>
             </div>
           </div>
-          <button id="followBtn" onclick="toggleFollow()" style="display:none">Follow</button>
-          <button id="blockBtn" onclick="blockUser()" style="display:none;background:#e55;color:white;border:1px solid #c33;padding:5px 10px;font-size:13px;font-weight:bold;cursor:pointer;margin-left:6px;">Block</button>
-          <span id="itsYou" style="display:none;font-style:italic;color:#888;font-size:12px;">This is you · <a href="profile.html" style="color:var(--accent)">Edit profile</a></span>
+          <div style="margin-top: 10px;">
+            <button id="followBtn" onclick="toggleFollow()" style="display:none">Follow</button>
+            <button id="blockBtn" onclick="blockUser()" style="display:none;background:#e55;color:white;border:1px solid #c33;padding:5px 10px;font-size:13px;font-weight:bold;cursor:pointer;margin-left:6px;">Block</button>
+            <span id="itsYou" style="display:none;font-style:italic;color:#888;font-size:12px;">This is you · <a href="profile.html" style="color:var(--accent)">Edit profile</a></span>
+          </div>
         </div>
       </div>
     </div>
@@ -213,8 +255,29 @@ const params = new URLSearchParams(location.search);
 const viewUser = params.get("user") || me;
 let isFollowing = false;
 let isBlocked = false;
+let userMusicData = null;
 
 applyTheme();
+
+function toggleMusic() {
+  if (!userMusicData) return;
+  ProfileMusicPlayer.toggle(userMusicData);
+}
+
+// Subscribe to player state changes
+ProfileMusicPlayer.onStateChange = (playing) => {
+  const art = document.getElementById("musicArt");
+  const status = document.getElementById("musicStatus");
+  if (ProfileMusicPlayer.currentTrackId === userMusicData?.trackId) {
+    if (playing) {
+      status.innerText = "⏸";
+    } else {
+      status.innerText = "▶";
+    }
+  } else {
+    status.innerText = "▶";
+  }
+};
 
 async function toggleFollow() {
   if (!me) return;
@@ -313,10 +376,23 @@ function closeModal() {
 async function load() {
   document.title = "ermn. · @" + viewUser;
 
-  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private").eq("username", viewUser).maybeSingle();
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, spotify_data").eq("username", viewUser).maybeSingle();
   const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", viewUser);
   const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", viewUser);
   const { data: posts } = await sb.from("posts").select("id, text, created_at").eq("username", viewUser).order("created_at", { ascending: false });
+
+  if (user && user.spotify_data) {
+    userMusicData = user.spotify_data;
+    document.getElementById("musicBanner").style.display = "flex";
+    document.getElementById("musicArt").src = userMusicData.albumArt;
+    document.getElementById("musicTitle").innerText = userMusicData.trackName;
+    document.getElementById("musicArtist").innerText = userMusicData.artistName;
+    
+    // Check if this track is already playing
+    if (ProfileMusicPlayer.isPlaying && ProfileMusicPlayer.currentTrackId === userMusicData.trackId) {
+      document.getElementById("musicStatus").innerText = "⏸";
+    }
+  }
 
   let badges = '';
   if (user && user.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';

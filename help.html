@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ermn. · help</title>
+  <link rel="icon" href="wicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #3b5998;
+      --accent2: #8b9dc3;
+      --bg1: #dfe7f3;
+      --bg2: #f5f6f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Tahoma, Verdana, sans-serif;
+      background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--accent);
+      height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-bottom: 2px solid #2a4070;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .topbar-logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+      letter-spacing: -1px;
+      font-style: italic;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+      text-decoration: none;
+    }
+
+    .topbar-links {
+      margin-left: auto;
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: #ccd5e8;
+    }
+
+    .topbar-links a {
+      color: #ccd5e8;
+      text-decoration: none;
+    }
+
+    .topbar-links a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 32px 16px 20px;
+    }
+
+    .hero-title {
+      font-size: 42px;
+      font-weight: bold;
+      color: var(--accent);
+      letter-spacing: -2px;
+      font-style: italic;
+      text-shadow: 2px 2px 0px rgba(59, 89, 152, 0.2);
+    }
+
+    /* MAIN LAYOUT */
+    .main {
+      max-width: 700px;
+      margin: 0 auto 40px;
+      padding: 0 12px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #b0b7c3;
+      padding: 20px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+    }
+
+    .faq-item {
+      margin-bottom: 20px;
+    }
+
+    .faq-item b {
+      display: block;
+      font-size: 15px;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .faq-item p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #444;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #888;
+      padding: 20px;
+      border-top: 1px solid #ccc;
+      margin-top: 20px;
+    }
+
+    .footer a {
+      color: #3b5998;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <a href="index.html" class="topbar-logo" id="siteLogo">ermn.</a>
+    <div class="topbar-links">
+      <a href="about.html">About</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-title">Help & FAQ</div>
+  </div>
+
+  <div class="main">
+    <div class="card">
+      <h2>Getting Started</h2>
+      
+      <div class="faq-item">
+        <b>How do I change my profile picture?</b>
+        <p>
+          Go to your <b>Profile</b> page and look for the "Update Picture" section in the sidebar. You can upload any image from your device. 
+          Square images work best!
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <b>How do I personalize my theme?</b>
+        <p>
+          Head over to <b>Settings</b>. We have several retro-inspired themes like "Classic Blue," "Bubblegum," and "Midnight." 
+          Pick one and it will apply to the whole site immediately.
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Features</h2>
+
+      <div class="faq-item">
+        <b>What are polls and how do I create one?</b>
+        <p>
+          When writing a post, click the "📊 Add Poll" button. You can add up to 4 options. 
+          Once you post it, other users can vote, and you'll see the results in real-time.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <b>What is a "Private Account"?</b>
+        <p>
+          If you enable "Private Account" in your <b>Settings</b>, people will have to send you a follow request. 
+          Only approved followers will be able to see your posts.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <b>How do I get a Verified Badge?</b>
+        <p>
+          Verification badges are granted by the moderators to prominent community members or recognized figures. 
+          Stay active, post great content, and you might see a blue checkmark appear next to your name!
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Safety & Support</h2>
+
+      <div class="faq-item">
+        <b>How do I report a post?</b>
+        <p>
+          If you see something that violates our terms, click the <b>⚑ Report</b> button at the bottom of the post. 
+          This will alert our moderation team so they can take action.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <b>I need technical help!</b>
+        <p>
+          If you encounter a bug or need account assistance, please email our support team at:
+          <br><br>
+          <a href="mailto:ermn.social@gmail.com" style="color:var(--accent);font-weight:bold;">ermn.social@gmail.com</a>
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <b>Who can I contact for business inquiries?</b>
+        <p>
+          For general inquiries or technical issues, you can reach out to <b>Spencer</b> or <b>Kyan</b> directly on the platform, 
+          or email us at the address above.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 ermn. &nbsp;·&nbsp; 
+    <a href="index.html">Home</a> &nbsp;·&nbsp; 
+    <a href="about.html">About</a> &nbsp;·&nbsp; 
+    <a href="terms.html">Terms</a> &nbsp;·&nbsp; 
+    <a href="privacy.html">Privacy</a> &nbsp;·&nbsp; 
+    <a href="help.html">Help</a>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+    if (typeof applyTheme === "function") applyTheme();
+    
+    const me = localStorage.getItem("currentUser");
+    if (me) {
+      const homeLinks = document.querySelectorAll('a[href="index.html"]');
+      homeLinks.forEach(link => {
+        link.href = "feed.html";
+        if (link.textContent === "Home") link.textContent = "Feed";
+      });
+    }
+  </script>
+</body>
+</html>

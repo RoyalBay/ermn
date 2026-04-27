@@ -52,9 +52,41 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
         <div class="profile-info">
           <h2 id="userName">@loading</h2>
           <div id="userBio" style="font-style:italic;color:#555;font-size:13px;margin-top:4px;"></div>
-          <div class="stats">
-            <span onclick="openModal('followers')"><strong id="statFollowers">0</strong> followers</span>
-            <span onclick="openModal('following')"><strong id="statFollowing">0</strong> following</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 8px;">
+            <div class="stats" style="margin-top: 0;">
+              <span onclick="openModal('followers')"><strong id="statFollowers">0</strong> followers</span>
+              <span onclick="openModal('following')"><strong id="statFollowing">0</strong> following</span>
+            </div>
+
+            <style>
+              .music-banner {
+                margin: 0;
+                background: linear-gradient(180deg, #f8f9fb, #eceef2);
+                border: 1px solid #9196a1;
+                border-radius: 0px;
+                padding: 4px 8px 4px 4px;
+                box-shadow: 1px 1px 0px white inset;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                width: fit-content;
+                max-width: 100%;
+              }
+              .music-art { width: 32px; height: 32px; border-radius: 0; object-fit: cover; border: 1px solid #777; }
+              .music-info { display: flex; flex-direction: column; overflow: hidden; max-width: 150px; }
+              .music-title { font-size: 11px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+              .music-artist { font-size: 9px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+              .music-controls { color: var(--accent); font-size: 13px; margin-left: 2px; }
+            </style>
+
+            <div id="musicBanner" class="music-banner" style="display:none;" onclick="toggleMusic()">
+              <img id="musicArt" src="" class="music-art">
+              <div class="music-info">
+                <div id="musicTitle" class="music-title"></div>
+                <div id="musicArtist" class="music-artist"></div>
+              </div>
+              <div class="music-controls" id="musicStatus">▶</div>
+            </div>
           </div>
           <div id="actions" style="margin-top:10px;">
              <button id="followBtn" class="btn" onclick="toggleFollow()" style="display:none">Follow</button>
@@ -92,8 +124,25 @@ const me = localStorage.getItem("currentUser");
 const params = new URLSearchParams(location.search);
 const viewUser = params.get("user") || me;
 let isFollowing = false, isBlocked = false;
+let userMusicData = null;
 
 applyTheme();
+
+function toggleMusic() {
+  if (!userMusicData) return;
+  ProfileMusicPlayer.toggle(userMusicData);
+}
+
+ProfileMusicPlayer.onStateChange = (playing) => {
+  const art = document.getElementById("musicArt");
+  const status = document.getElementById("musicStatus");
+  if (ProfileMusicPlayer.currentTrackId === userMusicData?.trackId) {
+    if (playing) { status.innerText = "⏸"; }
+    else { status.innerText = "▶"; }
+  } else {
+    status.innerText = "▶";
+  }
+};
 
 async function toggleFollow() {
   if (!me) return;
@@ -159,10 +208,21 @@ async function openModal(type) {
 function closeModal(){ document.getElementById("modalBackdrop").classList.remove("open"); }
 
 async function load() {
-  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private").eq("username", viewUser).maybeSingle();
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, spotify_data").eq("username", viewUser).maybeSingle();
   const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", viewUser);
   const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", viewUser);
   const { data: posts } = await sb.from("posts").select("id, text, created_at").eq("username", viewUser).order("created_at", { ascending: false });
+
+  if (user && user.spotify_data) {
+    userMusicData = user.spotify_data;
+    document.getElementById("musicBanner").style.display = "flex";
+    document.getElementById("musicArt").src = userMusicData.albumArt;
+    document.getElementById("musicTitle").innerText = userMusicData.trackName;
+    document.getElementById("musicArtist").innerText = userMusicData.artistName;
+    if (ProfileMusicPlayer.isPlaying && ProfileMusicPlayer.currentTrackId === userMusicData.trackId) {
+      document.getElementById("musicStatus").innerText = "⏸";
+    }
+  }
 
   let badges = '';
   if (user && user.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';

@@ -141,6 +141,7 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
   <div class="topbar-right">
     <button onclick="location.href='feed.html'">&#127968; Feed</button>
     <button onclick="location.href='settings.html'">⚙ Settings</button>
+    <button onclick="location.href='about.html'">ℹ About</button>
   </div>
 </div>
 
@@ -181,6 +182,34 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
       <textarea id="bioInput" maxlength="160" placeholder="Tell people about yourself..."></textarea>
       <button class="btn" onclick="saveBio()">Save Bio</button>
       <div class="msg ok" id="bioMsg"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🎵 Profile Music</div>
+    <div class="card-body">
+      <div id="selectedMusic" style="display:none;margin-bottom:12px;padding:10px;background:#f8f9fb;border:1px solid #9196a1;border-radius:0;display:flex;align-items:center;gap:12px;box-shadow:inset 1px 1px 0 white;">
+        <img id="selArt" src="" style="width:40px;height:40px;border-radius:0;object-fit:cover;border:1px solid #777;">
+        <div style="flex:1">
+          <div id="selTitle" style="font-weight:bold;font-size:14px;"></div>
+          <div id="selArtist" style="font-size:12px;color:#666;"></div>
+        </div>
+        <button class="btn btn-red" onclick="removeMusic()" style="margin:0;padding:4px 8px;">Remove</button>
+      </div>
+
+      <div id="musicOptions" style="display:none;margin-bottom:12px;padding:10px;border:1px solid #9196a1;border-radius:0;background:#fcfcfc;">
+        <label style="font-size:12px;margin-bottom:5px;display:block;">Song Preview Start: <span id="startVal">0</span>s</label>
+        <input type="range" id="startSlider" min="0" max="25" value="0" style="width:100%" oninput="updateStartVal(this.value)" onchange="saveMusicStart(this.value)">
+        <p style="font-size:10px;color:#888;margin-top:5px;">Choose which part of the 30s preview to start at.</p>
+      </div>
+
+      <label>Search for a song</label>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="musicSearch" placeholder="Enter song or artist name..." onkeydown="if(event.key==='Enter')searchMusic()">
+        <button class="btn" onclick="searchMusic()" style="margin:0;">Search</button>
+      </div>
+      <div id="musicResults" style="margin-top:10px;max-height:200px;overflow-y:auto;border:1px solid #eee;display:none;"></div>
+      <div class="msg ok" id="musicMsg"></div>
     </div>
   </div>
 
@@ -273,6 +302,102 @@ async function saveBio() {
   document.getElementById("bioDisplay").innerText = bio || "No bio yet.";
 }
 
+async function searchMusic() {
+  const q = document.getElementById("musicSearch").value.trim();
+  if (!q) return;
+  const resEl = document.getElementById("musicResults");
+  resEl.innerHTML = "<div style='padding:10px;color:#888'>Searching...</div>";
+  resEl.style.display = "block";
+
+  try {
+    const response = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&media=music&limit=10`);
+    const data = await response.json();
+    if (!data.results || data.results.length === 0) {
+      resEl.innerHTML = "<div style='padding:10px;color:#888'>No results found.</div>";
+      return;
+    }
+    resEl.innerHTML = "";
+    data.results.forEach(track => {
+      const d = document.createElement("div");
+      d.style.cssText = "display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid #eee;cursor:pointer;";
+      d.onclick = () => selectMusic(track);
+      d.innerHTML = `
+        <img src="${track.artworkUrl60}" style="width:30px;height:30px;border-radius:2px;">
+        <div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+          <div style="font-weight:bold;font-size:12px;">${escapeHtml(track.trackName)}</div>
+          <div style="font-size:11px;color:#666;">${escapeHtml(track.artistName)}</div>
+        </div>
+        <span style="font-size:11px;color:var(--accent);font-weight:bold;">Select</span>
+      `;
+      resEl.appendChild(d);
+    });
+  } catch (e) {
+    resEl.innerHTML = "<div style='padding:10px;color:#c00'>Error searching music.</div>";
+  }
+}
+
+async function selectMusic(track) {
+  const musicData = {
+    trackId: track.trackId,
+    trackName: track.trackName,
+    artistName: track.artistName,
+    previewUrl: track.previewUrl,
+    albumArt: track.artworkUrl100
+  };
+  
+  const { error } = await sb.from("users").update({ spotify_data: musicData }).eq("username", me);
+  if (error) {
+    document.getElementById("musicMsg").innerText = "Error saving music: " + error.message;
+    document.getElementById("musicMsg").className = "msg err";
+    return;
+  }
+  
+  displaySelectedMusic(musicData);
+  document.getElementById("musicResults").style.display = "none";
+  document.getElementById("musicSearch").value = "";
+  document.getElementById("musicMsg").innerText = "Profile music updated!";
+  document.getElementById("musicMsg").className = "msg ok";
+  setTimeout(() => document.getElementById("musicMsg").innerText = "", 3000);
+}
+
+async function removeMusic() {
+  const { error } = await sb.from("users").update({ spotify_data: null }).eq("username", me);
+  if (error) return;
+  document.getElementById("selectedMusic").style.display = "none";
+  document.getElementById("musicOptions").style.display = "none";
+  document.getElementById("musicMsg").innerText = "Profile music removed.";
+  setTimeout(() => document.getElementById("musicMsg").innerText = "", 3000);
+}
+
+function displaySelectedMusic(data) {
+  if (!data) {
+    document.getElementById("selectedMusic").style.display = "none";
+    return;
+  }
+  document.getElementById("selectedMusic").style.display = "flex";
+  document.getElementById("selArt").src = data.albumArt;
+  document.getElementById("selTitle").innerText = data.trackName;
+  document.getElementById("selArtist").innerText = data.artistName;
+  
+  document.getElementById("musicOptions").style.display = "block";
+  document.getElementById("startSlider").value = data.startTime || 0;
+  document.getElementById("startVal").innerText = data.startTime || 0;
+}
+
+function updateStartVal(val) {
+  document.getElementById("startVal").innerText = val;
+}
+
+async function saveMusicStart(val) {
+  const { data: user } = await sb.from("users").select("spotify_data").eq("username", me).maybeSingle();
+  if (user && user.spotify_data) {
+    user.spotify_data.startTime = val;
+    await sb.from("users").update({ spotify_data: user.spotify_data }).eq("username", me);
+    document.getElementById("musicMsg").innerText = "Start time updated!";
+    setTimeout(() => document.getElementById("musicMsg").innerText = "", 2000);
+  }
+}
+
 function escapeHtml(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 function timeAgo(d) { const diff=Math.floor((Date.now()-new Date(d))/1000); if(diff<60)return diff+"s ago"; if(diff<3600)return Math.floor(diff/60)+"m ago"; if(diff<86400)return Math.floor(diff/3600)+"h ago"; return Math.floor(diff/86400)+"d ago"; }
 
@@ -357,7 +482,7 @@ async function load() {
   const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", me);
   const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", me);
   document.getElementById("uname").innerText = "@" + me;
-  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner").eq("username", me).maybeSingle();
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, spotify_data").eq("username", me).maybeSingle();
   if (user) {
     if (user.pic) document.getElementById("picDisplay").src = user.pic;
     if (user.bio) {
@@ -367,6 +492,9 @@ async function load() {
     if (user.banner) {
       document.getElementById("userBanner").style.backgroundImage = "url('" + user.banner + "')";
       document.getElementById("userBanner").style.display = "block";
+    }
+    if (user.spotify_data) {
+      displaySelectedMusic(user.spotify_data);
     }
     let badges = '';
     if (user.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';

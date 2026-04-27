@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ermn. · privacy</title>
+  <link rel="icon" href="wicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #3b5998;
+      --accent2: #8b9dc3;
+      --bg1: #dfe7f3;
+      --bg2: #f5f6f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Tahoma, Verdana, sans-serif;
+      background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--accent);
+      height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-bottom: 2px solid #2a4070;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .topbar-logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+      letter-spacing: -1px;
+      font-style: italic;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+      text-decoration: none;
+    }
+
+    .topbar-links {
+      margin-left: auto;
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: #ccd5e8;
+    }
+
+    .topbar-links a {
+      color: #ccd5e8;
+      text-decoration: none;
+    }
+
+    .topbar-links a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 32px 16px 20px;
+    }
+
+    .hero-title {
+      font-size: 42px;
+      font-weight: bold;
+      color: var(--accent);
+      letter-spacing: -2px;
+      font-style: italic;
+      text-shadow: 2px 2px 0px rgba(59, 89, 152, 0.2);
+    }
+
+    /* MAIN LAYOUT */
+    .main {
+      max-width: 700px;
+      margin: 0 auto 40px;
+      padding: 0 12px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #b0b7c3;
+      padding: 20px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+    }
+
+    .card p {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .card ul {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+
+    .card li {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #888;
+      padding: 20px;
+      border-top: 1px solid #ccc;
+      margin-top: 20px;
+    }
+
+    .footer a {
+      color: #3b5998;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <a href="index.html" class="topbar-logo" id="siteLogo">ermn.</a>
+    <div class="topbar-links">
+      <a href="about.html">About</a>
+      <a href="terms.html">Terms</a>
+      <a href="help.html">Help</a>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-title">Privacy Policy</div>
+  </div>
+
+  <div class="main">
+    <div class="card">
+      <h2>Your Data is Yours</h2>
+      <p>
+        At ermn., we believe in a web where you aren't the product. We don't sell your data, we don't use creepy trackers, 
+        and we don't share your information with advertisers.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Information We Collect</h2>
+      <p>We only collect what is absolutely necessary to make the site work:</p>
+      <ul>
+        <li><b>Account Information:</b> Your username and email (stored securely via Supabase Auth).</li>
+        <li><b>Profile Content:</b> Your bio and profile picture (to show others who you are).</li>
+        <li><b>User Content:</b> The posts, likes, and comments you share on the platform.</li>
+        <li><b>Local Storage:</b> We use your browser's local storage to keep you logged in and save your theme preferences.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>Visibility</h2>
+      <p>
+        Please remember that ermn. is a public social network. Unless your account is set to private, your posts, bio, and profile picture 
+        can be seen by anyone visiting the site. If you set your account to private, only your approved followers can see your content.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Cookies & Tracking</h2>
+      <p>
+        We don't use cookies for tracking. We only use essential browser storage to maintain your session. 
+        There are no third-party tracking scripts or "like" buttons that follow you across the web.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Data Requests & Deletion</h2>
+      <p>
+        If you would like to request a copy of your data or have your account permanently deleted, please contact our privacy officer at:
+        <br><br>
+        <a href="mailto:ermn.social@gmail.com" style="color:var(--accent);font-weight:bold;">ermn.social@gmail.com</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 ermn. &nbsp;·&nbsp; 
+    <a href="index.html">Home</a> &nbsp;·&nbsp; 
+    <a href="about.html">About</a> &nbsp;·&nbsp; 
+    <a href="terms.html">Terms</a> &nbsp;·&nbsp; 
+    <a href="privacy.html">Privacy</a> &nbsp;·&nbsp; 
+    <a href="help.html">Help</a>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+    if (typeof applyTheme === "function") applyTheme();
+    
+    const me = localStorage.getItem("currentUser");
+    if (me) {
+      const homeLinks = document.querySelectorAll('a[href="index.html"]');
+      homeLinks.forEach(link => {
+        link.href = "feed.html";
+        if (link.textContent === "Home") link.textContent = "Feed";
+      });
+    }
+  </script>
+</body>
+</html>

@@ -30,6 +30,61 @@ const POST_LIMIT = 20; // posts per page
 const _picCache = {};  // username → pic data URL, persists for the session
 let _currentPage = 0;  // 0-based page index
 
+/* ── PROFILE MUSIC PLAYER ── */
+window.ProfileMusicPlayer = {
+  audio: null,
+  currentTrackId: null,
+  isPlaying: false,
+  onStateChange: null,
+
+  play: function(trackData) {
+    if (this.audio && this.currentTrackId === trackData.trackId) {
+      this.audio.play();
+      this.isPlaying = true;
+      if (this.onStateChange) this.onStateChange(true);
+      return;
+    }
+
+    if (this.audio) {
+      this.audio.pause();
+    }
+
+    this.audio = new Audio(trackData.previewUrl);
+    this.currentTrackId = trackData.trackId;
+    this.isPlaying = true;
+    
+    this.audio.addEventListener('loadedmetadata', () => {
+      if (trackData.startTime) {
+        this.audio.currentTime = parseFloat(trackData.startTime);
+      }
+      this.audio.play().catch(e => console.error("Audio play failed:", e));
+    });
+    
+    this.audio.onended = () => {
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange(false);
+    };
+
+    if (this.onStateChange) this.onStateChange(true);
+  },
+
+  pause: function() {
+    if (this.audio) {
+      this.audio.pause();
+      this.isPlaying = false;
+      if (this.onStateChange) this.onStateChange(false);
+    }
+  },
+
+  toggle: function(trackData) {
+    if (this.isPlaying && this.currentTrackId === trackData.trackId) {
+      this.pause();
+    } else {
+      this.play(trackData);
+    }
+  }
+};
+
 /* ── GLOBALS ── */
 const ADMIN_USER = "ermn";
 

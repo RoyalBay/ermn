@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ermn. · about</title>
+  <link rel="icon" href="wicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #3b5998;
+      --accent2: #8b9dc3;
+      --bg1: #dfe7f3;
+      --bg2: #f5f6f7;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Tahoma, Verdana, sans-serif;
+      background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: var(--accent);
+      height: 42px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-bottom: 2px solid #2a4070;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .topbar-logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+      letter-spacing: -1px;
+      font-style: italic;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+      text-decoration: none;
+    }
+
+    .topbar-links {
+      margin-left: auto;
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: #ccd5e8;
+    }
+
+    .topbar-links a {
+      color: #ccd5e8;
+      text-decoration: none;
+    }
+
+    .topbar-links a:hover {
+      color: white;
+      text-decoration: underline;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 32px 16px 20px;
+    }
+
+    .hero-title {
+      font-size: 42px;
+      font-weight: bold;
+      color: var(--accent);
+      letter-spacing: -2px;
+      font-style: italic;
+      text-shadow: 2px 2px 0px rgba(59, 89, 152, 0.2);
+    }
+
+    /* MAIN LAYOUT */
+    .main {
+      max-width: 700px;
+      margin: 0 auto 40px;
+      padding: 0 12px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #b0b7c3;
+      padding: 20px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 18px;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+    }
+
+    .card p {
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .card h3 {
+      font-size: 15px;
+      color: #444;
+      margin: 18px 0 8px;
+    }
+
+    .dev-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .dev-card {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .dev-card strong {
+      display: block;
+      color: var(--accent);
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .dev-card span {
+      font-size: 12px;
+      color: #777;
+      font-style: italic;
+    }
+
+    /* BADGE SECTION */
+    .badge-info {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+      padding: 10px;
+      background: #f0f4ff;
+      border-left: 4px solid var(--accent);
+    }
+
+    .badge-icon {
+      width: 24px;
+      height: 24px;
+      background-color: var(--accent);
+      -webkit-mask-size: contain;
+      mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      mask-position: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .badge-verified {
+      -webkit-mask-image: url('verifiedbadge.png');
+      mask-image: url('verifiedbadge.png');
+    }
+
+    .badge-developer {
+      -webkit-mask-image: url('devbadge.png');
+      mask-image: url('devbadge.png');
+    }
+
+    .badge-text b {
+      display: block;
+      font-size: 14px;
+      color: var(--accent);
+      margin-bottom: 2px;
+    }
+
+    .badge-text span {
+      font-size: 13px;
+      color: #555;
+    }
+
+    /* FOOTER */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #888;
+      padding: 20px;
+      border-top: 1px solid #ccc;
+      margin-top: 20px;
+    }
+
+    .footer a {
+      color: #3b5998;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="topbar">
+    <a href="index.html" class="topbar-logo" id="siteLogo">ermn.</a>
+    <div class="topbar-links">
+      <a href="about.html">About</a>
+      <a href="help.html">Help</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-title" id="heroTitle">About ermn.</div>
+  </div>
+
+  <div class="main">
+    <div class="card">
+      <h2>What is ermn.?</h2>
+      <p>
+        <b>ermn.</b> is a text-based social media platform designed to bring back the simplicity and aesthetic of the mid-2000s web. 
+        Built as a tribute to the early days of social networking, ermn. prioritizes chronological feeds, meaningful interactions, 
+        and a clean (yet retro) user experience.
+      </p>
+      <p>
+        In a world of short-form video and bloated interfaces, ermn. stands as the <b>new best</b> text-based social media site. 
+        We believe in the power of words, the fun of status updates, and the joy of seeing what your friends are actually doing 
+        without the noise of modern algorithms.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Contact & Support</h2>
+      <p>
+        For official inquiries, moderation reports, or technical support, please contact our team at:
+        <br><br>
+        <a href="mailto:ermn.social@gmail.com" style="color:var(--accent);font-weight:bold;font-size:16px;">ermn.social@gmail.com</a>
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>The Origin Story</h2>
+      <p>
+        The project originated from a similar platform called <b>wuphf</b>, which pioneered the "whenever, wherever, whoever" philosophy. 
+        After wuphf, we decided to take that spirit and build something even better—a place where you can truly connect. 
+        ermn. is the evolution of that vision, refined for a new generation of users who miss the "old" internet.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>The Developers</h2>
+      <p>ermn. is built and maintained with love by our dedicated development team:</p>
+      <div class="dev-grid">
+        <div class="dev-card">
+          <strong>Spencer</strong>
+          <span>Lead Architect & Visionary</span>
+        </div>
+        <div class="dev-card">
+          <strong>Kyan</strong>
+          <span>Design Guru & Logic Master</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Understanding Badges</h2>
+      <p>You might see some special icons next to usernames on the site. Here is what they represent:</p>
+      
+      <div class="badge-info">
+        <div class="badge-icon badge-verified"></div>
+        <div class="badge-text">
+          <b>Verified User</b>
+          <span>
+            The blue checkmark is given to accounts that are officially recognized, prominent, or have contributed significantly 
+            to the community. It confirms that the user is who they say they are.
+          </span>
+        </div>
+      </div>
+
+      <div class="badge-info">
+        <div class="badge-icon badge-developer"></div>
+        <div class="badge-text">
+          <b>Official Developer</b>
+          <span>
+            The developer badge is specifically reserved for the creators (Spencer and Kyan) and official development team members. 
+            It signifies that the user has administrative authority and is responsible for building the platform.
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    &copy; 2026 ermn. &nbsp;·&nbsp; 
+    <a href="index.html">Home</a> &nbsp;·&nbsp; 
+    <a href="about.html">About</a> &nbsp;·&nbsp; 
+    <a href="terms.html">Terms</a> &nbsp;·&nbsp; 
+    <a href="privacy.html">Privacy</a> &nbsp;·&nbsp; 
+    <a href="help.html">Help</a>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+    if (typeof applyTheme === "function") applyTheme();
+    
+    const me = localStorage.getItem("currentUser");
+    if (me) {
+      const homeLinks = document.querySelectorAll('a[href="index.html"]');
+      homeLinks.forEach(link => {
+        link.href = "feed.html";
+        if (link.textContent === "Home") link.textContent = "Feed";
+      });
+    }
+  </script>
+</body>
+</html>
