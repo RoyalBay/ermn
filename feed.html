@@ -227,14 +227,15 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
+async function logout() { 
+  await sb.auth.signOut();
+  localStorage.removeItem("currentUser"); 
+  location.href = "index.html"; 
+}
+
 if (!localStorage.getItem("currentUser")) {
   location.href = "index.html";
 } else {
-  async function logout() { 
-    await sb.auth.signOut();
-    localStorage.removeItem("currentUser"); 
-    location.href="index.html"; 
-  }
 
   let _searchQ = "", _sortMode = "newest";
 
