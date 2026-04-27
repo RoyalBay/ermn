@@ -14,6 +14,7 @@ create table if not exists users (
   is_developer boolean default false,
   is_admin boolean default false,
   is_private boolean default false,
+  spotify_data jsonb,
   created_at timestamptz default now()
 );
 
