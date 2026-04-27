@@ -138,6 +138,7 @@ begin
   drop policy if exists "Users can update own profile" on users;
   drop policy if exists "Posts are viewable by everyone" on posts;
   drop policy if exists "Authenticated users can create posts" on posts;
+  drop policy if exists "Owners or admins can update/delete posts" on posts;
   drop policy if exists "Owners or admins can delete posts" on posts;
   drop policy if exists "Authenticated users can like" on likes;
   drop policy if exists "Owners can unlike" on likes;
@@ -145,8 +146,15 @@ begin
   drop policy if exists "Authenticated users can comment" on comments;
   drop policy if exists "Owners or admins can delete comments" on comments;
   drop policy if exists "Admins can view reports" on reports;
+  drop policy if exists "Admins can delete reports" on reports;
   drop policy if exists "Authenticated users can report" on reports;
   drop policy if exists "Admins can manage banned users" on banned_users;
+  drop policy if exists "Anyone can check ban status" on banned_users;
+  drop policy if exists "Anyone can see likes" on likes;
+  drop policy if exists "Anyone can view polls" on polls;
+  drop policy if exists "Authenticated users can create/update polls" on polls;
+  drop policy if exists "Users can manage their own follows" on follows;
+  drop policy if exists "Users can manage their own blocks" on blocked_users;
 
   -- USERS
   create policy "Public profiles are viewable by everyone" on users for select using (true);
