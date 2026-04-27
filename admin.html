@@ -136,15 +136,22 @@ tr:hover td{background:#fef8f8;}
 <script src="app.js"></script>
 <script>
 async function initAdmin() {
-  const me = localStorage.getItem("currentUser");
-  if (!me || me.toLowerCase() !== "ermn") { 
-    await uiAlert("Access denied.");
+  // Wait for app.js initSession if needed
+  let attempts = 0;
+  while (!currentUser && attempts < 20) {
+    await new Promise(r => setTimeout(r, 100));
+    attempts++;
+  }
+
+  if (!isAdmin()) { 
+    await uiAlert("Access denied. Admin privileges required.");
     location.href = "feed.html"; 
     return; 
   }
   loadStats();
   loadReports();
 }
+
 
 function logout(){ localStorage.removeItem("currentUser"); location.href="index.html"; }
 

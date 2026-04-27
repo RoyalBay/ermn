@@ -3,7 +3,27 @@ const SUPABASE_URL = window.ERMN_URL;
 const SUPABASE_KEY = window.ERMN_KEY;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let currentUser = localStorage.getItem("currentUser");
+let currentUser = null;
+
+// Handle Auth State
+async function initSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", session.user.id).maybeSingle();
+    if (profile) {
+      currentUser = profile.username;
+      _isAdmin = profile.is_admin;
+      localStorage.setItem("currentUser", currentUser);
+    } else {
+      currentUser = session.user.user_metadata.username;
+      localStorage.setItem("currentUser", currentUser);
+    }
+  } else {
+    currentUser = localStorage.getItem("currentUser");
+  }
+  document.dispatchEvent(new Event("sessionReady"));
+}
+initSession();
 
 /* ── EGRESS OPTIMISATION ── */
 const POST_LIMIT = 20; // posts per page
@@ -65,8 +85,9 @@ style.textContent = `
 document.head.appendChild(style);
 
 /* ── ADMIN ── */
+let _isAdmin = false;
 function isAdmin() {
-  return currentUser && currentUser.toLowerCase() === ADMIN_USER.toLowerCase();
+  return _isAdmin;
 }
 
 /* ── PROFANITY FILTER ── */

@@ -229,7 +229,11 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 if (!localStorage.getItem("currentUser")) {
   location.href = "index.html";
 } else {
-  function logout() { localStorage.removeItem("currentUser"); location.href="index.html"; }
+  async function logout() { 
+    await sb.auth.signOut();
+    localStorage.removeItem("currentUser"); 
+    location.href="index.html"; 
+  }
 
   let _searchQ = "", _sortMode = "newest";
 
@@ -287,21 +291,31 @@ if (!localStorage.getItem("currentUser")) {
 
   const params = new URLSearchParams(location.search);
   const initTag = params.get("tag");
-  if (initTag) {
-    document.getElementById("searchInput").value = "#" + initTag;
-    doSearch();
-  } else {
-    render(null, null, 0);
-  }
 
-  if (isAdmin()) {
-    document.getElementById("adminPanelCard").style.display = "block";
-  }
-
-  render().then(() => {
+  document.addEventListener("sessionReady", () => {
+    if (isAdmin()) {
+      document.getElementById("adminPanelCard").style.display = "block";
+    }
+    if (initTag) {
+      document.getElementById("searchInput").value = "#" + initTag;
+      doSearch();
+    } else {
+      render(null, null, 0);
+    }
     const l = document.getElementById("loading");
     if (l) l.style.display = "none";
   });
+  
+  // Fallback for already loaded sessions
+  if (currentUser) {
+    document.dispatchEvent(new Event("sessionReady"));
+  } else {
+    // If not logged in and not even a cached currentUser
+    setTimeout(() => {
+       if (!currentUser && !localStorage.getItem("currentUser")) location.href = "index.html";
+    }, 1000);
+  }
+
 }
 </script>
 </body>

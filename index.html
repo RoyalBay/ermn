@@ -336,21 +336,31 @@
 
     async function login() {
       const rawU = document.getElementById("username").value.trim();
-      const u = rawU.toLowerCase(); // case-insensitive
+      const u = rawU.toLowerCase();
       const p = document.getElementById("password").value;
       if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
       setBusy(true); setMsg("Logging in...", false);
 
-      // Check if banned
-      const { data: banned } = await sb.from("banned_users").select("username").eq("username", u).maybeSingle();
-      if (banned) { setMsg("This account has been banned.", true); setBusy(false); return; }
+      // We use a virtual email for Supabase Auth based on the username
+      const email = u + "@ermn.io";
 
-      // Case-insensitive lookup using ilike
-      const { data, error } = await sb.from("users").select("username, password").ilike("username", u).maybeSingle();
-      if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
-      if (!data) { setMsg("User not found.", true); setBusy(false); return; }
-      if (data.password !== p) { setMsg("Incorrect password.", true); setBusy(false); return; }
-      localStorage.setItem("currentUser", data.username); // store canonical casing
+      const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
+      
+      if (error) {
+        setMsg("Login failed: " + error.message, true);
+        setBusy(false);
+        return;
+      }
+
+      // Check if profile exists (sync might be in progress)
+      const { data: profile } = await sb.from("users").select("username").eq("id", data.user.id).maybeSingle();
+      if (profile) {
+        localStorage.setItem("currentUser", profile.username);
+      } else {
+        // Fallback to metadata if profile not yet synced
+        localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);
+      }
+      
       location.href = "feed.html";
     }
 
@@ -362,21 +372,42 @@
       if (rawU.length < 3) { setMsg("Username must be at least 3 characters.", true); return; }
       if (p.length < 4) { setMsg("Password must be at least 4 characters.", true); return; }
       if (!/^[a-zA-Z0-9_]+$/.test(rawU)) { setMsg("Username can only contain letters, numbers, and underscores.", true); return; }
+      
       setBusy(true); setMsg("Creating account...", false);
 
-      // Check banned
-      const { data: banned } = await sb.from("banned_users").select("username").eq("username", u).maybeSingle();
-      if (banned) { setMsg("That username is not available.", true); setBusy(false); return; }
-
-      // Case-insensitive duplicate check
+      // Check if username is already taken in the public.users table
       const { data: existing } = await sb.from("users").select("username").ilike("username", rawU).maybeSingle();
-      if (existing) { setMsg("That username is taken.", true); setBusy(false); return; }
+      if (existing) {
+        setMsg("That username is taken.", true);
+        setBusy(false);
+        return;
+      }
 
-      const { error } = await sb.from("users").insert({ username: rawU, password: p, pic: "", bio: "" });
-      if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
-      setMsg("Account created! You can now log in.", false);
-      setBusy(false);
+      const email = u + "@ermn.io";
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password: p,
+        options: {
+          data: { username: rawU }
+        }
+      });
+
+      if (error) {
+        setMsg("Error: " + error.message, true);
+        setBusy(false);
+        return;
+      }
+
+      if (data.user && data.session) {
+        setMsg("Account created! Logging you in...", false);
+        localStorage.setItem("currentUser", rawU);
+        setTimeout(() => location.href = "feed.html", 1000);
+      } else {
+        setMsg("Account created! Please log in.", false);
+        setBusy(false);
+      }
     }
+
 
     document.addEventListener("keydown", function (e) { if (e.key === "Enter") login(); });
 
