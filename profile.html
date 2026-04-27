@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>ermn. · My Profile</title>
 <link rel="icon" href="wicon.png">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root {
   --accent: #3b5998;
@@ -132,6 +133,8 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
   -webkit-mask-image: url('devbadge.png');
   mask-image: url('devbadge.png');
 }
+  .material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+  .card-title .material-icons { font-size: 1.1em; color: var(--accent); }
 </style>
 </head>
 <body>
@@ -139,15 +142,15 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <div class="topbar-right">
-    <button onclick="location.href='feed.html'">&#127968; Feed</button>
-    <button onclick="location.href='settings.html'">⚙ Settings</button>
-    <button onclick="location.href='about.html'">ℹ About</button>
+    <button onclick="location.href='feed.html'"><span class="material-icons">home</span> Feed</button>
+    <button onclick="location.href='settings.html'"><span class="material-icons">settings</span> Settings</button>
+    <button onclick="location.href='about.html'"><span class="material-icons">info</span> About</button>
   </div>
 </div>
 
 <div class="container">
   <div class="card">
-    <div class="card-title">👤 My Profile</div>
+    <div class="card-title"><span class="material-icons">person</span> My Profile</div>
     <div id="userBanner" style="height:120px;background:#ddd;background-size:cover;background-position:center;border-bottom:1px solid var(--border);display:none;"></div>
     <div class="card-body">
       <div class="profile-header">
@@ -166,7 +169,7 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
   </div>
 
   <div class="card">
-    <div class="card-title">✏ Edit Profile</div>
+    <div class="card-title"><span class="material-icons">edit</span> Edit Profile</div>
     <div class="card-body">
       <label>Profile Picture <span style="font-weight:normal;color:#888">(Recommended: 400x400px Square)</span></label>
       <input type="file" id="fileInput" accept="image/*">
@@ -186,7 +189,7 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
   </div>
 
   <div class="card">
-    <div class="card-title">🎵 Profile Music</div>
+    <div class="card-title"><span class="material-icons">music_note</span> Profile Music</div>
     <div class="card-body">
       <div id="selectedMusic" style="display:none;margin-bottom:12px;padding:10px;background:#f8f9fb;border:1px solid #9196a1;border-radius:0;display:flex;align-items:center;gap:12px;box-shadow:inset 1px 1px 0 white;">
         <img id="selArt" src="" style="width:40px;height:40px;border-radius:0;object-fit:cover;border:1px solid #777;">
@@ -214,7 +217,7 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
   </div>
 
   <div class="card">
-    <div class="card-title">📝 My Posts</div>
+    <div class="card-title"><span class="material-icons">description</span> My Posts</div>
     <div class="card-body" id="myPosts">
       <div style="color:#888;font-style:italic;">Loading...</div>
     </div>

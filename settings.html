@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>ermn. · Settings</title>
 <link rel="icon" href="wicon.png">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root {
   --accent: #3b5998;
@@ -100,6 +101,8 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
 .info-row:last-child { border-bottom: none; }
 .info-row span:first-child { color: #888; }
 .info-row span:last-child { font-weight: bold; color: #333; }
+  .material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+  .card-title .material-icons { font-size: 1.1em; color: var(--accent); }
 </style>
 </head>
 <body>
@@ -107,14 +110,14 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <div class="topbar-right">
-    <button onclick="location.href='feed.html'">🏠 Feed</button>
-    <button onclick="logout()">Logout</button>
+    <button onclick="location.href='feed.html'"><span class="material-icons">home</span> Feed</button>
+    <button onclick="logout()"><span class="material-icons">logout</span> Logout</button>
   </div>
 </div>
 
 <div class="container">
   <div class="card">
-    <div class="card-title">🎨 Theme</div>
+    <div class="card-title"><span class="material-icons">palette</span> Theme</div>
     <div class="card-body">
       <p style="font-size:12px;color:#666;margin-bottom:10px;">Choose your look. Changes take effect immediately.</p>
       <div class="theme-grid">
@@ -144,7 +147,7 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
   </div>
 
   <div class="card">
-    <div class="card-title">🔒 Change Password</div>
+    <div class="card-title"><span class="material-icons">lock</span> Change Password</div>
     <div class="card-body">
       <label>Current Password</label>
       <input type="password" id="currentPass" placeholder="Your current password">
@@ -158,7 +161,7 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
   </div>
 
   <div class="card">
-    <div class="card-title">🔒 Privacy & Follow Requests</div>
+    <div class="card-title"><span class="material-icons">privacy_tip</span> Privacy & Follow Requests</div>
     <div class="card-body">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #eee;">
         <div>
@@ -175,14 +178,14 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
   </div>
 
   <div class="card">
-    <div class="card-title">🚫 Blocked Users</div>
+    <div class="card-title"><span class="material-icons">block</span> Blocked Users</div>
     <div class="card-body">
       <div id="blockedList" style="font-size:13px;color:#888;">Loading blocked users...</div>
     </div>
   </div>
 
   <div class="card">
-    <div class="card-title">ℹ Account Info</div>
+    <div class="card-title"><span class="material-icons">info</span> Account Info</div>
     <div class="card-body">
       <div class="info-row">
         <span>Username</span>

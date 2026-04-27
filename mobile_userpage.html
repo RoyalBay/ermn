@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ermn. · Profile</title>
 <link rel="icon" href="wicon.png">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -39,6 +40,9 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
 .modal-user{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee;}
 .modal-user img{width:32px;height:32px;object-fit:cover;border-radius:2px;}
 .modal-user a{text-decoration:none;color:var(--accent);font-weight:bold;font-size:14px;}
+.material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+.card-title .material-icons { font-size: 1.1em; color: var(--accent); }
+.bottom-nav a .material-icons { font-size: 24px; margin-bottom: 2px; }
 </style>
 </head>
 <body>
@@ -85,7 +89,7 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
                 <div id="musicTitle" class="music-title"></div>
                 <div id="musicArtist" class="music-artist"></div>
               </div>
-              <div class="music-controls" id="musicStatus">▶</div>
+              <div class="music-controls" id="musicStatus"><span class="material-icons">play_arrow</span></div>
             </div>
           </div>
           <div id="actions" style="margin-top:10px;">
@@ -98,15 +102,15 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
     </div>
   </div>
   <div class="card">
-    <div class="card-title" id="postsTitle">Posts</div>
+    <div class="card-title" id="postsTitle"><span class="material-icons">description</span> Posts</div>
     <div class="card-body" id="userPosts"><div style="color:#888;font-style:italic;">Loading...</div></div>
   </div>
 </div>
 
 <nav class="bottom-nav">
-  <a href="mobile_feed.html"><span class="icon">🏠</span>Feed</a>
-  <a href="mobile_profile.html"><span class="icon">👤</span>Profile</a>
-  <a href="mobile_settings.html"><span class="icon">⚙</span>Settings</a>
+  <a href="mobile_feed.html"><span class="material-icons">home</span>Feed</a>
+  <a href="mobile_profile.html"><span class="material-icons">person</span>Profile</a>
+  <a href="mobile_settings.html"><span class="material-icons">settings</span>Settings</a>
 </nav>
 
 <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
@@ -137,10 +141,10 @@ ProfileMusicPlayer.onStateChange = (playing) => {
   const art = document.getElementById("musicArt");
   const status = document.getElementById("musicStatus");
   if (ProfileMusicPlayer.currentTrackId === userMusicData?.trackId) {
-    if (playing) { status.innerText = "⏸"; }
-    else { status.innerText = "▶"; }
+    if (playing) { status.innerHTML = '<span class="material-icons">pause</span>'; }
+    else { status.innerHTML = '<span class="material-icons">play_arrow</span>'; }
   } else {
-    status.innerText = "▶";
+    status.innerHTML = '<span class="material-icons">play_arrow</span>';
   }
 };
 
@@ -162,7 +166,7 @@ async function toggleFollow() {
         btn.innerText = "Follow";
       } else {
         await sb.from("follow_requests").insert({ requester: me, target: viewUser });
-        btn.innerText = "⏳ Requested";
+        btn.innerHTML = '<span class="material-icons" style="font-size:14px;">hourglass_empty</span> Requested';
       }
     } else {
       await sb.from("follows").insert({ follower: me, following: viewUser });
@@ -220,7 +224,7 @@ async function load() {
     document.getElementById("musicTitle").innerText = userMusicData.trackName;
     document.getElementById("musicArtist").innerText = userMusicData.artistName;
     if (ProfileMusicPlayer.isPlaying && ProfileMusicPlayer.currentTrackId === userMusicData.trackId) {
-      document.getElementById("musicStatus").innerText = "⏸";
+      document.getElementById("musicStatus").innerHTML = '<span class="material-icons">pause</span>';
     }
   }
 
@@ -250,7 +254,7 @@ async function load() {
     if (isFollowing) { btn.innerText = "✓ Following"; btn.classList.add("following"); }
     else {
       const { data: reqCheck } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
-      if (reqCheck) btn.innerText = "⏳ Requested"; else btn.innerText = "Follow";
+      if (reqCheck) btn.innerHTML = '<span class="material-icons" style="font-size:14px;">hourglass_empty</span> Requested'; else btn.innerText = "Follow";
     }
   } else if (viewUser === me) {
     document.getElementById("itsYou").style.display = "block";

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ermn. · Admin Panel</title>
 <link rel="icon" href="wicon.png">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -74,15 +75,18 @@ tr:hover td{background:#fef8f8;}
 .search-row{display:flex;gap:8px;margin-bottom:10px;}
 .search-row input{flex:1;padding:5px 8px;border:1px solid #bbb;font-family:inherit;font-size:13px;}
 .search-row button{background:#8b0000;color:white;border:none;padding:5px 12px;font-size:13px;cursor:pointer;}
+  .material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+  .tab .material-icons { font-size: 1.1em; color: #800; }
+  .tab.active .material-icons { color: #500; }
 </style>
 </head>
 <body>
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
-  <span class="topbar-badge">🛡 ADMIN PANEL</span>
+  <span class="topbar-badge"><span class="material-icons" style="font-size:14px;">security</span> ADMIN PANEL</span>
   <div class="topbar-right">
-    <a href="feed.html">← Back to Feed</a>
-    <button onclick="logout()">Logout</button>
+    <a href="feed.html"><span class="material-icons">arrow_back</span> Back to Feed</a>
+    <button onclick="logout()"><span class="material-icons">logout</span> Logout</button>
   </div>
 </div>
 
@@ -95,15 +99,15 @@ tr:hover td{background:#fef8f8;}
   </div>
 
   <div class="tabs">
-    <div class="tab active" onclick="showTab('reports')">⚑ Reports</div>
-    <div class="tab" onclick="showTab('users')">👥 Users</div>
-    <div class="tab" onclick="showTab('banned')">🚫 Banned</div>
+    <div class="tab active" onclick="showTab('reports')"><span class="material-icons">flag</span> Reports</div>
+    <div class="tab" onclick="showTab('users')"><span class="material-icons">people</span> Users</div>
+    <div class="tab" onclick="showTab('banned')"><span class="material-icons">block</span> Banned</div>
   </div>
 
   <!-- REPORTS TAB -->
   <div class="tab-panel active" id="tab-reports">
     <div class="card">
-      <div class="card-title">⚑ Pending Reports</div>
+      <div class="card-title"><span class="material-icons">flag</span> Pending Reports</div>
       <div class="card-body" id="reportsBody"><div class="empty-msg">Loading...</div></div>
     </div>
   </div>
@@ -111,7 +115,7 @@ tr:hover td{background:#fef8f8;}
   <!-- USERS TAB -->
   <div class="tab-panel" id="tab-users">
     <div class="card">
-      <div class="card-title">👥 All Users</div>
+      <div class="card-title"><span class="material-icons">people</span> All Users</div>
       <div class="card-body">
         <div class="search-row">
           <input id="userSearch" placeholder="Search by username..." onkeydown="if(event.key==='Enter')filterUsers()">
@@ -125,7 +129,7 @@ tr:hover td{background:#fef8f8;}
   <!-- BANNED TAB -->
   <div class="tab-panel" id="tab-banned">
     <div class="card">
-      <div class="card-title">🚫 Banned Users</div>
+      <div class="card-title"><span class="material-icons">block</span> Banned Users</div>
       <div class="card-body" id="bannedBody"><div class="empty-msg">Loading...</div></div>
     </div>
   </div>
@@ -253,7 +257,7 @@ function renderUsers(users) {
     if (u.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
     html += `<div class="user-row">
       <img src="${escapeHtml(u.pic||"")}" onerror="this.src='empty.jpg'">
-      <a class="uname" href="userpage.html?user=${encodeURIComponent(u.username)}" target="_blank">@${escapeHtml(u.username)}${badges}${isAdminUser?' 🛡':''}</a>
+      <a class="uname" href="userpage.html?user=${encodeURIComponent(u.username)}" target="_blank">@${escapeHtml(u.username)}${badges}${isAdminUser?' <span class="material-icons" style="font-size:14px;color:#800;">security</span>':''}</a>
       <span style="font-size:11px;color:#888;">${new Date(u.created_at).toLocaleDateString()}</span>
       ${!isAdminUser ? `<button class="action-btn btn-ban" onclick="adminBanUser('${u.username.replace(/'/g,"\\'")}').then(()=>{loadUsers();loadStats();})">Ban</button>` : ''}
     </div>`;

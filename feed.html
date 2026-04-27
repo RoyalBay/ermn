@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ermn. · Feed</title>
 <link rel="icon" href="wicon.png">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root {
   --accent: #3b5998; --accent2: #8b9dc3;
@@ -130,6 +131,9 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 /* Admin quick link */
 .admin-panel-link { background:#fff8e1; border:1px solid #ffe082; padding:4px 10px; font-size:12px; }
 .admin-panel-link a { color:#b8860b; font-weight:bold; }
+  .material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .sidebar-links .material-icons { font-size: 1.1em; color: var(--accent2); margin-right: 6px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 </style>
 </head>
 <body>
@@ -137,11 +141,11 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <nav class="topbar-nav">
-    <a href="feed.html">&#127968; Feed</a>
-    <a href="profile.html">&#128100; Profile</a>
+    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="profile.html"><span class="material-icons">person</span> Profile</a>
   </nav>
   <div class="topbar-right">
-    <button onclick="location.href='settings.html'">⚙ Settings</button>
+    <button onclick="location.href='settings.html'"><span class="material-icons" style="font-size:14px;">settings</span> Settings</button>
     <button onclick="logout()">Logout</button>
   </div>
 </div>
@@ -160,13 +164,13 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
         <option value="oldest">Oldest first</option>
         <option value="popular">Most liked</option>
       </select>
-      <button onclick="doSearch()">🔍 Search</button>
-      <button class="clear-btn" onclick="clearSearch()">✕ Clear</button>
+      <button onclick="doSearch()"><span class="material-icons" style="font-size:14px;">search</span> Search</button>
+      <button class="clear-btn" onclick="clearSearch()"><span class="material-icons" style="font-size:14px;">close</span> Clear</button>
       <div class="search-results-label" id="searchLabel"></div>
     </div>
 
     <div class="compose-box">
-      <h4>✏ What's on your mind?</h4>
+      <h4><span class="material-icons" style="font-size:14px;">edit</span> What's on your mind?</h4>
       <textarea id="text" placeholder="Share something with everyone..."></textarea>
       <div id="pollInputs" style="display:none;margin-top:8px;padding-top:8px;border-top:1px dashed #ddd;">
         <input id="pollOpt1" placeholder="Option 1" style="width:100%;margin-bottom:4px;padding:4px;border:1px solid #ccc;font-size:12px;">
@@ -175,7 +179,7 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
         <input id="pollOpt4" placeholder="Option 4 (optional)" style="width:100%;margin-bottom:4px;padding:4px;border:1px solid #ccc;font-size:12px;">
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
-        <button onclick="togglePollInputs()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;">📊 Add Poll</button>
+        <button onclick="togglePollInputs()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;display:flex;align-items:center;"><span class="material-icons" style="font-size:16px;margin-right:4px;">poll</span> Add Poll</button>
         <button id="postBtn" onclick="post()">Post</button>
       </div>
     </div>
@@ -186,7 +190,7 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 
   <div class="sidebar">
     <div class="sidebar-card">
-      <div class="card-title">👤 My Profile</div>
+      <div class="card-title"><span class="material-icons" style="font-size:13px;">person</span> My Profile</div>
       <div class="card-body">
         <img id="rightPic" class="sidebar-avatar" src="empty.jpg" onerror="this.src='empty.jpg'">
         <div id="rightName"></div>
@@ -196,32 +200,32 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
       </div>
     </div>
     <div class="sidebar-card" id="adminPanelCard" style="display:none;">
-      <div class="card-title">🛡 Admin</div>
+      <div class="card-title"><span class="material-icons" style="font-size:13px;">security</span> Admin</div>
       <div class="card-body admin-panel-link" style="padding:8px 10px;">
-        <div id="adminReportAlert" style="font-size:11px;color:#c00;margin-bottom:6px;font-weight:bold;display:none;">⚠️ <span id="adminReportCount">0</span> Pending Reports</div>
+        <div id="adminReportAlert" style="font-size:11px;color:#c00;margin-bottom:6px;font-weight:bold;display:none;display:flex;align-items:center;"><span class="material-icons" style="font-size:14px;margin-right:4px;">warning</span> <span id="adminReportCount">0</span> Pending Reports</div>
         <a href="admin.html">Open Admin Panel</a>
       </div>
     </div>
     <div class="sidebar-card">
-      <div class="card-title">📷 Update Picture</div>
+      <div class="card-title"><span class="material-icons" style="font-size:13px;">photo_camera</span> Update Picture</div>
       <div class="card-body sidebar-upload">
         <input type="file" id="file" accept="image/*">
         <button onclick="upload(document.getElementById('file').files[0])">Upload</button>
       </div>
     </div>
     <div class="sidebar-card" id="trendingCard" style="display:none;">
-      <div class="card-title">🔥 Trending</div>
+      <div class="card-title"><span class="material-icons" style="font-size:13px;">trending_up</span> Trending</div>
       <div class="card-body sidebar-links"></div>
     </div>
     <div class="sidebar-card">
-      <div class="card-title">🔗 Quick Links</div>
+      <div class="card-title"><span class="material-icons" style="font-size:13px;">link</span> Quick Links</div>
       <div class="sidebar-links" style="padding:6px 0;">
-        <a href="profile.html">My Profile</a>
-        <a href="settings.html">Settings</a>
-        <a href="about.html">About</a>
-        <a href="help.html">Help / Support</a>
-        <a href="privacy.html">Privacy Policy</a>
-        <a href="terms.html">Terms of Service</a>
+        <a href="profile.html"><span class="material-icons">person</span> My Profile</a>
+        <a href="settings.html"><span class="material-icons">settings</span> Settings</a>
+        <a href="about.html"><span class="material-icons">info</span> About</a>
+        <a href="help.html"><span class="material-icons">help</span> Help / Support</a>
+        <a href="privacy.html"><span class="material-icons">verified_user</span> Privacy Policy</a>
+        <a href="terms.html"><span class="material-icons">gavel</span> Terms of Service</a>
       </div>
     </div>
   </div>

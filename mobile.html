@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ermn. · mobile</title>
 <link rel="icon" href="wicon.png">
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root { --accent:#3b5998; }
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -51,14 +52,15 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
 .features{background:white;border:1px solid #b0b7c3;border-radius:4px;padding:14px;margin-top:14px;}
 .features h4{font-size:14px;color:var(--accent);margin-bottom:8px;border-bottom:1px solid #ddd;padding-bottom:6px;}
 .features ul{list-style:none;}
-.features li{font-size:13px;color:#444;padding:5px 0;border-bottom:1px dotted #eee;}
-.features li::before{content:"✦ ";color:var(--accent);}
+.features li{font-size:13px;color:#444;padding:6px 0;display:flex;align-items:center;border-bottom:1px dotted #eee;}
 .features li:last-child{border-bottom:none;}
 
 .desktop-link{text-align:center;margin-top:14px;font-size:12px;color:#888;}
 .desktop-link a{color:var(--accent);}
 
 .footer{text-align:center;font-size:11px;color:#888;padding:20px 0;}
+.material-icons { font-size: 1.1em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+.features li .material-icons { color: var(--accent); font-size: 1.2em; }
 </style>
 </head>
 <body>
@@ -88,11 +90,11 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
   <div class="features">
     <h4>What's on ermn?</h4>
     <ul>
-      <li>Post what's on your mind</li>
-      <li>Follow friends &amp; like posts</li>
-      <li>Comment on anything</li>
-      <li>Customize your profile</li>
-      <li>Search &amp; discover posts</li>
+      <li><span class="material-icons">edit</span> Post what's on your mind</li>
+      <li><span class="material-icons">people</span> Follow friends &amp; like posts</li>
+      <li><span class="material-icons">comment</span> Comment on anything</li>
+      <li><span class="material-icons">person</span> Customize your profile</li>
+      <li><span class="material-icons">search</span> Search &amp; discover posts</li>
     </ul>
   </div>
 
