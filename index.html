@@ -342,7 +342,7 @@
       setBusy(true); setMsg("Logging in...", false);
 
       // We use a virtual email for Supabase Auth based on the username
-      const email = u + "@ermn.io";
+      const email = u + "@ermn.com";
 
       const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
       
@@ -383,7 +383,7 @@
         return;
       }
 
-      const email = u + "@ermn.io";
+      const email = u + "@ermn.com";
       const { data, error } = await sb.auth.signUp({
         email,
         password: p,

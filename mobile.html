@@ -121,37 +121,42 @@ function setBusy(b) {
 
 async function login() {
   const rawU = document.getElementById("username").value.trim();
+  const u = rawU.toLowerCase();
   const p = document.getElementById("password").value;
   if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
   setBusy(true); setMsg("Logging in...", false);
-  const { data: banned } = await sb.from("banned_users").select("username").eq("username", rawU.toLowerCase()).maybeSingle();
-  if (banned) { setMsg("This account has been banned.", true); setBusy(false); return; }
-  const { data, error } = await sb.from("users").select("username,password").ilike("username", rawU).maybeSingle();
-  if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
-  if (!data) { setMsg("User not found.", true); setBusy(false); return; }
-  if (data.password !== p) { setMsg("Incorrect password.", true); setBusy(false); return; }
-  localStorage.setItem("currentUser", data.username);
-  // Admin always uses desktop
-  location.href = data.username.toLowerCase() === "ermn" ? "feed.html" : "mobile_feed.html";
+  const email = u + "@ermn.com";
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
+  if (error) { setMsg("Login failed: " + error.message, true); setBusy(false); return; }
+  localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);
+  location.href = rawU.toLowerCase() === "ermn" ? "feed.html" : "mobile_feed.html";
 }
 
 async function create() {
   const rawU = document.getElementById("username").value.trim();
+  const u = rawU.toLowerCase();
   const p = document.getElementById("password").value;
   if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
   if (rawU.length < 3) { setMsg("Username must be at least 3 characters.", true); return; }
   if (p.length < 4) { setMsg("Password must be at least 4 characters.", true); return; }
   if (!/^[a-zA-Z0-9_]+$/.test(rawU)) { setMsg("Only letters, numbers, underscores.", true); return; }
   setBusy(true); setMsg("Creating account...", false);
-  const { data: banned } = await sb.from("banned_users").select("username").eq("username", rawU.toLowerCase()).maybeSingle();
-  if (banned) { setMsg("That username is not available.", true); setBusy(false); return; }
   const { data: existing } = await sb.from("users").select("username").ilike("username", rawU).maybeSingle();
   if (existing) { setMsg("That username is taken.", true); setBusy(false); return; }
-  const { error } = await sb.from("users").insert({ username:rawU, password:p, pic:"", bio:"" });
-  if (error) { setMsg("Error: "+error.message, true); setBusy(false); return; }
-  setMsg("Account created! Log in now.", false);
-  setBusy(false);
+  const email = u + "@ermn.com";
+  const { data, error } = await sb.auth.signUp({
+    email, password: p, options: { data: { username: rawU } }
+  });
+  if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
+  if (data.user && data.session) {
+    localStorage.setItem("currentUser", rawU);
+    location.href = rawU.toLowerCase() === "ermn" ? "feed.html" : "mobile_feed.html";
+  } else {
+    setMsg("Account created! Please log in.", false);
+    setBusy(false);
+  }
 }
+
 </script>
 </body>
 </html>
