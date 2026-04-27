@@ -107,7 +107,8 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <div class="topbar-right">
-    <button onclick="location.href='feed.html'">&#127968; Feed</button>
+    <button onclick="location.href='feed.html'">🏠 Feed</button>
+    <button onclick="logout()">Logout</button>
   </div>
 </div>
 
@@ -231,23 +232,32 @@ function setTheme(t) {
   setTimeout(() => { document.getElementById("themeMsg").innerText = ""; }, 2000);
 }
 
+async function logout(){ 
+  await sb.auth.signOut();
+  localStorage.removeItem("currentUser"); 
+  location.href="index.html"; 
+}
+
 async function changePassword() {
-  const cur = document.getElementById("currentPass").value;
   const nw = document.getElementById("newPass").value;
   const cf = document.getElementById("confirmPass").value;
   const msgEl = document.getElementById("passMsg");
   msgEl.className = "msg";
 
-  if (!cur || !nw || !cf) { msgEl.innerText = "Please fill all fields."; msgEl.className = "msg err"; return; }
+  if (!nw || !cf) { msgEl.innerText = "Please fill in the new password fields."; msgEl.className = "msg err"; return; }
   if (nw !== cf) { msgEl.innerText = "New passwords don't match."; msgEl.className = "msg err"; return; }
   if (nw.length < 4) { msgEl.innerText = "Password must be at least 4 characters."; msgEl.className = "msg err"; return; }
 
-  const { data } = await sb.from("users").select("password").eq("username", me).maybeSingle();
-  if (!data || data.password !== cur) { msgEl.innerText = "Incorrect current password."; msgEl.className = "msg err"; return; }
-
-  const { error } = await sb.from("users").update({ password: nw }).eq("username", me);
-  if (error) { msgEl.innerText = "Error: " + error.message; msgEl.className = "msg err"; return; }
-  msgEl.innerText = "Password changed successfully!";
+  msgEl.innerText = "Updating...";
+  const { error } = await sb.auth.updateUser({ password: nw });
+  
+  if (error) { 
+    msgEl.innerText = "Error: " + error.message; 
+    msgEl.className = "msg err"; 
+    return; 
+  }
+  
+  msgEl.innerText = "Password updated securely!";
   msgEl.className = "msg ok";
   document.getElementById("currentPass").value = "";
   document.getElementById("newPass").value = "";

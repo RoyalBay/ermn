@@ -153,7 +153,11 @@ async function initAdmin() {
 }
 
 
-function logout(){ localStorage.removeItem("currentUser"); location.href="index.html"; }
+async function logout(){ 
+  await sb.auth.signOut();
+  localStorage.removeItem("currentUser"); 
+  location.href="index.html"; 
+}
 
 function showTab(id) {
   // Update Tabs
@@ -176,14 +180,7 @@ async function loadStats() {
     sb.from("posts").select("*",{count:"exact",head:true}),
     sb.from("reports").select("*",{count:"exact",head:true}),
   ]);
-  if(user){
-    let badges = '';
-    if(user.verified) badges += ' <span class="badge-icon badge-verified" title="Verified User"></span>';
-    if(user.is_developer) badges += ' <span class="badge-icon badge-developer" title="Developer"></span>';
-    document.getElementById("uname").innerHTML = "@" + escapeHtml(me) + badges;
-    document.getElementById("picDisplay").src=user.pic||"empty.jpg";
-    document.getElementById("bioDisplay").innerText=user.bio||"No bio yet.";
-  }
+  
   document.getElementById("statUsers").innerText = uc||0;
   document.getElementById("statPosts").innerText = pc||0;
   document.getElementById("statReports").innerText = rc||0;

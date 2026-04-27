@@ -123,7 +123,11 @@ if (!cu) location.href = "mobile.html";
 // Admin always uses desktop
 if (cu && cu.toLowerCase() === "ermn") location.href = "feed.html";
 
-function logout(){ localStorage.removeItem("currentUser"); location.href="mobile.html"; }
+async function logout(){ 
+  await sb.auth.signOut();
+  localStorage.removeItem("currentUser"); 
+  location.href="mobile.html"; 
+}
 
 function onModeChange(){
   const mode = document.getElementById("searchMode").value;

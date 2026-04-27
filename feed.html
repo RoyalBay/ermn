@@ -198,6 +198,7 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
     <div class="sidebar-card" id="adminPanelCard" style="display:none;">
       <div class="card-title">🛡 Admin</div>
       <div class="card-body admin-panel-link" style="padding:8px 10px;">
+        <div id="adminReportAlert" style="font-size:11px;color:#c00;margin-bottom:6px;font-weight:bold;display:none;">⚠️ <span id="adminReportCount">0</span> Pending Reports</div>
         <a href="admin.html">Open Admin Panel</a>
       </div>
     </div>
@@ -295,6 +296,13 @@ if (!localStorage.getItem("currentUser")) {
   document.addEventListener("sessionReady", () => {
     if (isAdmin()) {
       document.getElementById("adminPanelCard").style.display = "block";
+      // Fetch report count
+      sb.from("reports").select("*", { count: "exact", head: true }).then(({ count }) => {
+        if (count > 0) {
+          document.getElementById("adminReportAlert").style.display = "block";
+          document.getElementById("adminReportCount").innerText = count;
+        }
+      });
     }
     if (initTag) {
       document.getElementById("searchInput").value = "#" + initTag;
