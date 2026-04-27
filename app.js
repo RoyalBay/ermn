@@ -228,7 +228,7 @@ async function like(postId) {
   if (el) {
     const { count } = await sb.from("likes").select("*",{count:"exact",head:true}).eq("post_id",postId);
     const { data: mine } = await sb.from("likes").select("post_id").eq("post_id",postId).eq("username",currentUser).maybeSingle();
-    el.innerHTML = '<span class="heart'+(mine?" liked":"")+'" onclick="like('+postId+')">&#9829;</span> '+(count||0)+' likes';
+    el.innerHTML = '<span class="heart'+(mine?" liked":"")+'" onclick="like('+postId+')"><span class="material-icons" style="font-size:14px;vertical-align:middle;">favorite</span></span> '+(count||0)+' likes';
   }
 }
 
@@ -541,7 +541,7 @@ async function render(searchQuery, sortMode, page) {
     let repostHtml = '';
     if (p.repost_of && repostMap[p.repost_of]) {
       const rp = repostMap[p.repost_of];
-      repostHtml = '<div class="repost-banner" style="font-size:11px;color:#666;margin-bottom:6px;">&#128257; Reposted from <a href="'+getUserPageLink(rp.username)+'" style="color:var(--accent);text-decoration:none;">@'+escapeHtml(rp.username)+'</a></div>'+
+      repostHtml = '<div class="repost-banner" style="font-size:11px;color:#666;margin-bottom:6px;"><span class="material-icons" style="font-size:12px;vertical-align:middle;margin-right:2px;">sync</span> Reposted from <a href="'+getUserPageLink(rp.username)+'" style="color:var(--accent);text-decoration:none;">@'+escapeHtml(rp.username)+'</a></div>'+
                    '<div class="repost-content" style="border-left:3px solid var(--accent);padding-left:10px;margin-bottom:10px;color:#555;">'+renderPostText(rp.text)+'</div>';
     }
 
@@ -557,7 +557,7 @@ async function render(searchQuery, sortMode, page) {
         pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
                       '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'#d0e0ff':'#e0e0e0')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
                       '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
-                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'✓':'')+'</span><span>'+pct+'%</span>'+
+                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span>':'')+'</span><span>'+pct+'%</span>'+
                       '</div>'+
                     '</div>';
       });
@@ -579,21 +579,21 @@ async function render(searchQuery, sortMode, page) {
           '<a href="'+getUserPageLink(p.username)+'" class="user-link">@'+escapeHtml(p.username)+'</a>'+
           badges +
           (p.username!==currentUser
-            ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')\">'+(isFollowing?"✓ Following":"+ Follow")+'</button>'
+            ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')\">'+(isFollowing?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following':'+ Follow')+'</button>'
             : ' <span class="you-tag">you</span>')+
           '<div class="post-time">'+timeAgo(p.created_at)+editedLabel+'</div>'+
         '</div>'+
-        (isOwn ? '<span class="delete" onclick="del('+p.id+')">✕</span>' : '')+
+        (isOwn ? '<span class="delete" onclick="del('+p.id+')"><span class="material-icons" style="font-size:16px;">close</span></span>' : '')+
       '</div>'+
       repostHtml +
       '<div class="post-text" id="post-text-'+p.id+'">'+renderPostText(p.text)+'</div>'+
       pollHtml +
       '<div class="post-actions">'+
-        '<span id="likes-'+p.id+'" class="like-wrap"><span class="heart'+(liked?" liked":"")+'" onclick="like('+p.id+')">&#9829;</span> '+likeCount+' likes</span>'+
-        '<span class="comment-toggle" onclick="toggleComments('+p.id+')">&#128172; '+commentCount+' comments</span>'+
-        (currentUser ? ' <span class="repost-btn" onclick="repost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" style="cursor:pointer;color:#555;">&#128257; Share</span>' : '')+
-        (canEdit ? ' <span class="edit-btn" onclick="editPostPrompt('+p.id+',\''+escapeHtml(p.text.replace(/'/g,"\\'"))+'\')" style="cursor:pointer;color:#555;margin-left:auto;">&#9998; Edit</span>' : '')+
-        (!isOwn ? '<span class="report-btn" onclick="reportPost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" title="Report this post" style="margin-left:auto;">⚑ Report</span>' : '')+
+        '<span id="likes-'+p.id+'" class="like-wrap"><span class="heart'+(liked?" liked":"")+'" onclick="like('+p.id+')"><span class="material-icons" style="font-size:18px;">favorite</span></span> '+likeCount+' likes</span>'+
+        '<span class="comment-toggle" onclick="toggleComments('+p.id+')"><span class="material-icons" style="font-size:18px;">mode_comment</span> '+commentCount+' comments</span>'+
+        (currentUser ? ' <span class="repost-btn" onclick="repost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" style="cursor:pointer;color:#555;"><span class="material-icons" style="font-size:18px;">sync</span> Share</span>' : '')+
+        (canEdit ? ' <span class="edit-btn" onclick="editPostPrompt('+p.id+',\''+escapeHtml(p.text.replace(/'/g,"\\'"))+'\')" style="cursor:pointer;color:#555;margin-left:auto;"><span class="material-icons" style="font-size:18px;">edit</span> Edit</span>' : '')+
+        (!isOwn ? '<span class="report-btn" onclick="reportPost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" title="Report this post" style="margin-left:auto;"><span class="material-icons" style="font-size:16px;">flag</span> Report</span>' : '')+
       '</div>'+
       adminBar+
       '<div id="comments-'+p.id+'" class="comment-box" data-postid="'+p.id+'" style="display:'+(isOpen?"block":"none")+'">'+
@@ -618,9 +618,9 @@ async function render(searchQuery, sortMode, page) {
       const hasNext = _currentPage < totalPages - 1;
       paginationEl.innerHTML =
         '<div class="page-controls">'+
-          (hasPrev ? '<button class="page-btn" onclick="goPage('+ (_currentPage-1) +',this)">← Prev</button>' : '<button class="page-btn" disabled>← Prev</button>')+
+          (hasPrev ? '<button class="page-btn" onclick="goPage('+ (_currentPage-1) +',this)"><span class="material-icons" style="font-size:16px;vertical-align:middle;">chevron_left</span> Prev</button>' : '<button class="page-btn" disabled><span class="material-icons" style="font-size:16px;vertical-align:middle;">chevron_left</span> Prev</button>')+
           '<span class="page-info">Page '+(_currentPage+1)+' of '+totalPages+'</span>'+
-          (hasNext ? '<button class="page-btn" onclick="goPage('+ (_currentPage+1) +',this)">Next →</button>' : '<button class="page-btn" disabled>Next →</button>')+
+          (hasNext ? '<button class="page-btn" onclick="goPage('+ (_currentPage+1) +',this)">Next <span class="material-icons" style="font-size:16px;vertical-align:middle;">chevron_right</span></button>' : '<button class="page-btn" disabled>Next <span class="material-icons" style="font-size:16px;vertical-align:middle;">chevron_right</span></button>')+
         '</div>';
     }
   }

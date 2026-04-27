@@ -171,7 +171,7 @@ async function toggleFollow() {
     } else {
       await sb.from("follows").insert({ follower: me, following: viewUser });
       isFollowing = true;
-      btn.innerText = "✓ Following"; btn.classList.add("following");
+      btn.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following'; btn.classList.add("following");
       const fc = parseInt(document.getElementById("statFollowers").innerText);
       if (!isNaN(fc)) document.getElementById("statFollowers").innerText = fc + 1;
     }
@@ -240,7 +240,7 @@ async function load() {
   }
   document.getElementById("statFollowers").innerText = fc || 0;
   document.getElementById("statFollowing").innerText = fgc || 0;
-  document.getElementById("postsTitle").innerText = "📝 Posts by @" + viewUser;
+  document.getElementById("postsTitle").innerHTML = '<span class="material-icons" style="vertical-align:middle;margin-right:4px;">description</span> Posts by @' + escapeHtml(viewUser);
 
   if (me && viewUser !== me) {
     document.getElementById("followBtn").style.display = "inline-block";
@@ -251,7 +251,7 @@ async function load() {
     const { data: fcheck } = await sb.from("follows").select("follower").eq("follower", me).eq("following", viewUser).maybeSingle();
     isFollowing = !!fcheck;
     const btn = document.getElementById("followBtn");
-    if (isFollowing) { btn.innerText = "✓ Following"; btn.classList.add("following"); }
+    if (isFollowing) { btn.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following'; btn.classList.add("following"); }
     else {
       const { data: reqCheck } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
       if (reqCheck) btn.innerHTML = '<span class="material-icons" style="font-size:14px;">hourglass_empty</span> Requested'; else btn.innerText = "Follow";
@@ -261,7 +261,7 @@ async function load() {
   }
 
   if (user && user.is_private && me !== viewUser && !isFollowing) {
-    document.getElementById("userPosts").innerHTML = "<div style='color:#888;font-style:italic;padding:20px;text-align:center;'>🔒 This account is private.</div>";
+    document.getElementById("userPosts").innerHTML = "<div style='color:#888;font-style:italic;padding:20px;text-align:center;'><span class='material-icons' style='display:block;font-size:32px;margin-bottom:10px;'>lock</span> This account is private.</div>";
     document.getElementById("statFollowers").innerText = "-";
     document.getElementById("statFollowing").innerText = "-";
     return;
@@ -294,7 +294,7 @@ async function load() {
         pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
                       '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'#d0e0ff':'#e0e0e0')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
                       '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
-                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'✓':'')+'</span><span>'+pct+'%</span>'+
+                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span>':'')+'</span><span>'+pct+'%</span>'+
                       '</div>'+
                     '</div>';
       });

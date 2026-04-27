@@ -478,7 +478,7 @@ async function loadPosts() {
         pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
                       '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'#d0e0ff':'#e0e0e0')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
                       '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
-                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'✓':'')+'</span><span>'+pct+'%</span>'+
+                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span>':'')+'</span><span>'+pct+'%</span>'+
                       '</div>'+
                     '</div>';
       });
@@ -487,7 +487,7 @@ async function loadPosts() {
 
     const d = document.createElement("div");
     d.className = "post";
-    d.innerHTML = '<span class="delete-post" onclick="deletePost(' + p.id + ')">✕ delete</span>' +
+    d.innerHTML = '<span class="delete-post" onclick="deletePost(' + p.id + ')"><span class="material-icons" style="font-size:14px;vertical-align:middle;">delete</span> delete</span>' +
       '<div class="post-text">' + escapeHtml(p.text) + '</div>' +
       pollHtml +
       '<div class="post-time">' + timeAgo(p.created_at) + '</div>';

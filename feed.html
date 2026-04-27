@@ -155,8 +155,8 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
     <!-- SEARCH & SORT -->
     <div class="search-bar">
       <select id="searchMode" onchange="onModeChange()" style="flex-shrink:0;">
-        <option value="posts">📝 Posts</option>
-        <option value="users">👤 Users</option>
+        <option value="posts">Posts</option>
+        <option value="users">Users</option>
       </select>
       <input id="searchInput" placeholder="Search posts..." onkeydown="if(event.key==='Enter')doSearch()">
       <select id="sortSelect" onchange="doSearch()">
