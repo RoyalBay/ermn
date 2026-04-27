@@ -4,7 +4,7 @@
  * All other scripts reference window.ERMN_URL / window.ERMN_KEY.
  */
 (function () {
-  window.ERMN_URL = "https://https://glxkfdltajezuvptippt.supabase.co";
+  window.ERMN_URL = "https://glxkfdltajezuvptippt.supabase.co";
   window.ERMN_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdseGtmZGx0YWplenV2cHRpcHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNDA0NDcsImV4cCI6MjA5MjgxNjQ0N30.2PTpFCp20SHOlLcgxldYNHAtVxnsB8UuP6n8HpCa944";
 })();
 
