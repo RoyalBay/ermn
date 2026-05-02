@@ -1,0 +1,163 @@
+/* 
+   ERMN 2026 Modern UI Extension
+   This stylesheet modernizes the retro 2004 aesthetic into a clean, modern social experience.
+*/
+
+:root {
+    --modern-radius: 16px;
+    --modern-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    --modern-font: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --modern-bg: #f0f2f5;
+    --modern-card: #ffffff;
+    --modern-text: #1c1e21;
+    --modern-text-secondary: #65676b;
+}
+
+body.modern-ui {
+    font-family: var(--modern-font) !important;
+    background: var(--modern-bg) !important;
+    color: var(--modern-text) !important;
+    line-height: 1.5;
+}
+
+/* Glassmorphism Topbar */
+body.modern-ui .topbar {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+    color: var(--modern-text) !important;
+    height: 60px !important;
+    display: flex;
+    align-items: center;
+    padding: 0 20px !important;
+}
+
+body.modern-ui .topbar-logo {
+    color: var(--accent) !important;
+    font-size: 24px !important;
+    letter-spacing: -0.5px !important;
+    font-style: normal !important;
+}
+
+body.modern-ui .topbar-nav a {
+    color: var(--modern-text-secondary) !important;
+    font-weight: 500 !important;
+    transition: color 0.2s, background 0.2s;
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+}
+
+body.modern-ui .topbar-nav a:hover, body.modern-ui .topbar-nav a.active {
+    background: rgba(0, 0, 0, 0.05) !important;
+    color: var(--accent) !important;
+}
+
+/* Hide specific buttons in Modern UI */
+body.modern-ui .topbar-right {
+    display: none !important;
+}
+
+/* Modernized Cards */
+body.modern-ui .card, body.modern-ui .post {
+    background: var(--modern-card) !important;
+    border: none !important;
+    border-radius: var(--modern-radius) !important;
+    box-shadow: var(--modern-shadow) !important;
+    margin-bottom: 20px !important;
+    overflow: hidden;
+}
+
+body.modern-ui .card-title {
+    background: transparent !important;
+    border-bottom: 1px solid #f0f2f5 !important;
+    padding: 16px 20px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+body.modern-ui .card-body, body.modern-ui .post-body {
+    padding: 20px !important;
+}
+
+/* Modernized Posts */
+body.modern-ui .post-avatar {
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+body.modern-ui .post-meta .user-link {
+    font-weight: 600 !important;
+    color: var(--modern-text) !important;
+}
+
+body.modern-ui .post-time {
+    color: var(--modern-text-secondary) !important;
+    font-size: 12px !important;
+}
+
+body.modern-ui .post-text {
+    font-size: 15px !important;
+    color: #1c1e21 !important;
+    margin: 12px 0 !important;
+}
+
+/* Action Bar */
+body.modern-ui .post-actions {
+    border-top: 1px solid #f0f2f5 !important;
+    padding: 8px 10px !important;
+    display: flex;
+    justify-content: space-around !important;
+}
+
+body.modern-ui .post-actions > span {
+    color: var(--modern-text-secondary) !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
+    padding: 8px !important;
+    border-radius: 6px !important;
+    transition: background 0.2s !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+body.modern-ui .post-actions > span:hover {
+    background: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Buttons */
+body.modern-ui .btn {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    padding: 10px 16px !important;
+    transition: filter 0.2s, transform 0.1s !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+body.modern-ui .btn:active {
+    transform: scale(0.98) !important;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+    body.modern-ui .bottom-nav {
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+        height: 65px !important;
+    }
+    
+    body.modern-ui .bottom-nav a {
+        color: var(--modern-text-secondary) !important;
+    }
+    
+    body.modern-ui .bottom-nav a.active {
+        color: var(--accent) !important;
+    }
+}

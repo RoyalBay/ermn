@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ermn. · Feed</title>
+<link rel="icon" href="wicon.png">
+  <style>
+    :root {
+      --accent: #3b5998;
+      --accent2: #8b9dc3;
+      --body-bg: linear-gradient(180deg, #dfe7f3 0%, #f5f6f7 100%);
+      --card-bg: #fff;
+      --topbar-bg: #3b5998;
+      --text: #333;
+      --border: #b0b7c3;
+      --card-header: linear-gradient(180deg,#e8edf7,#d8e0f0);
+      --input-bg: #fafafa;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Tahoma, Verdana, sans-serif;
+      background: var(--body-bg);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 13px;
+    }
+
+    .topbar {
+      background: var(--topbar-bg);
+      height: 44px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+      border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .topbar-logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: white;
+      letter-spacing: -1px;
+      font-style: italic;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    }
+
+    .topbar-nav {
+      display: flex;
+      gap: 4px;
+      margin-left: 10px;
+    }
+
+    .topbar-nav a {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 12px;
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .topbar-nav a:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    .topbar-nav a.active {
+      background: rgba(0, 0, 0, 0.15);
+      color: white;
+      font-weight: bold;
+    }
+
+    .topbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .topbar-right button {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .topbar-right button:hover {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .container {
+      display: block;
+      max-width: 600px;
+      margin: 16px auto;
+      padding: 0 10px;
+    }
+
+    .feed-col {
+      width: 100%;
+    }
+
+    .algo-header {
+      background: var(--card-header);
+      border: 1px solid var(--border);
+      padding: 15px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .algo-header h2 {
+      font-size: 18px;
+      color: var(--accent);
+      font-style: italic;
+      letter-spacing: -1px;
+      margin-bottom: 4px;
+    }
+
+    .algo-header p {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .post {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      margin-bottom: 8px;
+      padding: 10px;
+    }
+
+    .post-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+      position: relative;
+    }
+
+    .post-avatar {
+      width: 38px;
+      height: 38px;
+      object-fit: cover;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .post-avatar-link {
+      flex-shrink: 0;
+    }
+
+    .post-meta {
+      flex: 1;
+    }
+
+    .user-link {
+      color: var(--accent);
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 13px;
+    }
+
+    .user-link:hover {
+      text-decoration: underline;
+    }
+
+    .post-time {
+      font-size: 11px;
+      color: #888;
+      margin-top: 1px;
+    }
+
+    .you-tag {
+      background: var(--accent);
+      color: white;
+      font-size: 10px;
+      padding: 1px 5px;
+      margin-left: 4px;
+      border-radius: 2px;
+    }
+
+    .follow-btn {
+      background: linear-gradient(180deg, #f0f4ff, #e0e8f8);
+      color: var(--accent);
+      border: 1px solid var(--border);
+      font-size: 11px;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-left: 4px;
+    }
+
+    .follow-btn:hover {
+      background: linear-gradient(180deg, #e0e8f8, #d0d8f0);
+    }
+
+    .follow-btn.following {
+      background: linear-gradient(180deg, #d0f0d0, #b8e8b8);
+      color: #2a6e2a;
+      border-color: #8ec88e;
+    }
+
+    .delete {
+      color: #999;
+      cursor: pointer;
+      font-size: 13px;
+      position: absolute;
+      right: 0;
+      top: 0;
+      padding: 2px 4px;
+    }
+
+    .delete:hover {
+      color: #c00;
+    }
+
+    .post-text {
+      padding: 4px 0 8px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .post-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      border-top: 1px solid #eee;
+      padding-top: 6px;
+      font-size: 12px;
+      flex-wrap: wrap;
+    }
+
+    .like-wrap {
+      cursor: default;
+      color: #555;
+    }
+
+    .heart {
+      cursor: pointer;
+      color: #bbb;
+      font-size: 14px;
+      transition: color 0.15s;
+    }
+
+    .heart:hover {
+      color: #e74c3c;
+    }
+
+    .heart.liked {
+      color: #e74c3c;
+    }
+
+    .comment-toggle {
+      cursor: pointer;
+      color: #555;
+    }
+
+    .comment-toggle:hover {
+      color: var(--accent);
+    }
+
+    .report-btn {
+      cursor: pointer;
+      color: #aaa;
+      font-size: 11px;
+      margin-left: auto;
+    }
+
+    .report-btn:hover {
+      color: #e07b00;
+    }
+
+    .comment-box {
+      margin-top: 8px;
+      border-top: 1px solid #eee;
+      padding-top: 6px;
+    }
+
+    .comment {
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px dotted #eee;
+      color: #444;
+      display: flex;
+      gap: 4px;
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .comment .user-link {
+      font-size: 12px;
+    }
+
+    .del-comment {
+      color: #bbb;
+      cursor: pointer;
+      font-size: 11px;
+      margin-left: auto;
+    }
+
+    .del-comment:hover {
+      color: #c00;
+    }
+
+    .comment-input {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+    }
+
+    .comment-input input {
+      flex: 1;
+      border: 1px solid #bbb;
+      padding: 4px 6px;
+      font-size: 12px;
+      font-family: inherit;
+      background: #fafafa;
+    }
+
+    .comment-input input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+    }
+
+    .comment-input button {
+      background: linear-gradient(180deg, #5274b3, #3b5998);
+      color: white;
+      border: 1px solid #2a4070;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .comment-input button:hover {
+      background: linear-gradient(180deg, #6080bf, #4a6aaa);
+    }
+
+    .material-icons {
+      font-family: "Material Icons";
+      font-size: 1.2em;
+      vertical-align: middle;
+      line-height: 1;
+      position: relative;
+      top: -1px;
+      margin-right: 2px;
+    }
+
+    .topbar-nav .material-icons {
+      font-size: 1.3em;
+      margin-right: 3px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <span class="topbar-logo">ermn.</span>
+    <nav class="topbar-nav">
+      <a href="feed.html"><span class="material-icons">home</span> Home</a>
+      <a href="algo_feed.html" class="active"><span class="material-icons">explore</span> Feed</a>
+      <a href="profile.html"><span class="material-icons">person</span> Profile</a>
+    </nav>
+    <div class="topbar-right">
+      <button onclick="location.href='settings.html'"><span class="material-icons"
+          style="font-size:14px;">settings</span> Settings</button>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="feed-col">
+      <div class="algo-header">
+        <h2>Your Discovery Feed</h2>
+        <p>Trending hashtags and a mix of the community's best posts.</p>
+        <button onclick="renderAlgo()"
+          style="margin-top:10px;background:none;border:1px solid var(--accent);color:var(--accent);padding:4px 10px;cursor:pointer;font-size:11px;border-radius:2px;">Refresh
+          Algorithm</button>
+      </div>
+      <div id="posts"></div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="theme.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <script>
+/* logout handled in app.js */
+
+    if (!localStorage.getItem("currentUser")) {
+      location.href = "index.html";
+    } else {
+      applyTheme();
+      document.addEventListener("sessionReady", () => {
+        renderAlgo();
+      });
+      if (currentUser) document.dispatchEvent(new Event("sessionReady"));
+    }
+  </script>
+  <script src="dev_tools_loader.js"></script>
+</body>
+
+</html>

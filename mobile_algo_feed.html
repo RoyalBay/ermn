@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>ermn. · Feed</title>
+<link rel="icon" href="wicon.png">
+<style>
+:root{--accent:#3b5998;--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:14px;padding-bottom:60px;}
+
+.topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;position:sticky;top:0;z-index:50;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
+.topbar-right{margin-left:auto;display:flex;gap:8px;}
+.topbar-right button{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;border-radius:2px;}
+
+.main{padding:10px;}
+
+.algo-header { background:var(--card-header); border:1px solid var(--border); border-radius:4px; padding:15px; margin-bottom:10px; text-align:center; }
+.algo-header h2 { font-size:18px; color:var(--accent); font-style:italic; letter-spacing:-1px; margin-bottom:4px; }
+.algo-header p { font-size:12px; color:#666; }
+
+.post{background:var(--card-bg); border:1px solid var(--border); border-radius:4px; margin-bottom:10px; padding:10px;}
+.post-header{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;position:relative;}
+.post-avatar{width:40px;height:40px;object-fit:cover;border:2px solid var(--border);border-radius:2px;flex-shrink:0;}
+.post-meta{flex:1;}
+.user-link{color:var(--accent);font-weight:bold;text-decoration:none;font-size:14px;}
+.post-time{font-size:11px;color:#888;}
+.follow-btn{background:#e8edf7;color:var(--accent);border:1px solid var(--border);font-size:12px;padding:3px 8px;cursor:pointer;font-family:inherit;margin-left:4px;border-radius:2px;}
+.follow-btn.following{background:#d0f0d0;color:#2a6e2a;border-color:#8ec88e;}
+.you-tag{background:var(--accent);color:white;font-size:10px;padding:1px 5px;margin-left:4px;border-radius:2px;}
+.delete{color:#bbb;cursor:pointer;position:absolute;right:0;top:0;padding:4px 6px;font-size:14px;}
+.delete:hover,.delete:active{color:#c00;}
+.post-text{line-height:1.5;margin-bottom:8px;word-break:break-word;}
+.post-actions{display:flex;gap:12px;border-top:1px solid #eee;padding-top:8px;font-size:13px;flex-wrap:wrap;}
+.heart{cursor:pointer;color:#bbb;font-size:16px;}
+.heart.liked{color:#e74c3c;}
+.like-wrap{color:#555;}
+.comment-toggle{cursor:pointer;color:#555;}
+.report-btn{color:#bbb;font-size:12px;cursor:pointer;margin-left:auto;}
+.report-btn:active{color:#e07b00;}
+
+.comment-box{margin-top:8px;border-top:1px solid #eee;padding-top:8px;}
+.comment{font-size:13px;padding:5px 0;border-bottom:1px dotted #eee;color:#444;}
+.comment-input{display:flex;gap:6px;margin-top:8px;}
+.comment-input input{flex:1;border:1px solid #bbb;padding:8px;font-size:14px;font-family:inherit;-webkit-appearance:none;}
+.comment-input button{background:var(--accent);color:white;border:none;padding:8px 12px;font-size:13px;cursor:pointer;}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:50;}
+.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;-webkit-tap-highlight-color:transparent;}
+.bottom-nav a:active{background:rgba(255,255,255,0.1);}
+.bottom-nav a.active{color:white;font-weight:bold;background:rgba(0,0,0,0.1);}
+.bottom-nav a .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-logo">ermn.</span>
+  <div class="topbar-right">
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="main">
+  <div id="loading" style="text-align:center;padding:20px;color:#888;font-style:italic;">Finding trends...</div>
+  <div id="posts"></div>
+</div>
+
+<nav class="bottom-nav">
+  <a href="mobile_feed.html"><span class="material-icons">home</span><span>Home</span></a>
+  <a href="mobile_algo_feed.html" class="active"><span class="material-icons">explore</span><span>Feed</span></a>
+  <a href="mobile_profile.html"><span class="material-icons">person</span><span>Profile</span></a>
+  <a href="mobile_settings.html"><span class="material-icons">settings</span><span>Settings</span></a>
+</nav>
+
+<script src="config.js"></script>
+<script src="theme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+const cu = localStorage.getItem("currentUser");
+if (!cu) location.href = "mobile.html";
+
+/* logout handled in app.js */
+
+applyTheme();
+document.addEventListener("sessionReady", () => {
+  renderAlgo().then(()=>{ const l=document.getElementById("loading"); if(l)l.style.display="none"; });
+});
+if (currentUser) document.dispatchEvent(new Event("sessionReady"));
+</script>
+</body>
+</html>

@@ -2,11 +2,11 @@
 <html>
 
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ermn. · help</title>
-  <link rel="icon" href="wicon.png">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link rel="icon" href="wicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -27,6 +27,7 @@
       background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
       min-height: 100vh;
       color: #333;
+      font-size: 13px;
     }
 
 .topbar { background:var(--accent); height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.3); border-bottom:2px solid rgba(0,0,0,0.2); }
@@ -42,7 +43,8 @@
 .card-header { background: linear-gradient(180deg,#e8edf7,#d8e0f0); border-bottom: 1px solid #b0b7c3; padding: 8px 15px; display: flex; align-items: center; gap: 8px; }
 .card-header h1, .card-header h2 { font-size: 14px; font-weight: bold; color: var(--accent); margin: 0; }
 .card-body { padding: 20px; line-height: 1.6; color: #444; }
-.material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 
     .topbar-logo {
       font-size: 22px;
@@ -140,7 +142,7 @@
     .footer a {
       color: #3b5998;
     }
-    .material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+
   </style>
 </head>
 
@@ -148,7 +150,8 @@
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <nav class="topbar-nav">
-    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
     <a href="profile.html"><span class="material-icons">person</span> Profile</a>
   </nav>
   <div class="topbar-right">
@@ -161,6 +164,35 @@
   </div>
 
   <div class="main">
+    <div class="card">
+      <h2>Account & Login</h2>
+
+      <div class="faq-item">
+        <b>Do I need an email to sign up?</b>
+        <p>
+          No! ermn. has moved to a <b>Pure Username Login</b> system. New users only need to provide a username and password. 
+          Internally, your account is associated with <code>username@ermn.social</code>, but you never need to see or use this email.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <b>I'm a returning user, how do I log in?</b>
+        <p>
+          If you signed up before the transition, try logging in with your <b>Username</b> first. 
+          If you get an "Invalid credentials" error, please enter your <b>Original Email</b> in the username field. 
+          Once logged in, your account will be updated to the new system.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <b>Is username recycling supported?</b>
+        <p>
+          Yes! If an account is banned and deleted by an admin, that username is instantly released and can be claimed by a new user. 
+          This keeps our community vibrant and ensures great names don't stay locked behind inactive accounts.
+        </p>
+      </div>
+    </div>
+
     <div class="card">
       <h2>Getting Started</h2>
       
@@ -201,10 +233,44 @@
       </div>
 
       <div class="faq-item">
+        <b>How do I enable Two-Factor Authentication (2FA)?</b>
+        <p>
+          Head to <b>Settings</b> and find the "Account Security" section. Click the 2FA button to display a QR code. Scan this code with an Authenticator App (like Google Authenticator or Authy), then enter the 6-digit code to complete setup.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <b>What is the difference between "Home" and "Feed"?</b>
+        <p>
+          Your <b>Home</b> feed displays posts from users you follow in chronological order. The <b>Feed</b> (Algorithmic) displays popular and recommended posts from the entire ermn. community, regardless of who you follow.
+        </p>
+      </div>
+
+      <div class="faq-item">
         <b>How do I get a Verified Badge?</b>
         <p>
           Verification badges are granted by the moderators to prominent community members or recognized figures. 
           Stay active, post great content, and you might see a blue checkmark appear next to your name!
+        </p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Data & Migration</h2>
+
+      <div class="faq-item">
+        <b>How do I backup and restore my data?</b>
+        <p>
+          In <b>Settings</b>, you'll find the "Data Portability" section. You can export a <code>.ermn</code> file containing all your posts. 
+          If the database is ever reset or wiped, you can log in, go back to Settings, and use the "Import Backup" tool to restore your content with original timestamps.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <b>What happens if the site is reset?</b>
+        <p>
+          As a community project, accidental data loss is rare but possible. By keeping a regular <code>.ermn</code> export of your data, 
+          you ensure that you can always bring your posts back to a new instance of ermn.
         </p>
       </div>
     </div>
@@ -249,6 +315,7 @@
   </div>
 
   <script src="config.js"></script>
+  <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
   <script>

@@ -7,6 +7,7 @@
 create table if not exists users (
   id uuid primary key references auth.users(id) on delete cascade,
   username text unique not null,
+  email text,
   pic text default '',
   bio text default '',
   banner text default '',
@@ -14,6 +15,7 @@ create table if not exists users (
   is_developer boolean default false,
   is_admin boolean default false,
   is_private boolean default false,
+  is_banned boolean default false,
   spotify_data jsonb,
   created_at timestamptz default now()
 );
@@ -22,10 +24,11 @@ create table if not exists users (
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
-  insert into public.users (id, username)
+  insert into public.users (id, username, email)
   values (
     new.id, 
-    coalesce(new.raw_user_meta_data->>'username', 'user_' || substr(new.id::text, 1, 8))
+    coalesce(new.raw_user_meta_data->>'username', 'user_' || substr(new.id::text, 1, 8)),
+    new.email
   );
   return new;
 end;
@@ -83,6 +86,7 @@ create table if not exists reports (
 -- BANNED USERS
 create table if not exists banned_users (
   username text primary key,
+  original_username text,
   banned_at timestamptz default now()
 );
 
@@ -232,4 +236,17 @@ begin
   );
 end
 $$;
+
+-- ADMIN: PURE USERNAME RECYCLING
+-- This function allows admins to delete users from auth.users, freeing up their username/email.
+create or replace function public.admin_delete_user(target_id uuid)
+returns void as $$
+begin
+  if exists (select 1 from public.users where id = auth.uid() and is_admin = true) then
+    delete from auth.users where id = target_id;
+  else
+    raise exception 'Unauthorized';
+  end if;
+end;
+$$ language plpgsql security definer;
 

@@ -2,11 +2,11 @@
 <html>
 
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ermn. · terms</title>
-  <link rel="icon" href="wicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
+<link rel="icon" href="wicon.png">  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
   <style>
     :root {
       --accent: #3b5998;
@@ -36,7 +36,8 @@
 .topbar-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
 .topbar-right button, .topbar-right a.btn-top { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; text-decoration:none; border-radius:0; }
 .topbar-right button:hover, .topbar-right a.btn-top:hover { background:rgba(255,255,255,0.35); }
-.material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 
     .topbar-logo {
       font-size: 22px;
@@ -136,13 +137,15 @@
       color: #3b5998;
     }
   </style>
+  
 </head>
 
 <body>
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <nav class="topbar-nav">
-    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
     <a href="profile.html"><span class="material-icons">person</span> Profile</a>
   </nav>
   <div class="topbar-right">
@@ -170,8 +173,8 @@
         <li>Harass, bully, or intimidate other users.</li>
         <li>Post illegal content or content that violates intellectual property rights.</li>
         <li>Spam the feed with commercial advertisements or repetitive nonsense.</li>
-        <li>Use automated bots to interact with the site unless explicitly authorized by the moderators.</li>
-        <li>Attempt to hack, decompile, or otherwise interfere with the site's functionality.</li>
+        <li>Use automated bots or aggressively abuse Developer Tools (like Auto Refresh) to interfere with the site's functionality.</li>
+        <li>Attempt to hack, decompile, or bypass security features such as Two-Factor Authentication (2FA).</li>
       </ol>
     </div>
 
@@ -201,10 +204,17 @@
     </div>
 
     <div class="card">
-      <h2>6. Disclaimer of Warranty</h2>
+      <h2>6. Disclaimer & Licensing</h2>
       <p>
         ermn. is provided "as is" and "as available." We make no warranties, expressed or implied, regarding the reliability or availability 
         of the service. It's a community project, and while we strive for the best, things might break occasionally.
+      </p>
+      <br>
+      <p>
+        <strong>Open Source & MIT License:</strong> ermn. is an open-source project. This software is licensed under the <strong>MIT License</strong>. You are free to use, copy, modify, and distribute the software, provided that the copyright notice and this permission notice are included in all copies or substantial portions of the software.
+      </p>
+      <p>
+        The creators and moderators of ermn. assume <strong>zero liability</strong> for any data loss, user interactions, or issues that arise from using this platform. Use at your own risk!
       </p>
     </div>
   </div>
@@ -219,6 +229,7 @@
   </div>
 
   <script src="config.js"></script>
+  <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
   <script>

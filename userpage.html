@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta charset="UTF-8">
 <title>ermn. · User Profile</title>
 <link rel="icon" href="wicon.png">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root {
   --accent: #3b5998;
@@ -13,6 +13,8 @@
   --topbar-bg: #3b5998;
   --text: #333;
   --border: #b0b7c3;
+  --card-header: linear-gradient(180deg,#e8edf7,#d8e0f0);
+  --input-bg: #fafafa;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); color: var(--text); min-height: 100vh; font-size: 13px; }
@@ -30,7 +32,7 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
 
 .card { background: var(--card-bg); border: 1px solid var(--border); margin-bottom: 12px; }
 .card-title {
-  background: linear-gradient(180deg, #e8edf7, #d8e0f0);
+  background: var(--card-header);
   border-bottom: 1px solid var(--border);
   padding: 6px 12px;
   font-size: 13px;
@@ -40,33 +42,16 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
 .card-body { padding: 14px; }
 
 /* Profile header redesigned for visual harmony */
-.profile-header-container { position: relative; margin-bottom: 30px; }
-.profile-banner { height: 160px; background: #ddd; background-size: cover; background-position: center; border-bottom: 1px solid var(--border); }
-.profile-header-content { display: flex; gap: 20px; align-items: flex-end; padding: 0 20px; margin-top: -50px; position: relative; z-index: 10; }
-#userPic {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border: 4px solid var(--card-bg);
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  background: var(--card-bg);
-}
-.profile-info { padding-bottom: 5px; flex: 1; }
-.profile-info h2 { font-size: 22px; color: var(--accent); margin-bottom: 2px; text-shadow: 0 1px 0 rgba(255,255,255,0.8); }
-.bio-text { font-style: italic; color: #555; font-size: 13px; margin-bottom: 12px; line-height: 1.4; }
-.stats { display: flex; gap: 0; border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px; }
-.stat-item {
-  text-align: center;
-  padding: 0 20px 0 0;
-  border-right: 1px solid #eee;
-  margin-right: 20px;
-  cursor: pointer;
-}
-.stat-item:last-child { border-right: none; cursor: default; }
-.stat-item strong { display: block; font-size: 16px; color: var(--accent); }
-.stat-item span { font-size: 11px; color: #888; }
+.profile-banner { height: 100px; background: #ddd; background-size: cover; background-position: center; border-bottom: 1px solid var(--border); display: none; }
+.profile-header { display: flex; gap: 14px; align-items: flex-start; padding: 14px; }
+#userPic { width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--border); border-radius: 2px; flex-shrink: 0; background: var(--card-bg); }
+.profile-info { flex: 1; }
+.profile-info h2 { font-size: 18px; color: var(--accent); line-height: 1.2; margin-bottom: 2px; }
+.bio-text { font-style: italic; color: #555; font-size: 13px; margin-top: 4px; line-height: 1.4; }
+.stats { display: flex; gap: 16px; margin-top: 8px; font-size: 13px; color: #555; border: none; padding: 0; }
+.stat-item { text-align: left; padding: 0; border: none; margin: 0; cursor: pointer; display: inline; }
+.stat-item strong { display: inline; font-size: 13px; color: var(--accent); }
+.stat-item span { font-size: 13px; color: #555; }
 .stat-item:hover strong { text-decoration: underline; }
 
 #followBtn {
@@ -106,7 +91,7 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
 }
 .modal-backdrop.open { display: flex; }
 .modal {
-  background: white;
+  background: var(--card-bg);
   border: 1px solid var(--border);
   width: 300px;
   max-height: 400px;
@@ -114,7 +99,7 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
   flex-direction: column;
 }
 .modal-title {
-  background: linear-gradient(180deg,#e8edf7,#d8e0f0);
+  background: var(--card-header);
   border-bottom: 1px solid var(--border);
   padding: 8px 12px;
   font-weight: bold;
@@ -138,6 +123,10 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
 .modal-user img { width: 32px; height: 32px; object-fit: cover; border: 1px solid var(--border); }
 .modal-user a { color: var(--accent); text-decoration: none; font-weight: bold; font-size: 13px; }
 .modal-user a:hover { text-decoration: underline; }
+.poll-container { margin:10px 0; background:var(--card-header); border:1px solid var(--border); border-radius:4px; padding:10px; }
+.poll-bar { background:rgba(255,255,255,0.1); }
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 </style>
 </head>
 <body>
@@ -145,7 +134,8 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <nav class="topbar-nav">
-    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
     <a href="profile.html"><span class="material-icons">person</span> Profile</a>
   </nav>
   <div class="topbar-right">
@@ -155,27 +145,25 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
 </div>
 
 <div class="container">
-  <div class="card" style="overflow:visible;">
-    <div class="profile-header-container">
-      <div id="userBanner" class="profile-banner"></div>
-      <div class="profile-header-content">
-        <img id="userPic" src="empty.jpg" onerror="this.src='empty.jpg'">
-        <div class="profile-info">
-          <h2 id="userName">Loading...</h2>
-          <div class="bio-text" id="userBio"></div>
-          <div class="stats">
-            <div class="stat-item" onclick="openModal('followers')">
-              <strong id="statFollowers">0</strong>
-              <span>followers</span>
-            </div>
-            <div class="stat-item" onclick="openModal('following')">
-              <strong id="statFollowing">0</strong>
-              <span>following</span>
-            </div>
-            <div class="stat-item">
-              <strong id="statPosts">0</strong>
-              <span>posts</span>
-            </div>
+  <div class="card">
+    <div id="userBanner" class="profile-banner" style="display:none;"></div>
+    <div class="profile-header">
+      <img id="userPic" src="empty.jpg" onerror="this.src='empty.jpg'">
+      <div class="profile-info">
+        <h2 id="userName">Loading...</h2>
+        <div class="bio-text" id="userBio"></div>
+        <div class="stats">
+          <div class="stat-item" onclick="openModal('followers')">
+            <strong id="statFollowers">0</strong>
+            <span>followers</span>
+          </div>
+          <div class="stat-item" onclick="openModal('following')">
+            <strong id="statFollowing">0</strong>
+            <span>following</span>
+          </div>
+          <div class="stat-item">
+            <strong id="statPosts">0</strong>
+            <span>posts</span>
           </div>
         </div>
       </div>
@@ -248,6 +236,7 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
 </div>
 
 <script src="config.js"></script>
+<script src="theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
@@ -284,7 +273,7 @@ async function toggleFollow() {
   if (!me) return;
   const btn = document.getElementById("followBtn");
   if (isFollowing) {
-    await sb.from("follows").delete().eq("follower", me).eq("following", viewUser);
+    await sb.from("follows").delete().eq("follower", me).ilike("following", viewUser);
     isFollowing = false;
     btn.innerText = "Follow";
     btn.className = "";
@@ -292,11 +281,11 @@ async function toggleFollow() {
     if (!isNaN(fc)) document.getElementById("statFollowers").innerText = Math.max(0, fc - 1);
   } else {
     // Check if target is private
-    const { data: targetData } = await sb.from("users").select("is_private").eq("username", viewUser).maybeSingle();
+    const { data: targetData } = await sb.from("users").select("is_private").ilike("username", viewUser).maybeSingle();
     if (targetData && targetData.is_private) {
-      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
+      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", me).ilike("target", viewUser).maybeSingle();
       if (existingReq) {
-        await sb.from("follow_requests").delete().eq("requester", me).eq("target", viewUser);
+        await sb.from("follow_requests").delete().eq("requester", me).ilike("target", viewUser);
         btn.innerText = "Follow";
       } else {
         await sb.from("follow_requests").insert({ requester: me, target: viewUser });
@@ -345,10 +334,10 @@ async function openModal(type) {
 
   let usernames = [];
   if (type === "followers") {
-    const { data } = await sb.from("follows").select("follower").eq("following", viewUser);
+    const { data } = await sb.from("follows").select("follower").ilike("following", viewUser);
     usernames = (data || []).map(r => r.follower);
   } else {
-    const { data } = await sb.from("follows").select("following").eq("follower", viewUser);
+    const { data } = await sb.from("follows").select("following").ilike("follower", viewUser);
     usernames = (data || []).map(r => r.following);
   }
 
@@ -363,7 +352,7 @@ async function openModal(type) {
     const info = uMap[u] || {};
     const d = document.createElement("div");
     d.className = "modal-user";
-    d.innerHTML = '<img src="' + escapeHtml(info.pic || "") + '" onerror="this.src=\'empty.jpg\'">' +
+    d.innerHTML = '<img src="' + escapeHtml(info.pic || "empty.jpg") + '" onerror="this.src=\'empty.jpg\'">' +
       '<a href="' + getUserPageLink(u) + '">@' + escapeHtml(u) + '</a>';
     list.appendChild(d);
   }
@@ -376,10 +365,10 @@ function closeModal() {
 async function load() {
   document.title = "ermn. · @" + viewUser;
 
-  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, spotify_data").eq("username", viewUser).maybeSingle();
-  const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", viewUser);
-  const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", viewUser);
-  const { data: posts } = await sb.from("posts").select("id, text, created_at").eq("username", viewUser).order("created_at", { ascending: false });
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, spotify_data").ilike("username", viewUser).maybeSingle();
+  const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("following", viewUser);
+  const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("follower", viewUser);
+  const { data: posts } = await sb.from("posts").select("id, text, created_at").ilike("username", viewUser).order("created_at", { ascending: false });
 
   if (user && user.spotify_data) {
     userMusicData = user.spotify_data;
@@ -402,6 +391,7 @@ async function load() {
   document.getElementById("userPic").src = (user && user.pic) || "empty.jpg";
   if (user && user.banner) {
     document.getElementById("userBanner").style.backgroundImage = "url('" + user.banner + "')";
+    document.getElementById("userBanner").style.display = "block";
   }
   document.getElementById("statFollowers").innerText = fc || 0;
   document.getElementById("statFollowing").innerText = fgc || 0;
@@ -411,12 +401,12 @@ async function load() {
     document.getElementById("followBtn").style.display = "inline-block";
     document.getElementById("blockBtn").style.display = "inline-block";
     
-    const { data: blockCheck } = await sb.from("blocked_users").select("blocked").eq("blocker", me).eq("blocked", viewUser).maybeSingle();
+    const { data: blockCheck } = await sb.from("blocked_users").select("blocked").eq("blocker", me).ilike("blocked", viewUser).maybeSingle();
     isBlocked = !!blockCheck;
     if (isBlocked) {
       document.getElementById("blockBtn").innerText = "Unblock";
     }
-    const { data: fcheck } = await sb.from("follows").select("follower").eq("follower", me).eq("following", viewUser).maybeSingle();
+    const { data: fcheck } = await sb.from("follows").select("follower").eq("follower", me).ilike("following", viewUser).maybeSingle();
     isFollowing = !!fcheck;
     const btn = document.getElementById("followBtn");
     
@@ -424,7 +414,7 @@ async function load() {
       btn.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following';
       btn.className = "following";
     } else {
-      const { data: reqCheck } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
+      const { data: reqCheck } = await sb.from("follow_requests").select("requester").eq("requester", me).ilike("target", viewUser).maybeSingle();
       if (reqCheck) btn.innerHTML = '<span class="material-icons" style="font-size:14px;">hourglass_empty</span> Requested';
       else btn.innerText = "Follow";
     }
@@ -478,12 +468,12 @@ async function load() {
       const options = pollMap[p.id];
       const myVote = myVoteMap[p.id];
       const totalVotes = options.reduce((sum, opt) => sum + (opt.votes||0), 0);
-      pollHtml = '<div class="poll-container" style="margin:10px 0;background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:10px;">';
+      pollHtml = '<div class="poll-container">';
       options.forEach((opt, idx) => {
         const pct = totalVotes > 0 ? Math.round(((opt.votes||0) / totalVotes) * 100) : 0;
         const isMyVote = myVote === idx;
         pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
-                      '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'#d0e0ff':'#e0e0e0')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
+                      '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'var(--accent)':'rgba(255,255,255,0.1)')+';opacity:'+(isMyVote?'0.2':'0.1')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
                       '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
                         '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span>':'')+'</span><span>'+pct+'%</span>'+
                       '</div>'+
@@ -509,5 +499,6 @@ async function load() {
 
 load();
 </script>
+<script src="dev_tools_loader.js"></script>
 </body>
 </html>

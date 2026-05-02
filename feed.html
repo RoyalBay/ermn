@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ermn. · Feed</title>
+<title>ermn. · Home</title>
 <link rel="icon" href="wicon.png">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root {
   --accent: #3b5998; --accent2: #8b9dc3;
   --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
   --card-bg: #fff; --topbar-bg: #3b5998;
   --text: #333; --border: #b0b7c3;
+  --card-header: linear-gradient(180deg,#e8edf7,#d8e0f0);
+  --input-bg: #fafafa;
 }
 * { box-sizing:border-box; margin:0; padding:0; }
 body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:var(--text); min-height:100vh; font-size:13px; }
@@ -35,13 +37,14 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
   display:flex; gap:6px; align-items:center; flex-wrap:wrap;
 }
 .search-bar input {
-  flex:1; min-width:120px; padding:5px 8px; border:1px solid #bbb;
-  font-family:inherit; font-size:13px; background:#fafafa;
+  flex:1; min-width:120px; padding:5px 8px; border:1px solid var(--border);
+  font-family:inherit; font-size:13px; background:var(--input-bg);
+  color:var(--text);
 }
 .search-bar input:focus { outline:none; border-color:var(--accent); background:white; }
 .search-bar select {
-  padding:5px 6px; border:1px solid #bbb; font-family:inherit; font-size:12px;
-  background:#fafafa; cursor:pointer;
+  padding:5px 6px; border:1px solid var(--border); font-family:inherit; font-size:12px;
+  background:var(--input-bg); color:var(--text); cursor:pointer;
 }
 .search-bar button {
   background:linear-gradient(180deg,#5274b3,#3b5998); color:white;
@@ -54,8 +57,8 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 .search-results-label { font-size:11px; color:#888; font-style:italic; width:100%; margin-top:2px; }
 
 .compose-box { background:var(--card-bg); border:1px solid var(--border); padding:10px; margin-bottom:10px; }
-.compose-box h4 { font-size:12px; color:var(--accent); background:linear-gradient(180deg,#e8edf7,#d8e0f0); margin:-10px -10px 8px; padding:5px 10px; border-bottom:1px solid var(--border); font-weight:bold; }
-.compose-box textarea { width:100%; height:64px; resize:none; border:1px solid #bbb; padding:6px; font-family:inherit; font-size:13px; background:#fafafa; }
+.compose-box h4 { font-size:12px; color:var(--accent); background:var(--card-header); margin:-10px -10px 8px; padding:5px 10px; border-bottom:1px solid var(--border); font-weight:bold; }
+.compose-box textarea { width:100%; height:64px; resize:none; border:1px solid var(--border); padding:6px; font-family:inherit; font-size:13px; background:var(--input-bg); color:var(--text); }
 .compose-box textarea:focus { outline:none; border-color:var(--accent); background:white; }
 #postBtn { background:linear-gradient(180deg,#5274b3,#3b5998); color:white; border:1px solid #2a4070; padding:5px 14px; margin-top:6px; font-family:inherit; font-size:13px; font-weight:bold; cursor:pointer; }
 #postBtn:hover { background:linear-gradient(180deg,#6080bf,#4a6aaa); }
@@ -99,8 +102,8 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 .del-comment { color:#bbb; cursor:pointer; font-size:11px; margin-left:auto; }
 .del-comment:hover { color:#c00; }
 .comment-input { display:flex; gap:4px; margin-top:6px; }
-.comment-input input { flex:1; border:1px solid #bbb; padding:4px 6px; font-size:12px; font-family:inherit; background:#fafafa; }
-.comment-input input:focus { outline:none; border-color:var(--accent); background:white; }
+.comment-input input { flex:1; border:1px solid var(--border); padding:4px 6px; font-size:12px; font-family:inherit; background:var(--input-bg); color:var(--text); }
+.comment-input input:focus { outline:none; border-color:var(--accent); background:var(--card-bg); }
 .comment-input button { background:linear-gradient(180deg,#5274b3,#3b5998); color:white; border:1px solid #2a4070; padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; }
 .comment-input button:hover { background:linear-gradient(180deg,#6080bf,#4a6aaa); }
 
@@ -114,8 +117,8 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 .page-info { font-size:12px; color:#666; font-style:italic; }
 
 .sidebar { width:215px; flex-shrink:0; }
-.sidebar-card { background:var(--card-bg); border:1px solid var(--border); margin-bottom:10px; }
-.sidebar-card .card-title { background:linear-gradient(180deg,#e8edf7,#d8e0f0); border-bottom:1px solid var(--border); padding:5px 10px; font-size:12px; font-weight:bold; color:var(--accent); }
+.sidebar-card { background:var(--card-bg); border:1px solid var(--border); margin-bottom:10px; overflow:hidden; }
+.sidebar-card .card-title { background:var(--card-header); border-bottom:1px solid var(--border); padding:5px 10px; font-size:12px; font-weight:bold; color:var(--accent); }
 .sidebar-card .card-body { padding:10px; }
 .sidebar-avatar { width:60px; height:60px; object-fit:cover; border:2px solid var(--border); display:block; margin-bottom:6px; }
 #rightName { font-weight:bold; font-size:13px; margin-bottom:2px; }
@@ -131,8 +134,9 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 /* Admin quick link */
 .admin-panel-link { background:#fff8e1; border:1px solid #ffe082; padding:4px 10px; font-size:12px; }
 .admin-panel-link a { color:#b8860b; font-weight:bold; }
-  .material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
-  .sidebar-links .material-icons { font-size: 1.1em; color: var(--accent2); margin-right: 6px; }
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+  .sidebar-links  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
   .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 </style>
 </head>
@@ -141,7 +145,8 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <nav class="topbar-nav">
-    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="feed.html" class="active"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
     <a href="profile.html"><span class="material-icons">person</span> Profile</a>
   </nav>
   <div class="topbar-right">
@@ -202,7 +207,7 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
     <div class="sidebar-card" id="adminPanelCard" style="display:none;">
       <div class="card-title"><span class="material-icons" style="font-size:13px;">security</span> Admin</div>
       <div class="card-body admin-panel-link" style="padding:8px 10px;">
-        <div id="adminReportAlert" style="font-size:11px;color:#c00;margin-bottom:6px;font-weight:bold;display:none;display:flex;align-items:center;"><span class="material-icons" style="font-size:14px;margin-right:4px;">warning</span> <span id="adminReportCount">0 </span>  Pending Reports</div>
+        <div id="adminReportAlert" style="font-size:11px;color:#c00;margin-bottom:6px;font-weight:bold;display:none;display:flex;align-items:center;"><span class="material-icons" style="font-size:14px;margin-right:4px;">warning</span> <span id="adminReportCount">0</span>&nbsp;Pending Reports</div>
         <a href="admin.html">Open Admin Panel</a>
       </div>
     </div>
@@ -232,14 +237,11 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 </div>
 
 <script src="config.js"></script>
+<script src="theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
-async function logout() { 
-  await sb.auth.signOut();
-  localStorage.removeItem("currentUser"); 
-  location.href = "index.html"; 
-}
+/* logout handled in app.js */
 
 if (!localStorage.getItem("currentUser")) {
   location.href = "index.html";
@@ -304,7 +306,9 @@ if (!localStorage.getItem("currentUser")) {
 
   document.addEventListener("sessionReady", () => {
     if (isAdmin()) {
-      document.getElementById("adminPanelCard").style.display = "block";
+      if (localStorage.getItem("hideAdminControls") !== "true") {
+        document.getElementById("adminPanelCard").style.display = "block";
+      }
       // Fetch report count
       sb.from("reports").select("*", { count: "exact", head: true }).then(({ count }) => {
         if (count > 0) {
@@ -335,5 +339,6 @@ if (!localStorage.getItem("currentUser")) {
 
 }
 </script>
+<script src="dev_tools_loader.js"></script>
 </body>
 </html>

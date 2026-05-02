@@ -2,11 +2,11 @@
 <html>
 
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ermn. · login</title>
-  <link rel="icon" href="wicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="wicon.png">  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <style>
     .username {
       font-weight: bold;
@@ -147,10 +147,10 @@
     /* LOGIN BOX */
     .login-box {
       width: 240px;
-      background: white;
-      border: 1px solid #b0b7c3;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
       padding: 14px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
     }
 
     .login-box h3 {
@@ -165,19 +165,21 @@
     .login-box label {
       display: block;
       font-size: 12px;
-      color: #444;
+      color: var(--text);
       margin-bottom: 2px;
       font-weight: bold;
+      opacity: 0.8;
     }
 
     .login-box input {
       width: 100%;
       padding: 5px 6px;
-      border: 1px solid #aaa;
+      border: 1px solid var(--border);
       font-size: 13px;
       margin-bottom: 8px;
       font-family: inherit;
-      background: #f9f9f9;
+      background: rgba(0,0,0,0.05);
+      color: var(--text);
     }
 
     .login-box input:focus {
@@ -230,6 +232,18 @@
       cursor: default;
     }
 
+    .btn-gray {
+      width: 100%;
+      padding: 8px;
+      background: #eee;
+      color: #555;
+      border: 1px solid #ccc;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-gray:hover { background: #ddd; }
+
     #msg {
       font-size: 12px;
       margin-top: 6px;
@@ -264,7 +278,9 @@
       color: #3b5998;
     }
 
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
   </style>
+  
 </head>
 
 <body>
@@ -296,19 +312,33 @@
     </div>
     <div class="login-box">
       <h3>Log In or Sign Up</h3>
-      <label>Username</label>
-      <input id="username" placeholder="your username" autocomplete="username">
-      <label>Password</label>
-      <input id="password" type="password" placeholder="password" autocomplete="current-password">
-      <button class="btn-blue" id="loginBtn" onclick="login()">Log In</button>
-      <hr class="divider">
-      <button class="btn-green" id="createBtn" onclick="create()">Create New Account</button>
-      <div id="msg"></div>
+      <div id="loginStep">
+        <label>Username</label>
+        <input id="username" placeholder="Username or Email" autocomplete="username">
+        <label>Password</label>
+        <input id="password" type="password" placeholder="password" autocomplete="current-password">
+        <button class="btn-blue" id="loginBtn" onclick="login()">Log In</button>
+        <hr class="divider">
+        <button class="btn-green" id="createBtn" onclick="create()">Create New Account</button>
+        <div id="msg"></div>
+      </div>
+      <div id="twoFAStep" style="display:none;padding:4px 0;">
+        <div style="text-align:center;margin-bottom:12px;">
+          <span class="material-icons" style="font-size:36px;color:var(--accent);">security</span>
+          <p style="font-size:14px;font-weight:bold;color:var(--accent);margin-top:4px;">Two-Factor Authentication</p>
+          <p style="font-size:12px;color:#666;margin-top:4px;">Open your authenticator app and enter the 6-digit code.</p>
+        </div>
+        <input type="text" id="totpCode" placeholder="000000" maxlength="6" autocomplete="one-time-code"
+          style="text-align:center;font-size:22px;letter-spacing:8px;font-family:monospace;width:100%;padding:10px;border:1px solid #aaa;margin-bottom:10px;">
+        <button class="btn-blue" id="totpBtn" onclick="submitTotp()">Verify Code</button>
+        <button class="btn-gray" onclick="cancelTwoFA()" style="margin-top:6px;">Back to Login</button>
+        <div id="msg"></div>
+      </div>
     </div>
   </div>
 
   <footer style="text-align:center; padding: 20px; font-size:11px; color:#888;">
-    &copy; 2026 ermn. &middot; v1.7 &middot; 
+    &copy; 2026 ermn. &middot; v1.0 &middot; 
     <a href="about.html" style="color:#888;text-decoration:none;">About</a> &middot; 
     <a href="help.html" style="color:#888;text-decoration:none;">Help</a> &middot; 
     <a href="privacy.html" style="color:#888;text-decoration:none;">Privacy</a> &middot; 
@@ -316,11 +346,15 @@
   </footer>
 
   <script src="config.js"></script>
+  <script src="theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = window.ERMN_URL;
     const SUPABASE_KEY = window.ERMN_KEY;
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Apply theme
+    if (typeof applyTheme === "function") applyTheme();
 
     // Redirect mobile users to mobile site
     (function () {
@@ -337,24 +371,30 @@
       el.className = isError ? "err" : "ok";
     }
     function setBusy(b) {
-      document.getElementById("loginBtn").disabled = b;
-      document.getElementById("createBtn").disabled = b;
+      const lb = document.getElementById("loginBtn");
+      const cb = document.getElementById("createBtn");
+      const tb = document.getElementById("totpBtn");
+      if (lb) lb.disabled = b;
+      if (cb) cb.disabled = b;
+      if (tb) tb.disabled = b;
     }
 
     async function login() {
       const rawU = document.getElementById("username").value.trim();
-      const u = rawU.toLowerCase();
       const p = document.getElementById("password").value;
-      if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
+      if (!p || !rawU) { setMsg("Please fill in fields.", true); return; }
       setBusy(true); setMsg("Logging in...", false);
 
-      // We use a virtual email for Supabase Auth based on the username
-      const email = u + "@ermn.com";
+      const email = rawU.includes("@") ? rawU : (rawU.toLowerCase() + "@ermn.social");
 
       const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
       
       if (error) {
-        setMsg("Login failed: " + error.message, true);
+        let errMsg = error.message;
+        if (errMsg === "Invalid login credentials" && !rawU.includes("@")) {
+          errMsg = "Invalid login. Returning user? Try using your original email.";
+        }
+        setMsg(errMsg, true);
         setBusy(false);
         return;
       }
@@ -368,14 +408,63 @@
         localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);
       }
       
+      const checkU = localStorage.getItem("currentUser").toLowerCase();
+      const { data: banned } = await sb.from("banned_users").select("username").eq("username", checkU).maybeSingle();
+      if (banned) {
+        await sb.auth.signOut();
+        localStorage.removeItem("currentUser");
+        localStorage.removeItem("isDeveloper");
+        setMsg("This account has been suspended for violating terms.", true);
+        setBusy(false);
+        return;
+      }
+
+      // Check for enrolled MFA factors
+      const { data: factorsData } = await sb.auth.mfa.listFactors();
+      const totpFactor = factorsData?.totp?.find(f => f.status === 'verified');
+      if (totpFactor) {
+        const { data: ch, error: chErr } = await sb.auth.mfa.challenge({ factorId: totpFactor.id });
+        if (chErr) { setMsg("2FA error: " + chErr.message, true); setBusy(false); return; }
+        _mfaFactorId = totpFactor.id;
+        _mfaChallengeId = ch.id;
+        document.getElementById("loginStep").style.display = "none";
+        document.getElementById("twoFAStep").style.display = "block";
+        setMsg("", false);
+        setBusy(false);
+        setTimeout(() => document.getElementById("totpCode").focus(), 100);
+        return;
+      }
+
+      location.href = "feed.html";
+    }
+
+    let _mfaChallengeId = null, _mfaFactorId = null;
+
+    function cancelTwoFA() {
+      document.getElementById("twoFAStep").style.display = "none";
+      document.getElementById("loginStep").style.display = "block";
+      document.getElementById("totpCode").value = "";
+      setMsg("", false);
+      _mfaChallengeId = null; _mfaFactorId = null;
+      // Sign out the partial session
+      sb.auth.signOut();
+      localStorage.removeItem("currentUser");
+    }
+
+    async function submitTotp() {
+      const code = document.getElementById("totpCode").value.replace(/\D/g, "");
+      if (code.length !== 6) { setMsg("Enter a 6-digit code.", true); return; }
+      setBusy(true); setMsg("Verifying...", false);
+      const { error } = await sb.auth.mfa.verify({ factorId: _mfaFactorId, challengeId: _mfaChallengeId, code });
+      if (error) { setMsg("Invalid code. Please try again.", true); setBusy(false); return; }
       location.href = "feed.html";
     }
 
     async function create() {
       const rawU = document.getElementById("username").value.trim();
-      const u = rawU.toLowerCase();
       const p = document.getElementById("password").value;
-      if (!rawU || !p) { setMsg("Please fill in both fields.", true); return; }
+      
+      if (!rawU || !p) { setMsg("Please fill in all fields.", true); return; }
       if (rawU.length < 3) { setMsg("Username must be at least 3 characters.", true); return; }
       if (p.length < 4) { setMsg("Password must be at least 4 characters.", true); return; }
       if (!/^[a-zA-Z0-9_]+$/.test(rawU)) { setMsg("Username can only contain letters, numbers, and underscores.", true); return; }
@@ -389,10 +478,18 @@
         setBusy(false);
         return;
       }
+      
+      // Check if username is prohibited (slurs/bad words)
+      const { data: prohibited } = await sb.from("banned_users").select("username").eq("username", rawU.toLowerCase()).maybeSingle();
+      if (prohibited) {
+        setMsg("That username is prohibited.", true);
+        setBusy(false);
+        return;
+      }
 
-      const email = u + "@ermn.com";
+      const email = rawU.toLowerCase() + "@ermn.social";
       const { data, error } = await sb.auth.signUp({
-        email,
+        email: email,
         password: p,
         options: {
           data: { username: rawU }
@@ -410,7 +507,7 @@
         localStorage.setItem("currentUser", rawU);
         setTimeout(() => location.href = "feed.html", 1000);
       } else {
-        setMsg("Account created! Please log in.", false);
+        setMsg("Account created! You can now log in.", false);
         setBusy(false);
       }
     }
@@ -420,6 +517,7 @@
 
 
   </script>
+  <script src="dev_tools_loader.js"></script>
 </body>
 
 </html>

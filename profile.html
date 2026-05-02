@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta charset="UTF-8">
 <title>ermn. · My Profile</title>
 <link rel="icon" href="wicon.png">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
 :root {
   --accent: #3b5998;
@@ -13,6 +13,8 @@
   --topbar-bg: #3b5998;
   --text: #333;
   --border: #b0b7c3;
+  --card-header: linear-gradient(180deg,#e8edf7,#d8e0f0);
+  --input-bg: #fafafa;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); color: var(--text); min-height: 100vh; font-size: 13px; }
@@ -34,7 +36,7 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
   margin-bottom: 12px;
 }
 .card-title {
-  background: linear-gradient(180deg, #e8edf7, #d8e0f0);
+  background: var(--card-header);
   border-bottom: 1px solid var(--border);
   padding: 6px 12px;
   font-size: 13px;
@@ -44,33 +46,23 @@ body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); col
 .card-body { padding: 14px; }
 
 /* Profile header redesigned for visual harmony */
-.profile-header-container { position: relative; margin-bottom: 60px; }
-.profile-banner { height: 160px; background: #ddd; background-size: cover; background-position: center; border-bottom: 1px solid var(--border); }
-.profile-header-content { display: flex; gap: 20px; align-items: flex-end; padding: 0 20px; margin-top: -50px; position: relative; z-index: 10; }
-#picDisplay {
-  width: 100px;
-  height: 100px;
-  object-fit: cover;
-  border: 4px solid var(--card-bg);
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  background: var(--card-bg);
-}
-.profile-info { padding-bottom: 5px; flex: 1; }
-.profile-info h2 { font-size: 22px; color: var(--accent); margin-bottom: 2px; text-shadow: 0 1px 0 rgba(255,255,255,0.8); }
-.profile-info .bio-display { font-style: italic; color: #555; margin-bottom: 8px; font-size: 13px; line-height: 1.4; }
-.stats { display: flex; gap: 20px; font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 8px; }
-.stats span strong { color: var(--accent); font-size: 15px; }
+.profile-banner { height: 100px; background: #ddd; background-size: cover; background-position: center; border-bottom: 1px solid var(--border); display: none; }
+.profile-header { display: flex; gap: 14px; align-items: center; margin-top: 10px; }
+#picDisplay { width: 70px; height: 70px; object-fit: cover; border: 2px solid var(--border); border-radius: 2px; background: var(--card-bg); flex-shrink: 0; }
+.profile-info h2 { font-size: 18px; color: var(--accent); line-height: 1.2; margin-bottom: 2px; }
+.profile-info .bio-display { font-style: italic; color: #666; font-size: 12px; margin-top: 2px; line-height: 1.3; }
+.stats { display: flex; gap: 12px; margin-top: 4px; font-size: 12px; color: #666; }
+.stats span strong { color: var(--accent); }
 
 label { display: block; font-size: 12px; font-weight: bold; color: #444; margin-bottom: 3px; margin-top: 10px; }
 input[type=text], input[type=password], textarea {
   width: 100%;
-  border: 1px solid #bbb;
+  border: 1px solid var(--border);
   padding: 5px 7px;
   font-family: inherit;
   font-size: 13px;
-  background: #fafafa;
+  background: var(--input-bg);
+  color: var(--text);
 }
 input:focus, textarea:focus { outline: none; border-color: var(--accent); background: white; }
 textarea { resize: vertical; height: 64px; }
@@ -102,37 +94,11 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
 .post-time { font-size: 11px; color: #888; }
 .delete-post { color: #bbb; cursor: pointer; font-size: 11px; float: right; }
 .delete-post:hover { color: #c00; }
-.badge-icon {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  background-color: var(--accent);
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  vertical-align: middle;
-  margin-left: 3px;
-  cursor: help;
-}
-.badge-verified {
-  -webkit-mask-image: url('verifiedbadge.png');
-  mask-image: url('verifiedbadge.png');
-}
-.badge-developer {
-  -webkit-mask-image: url('devbadge.png');
-  mask-image: url('devbadge.png');
-}
-  .material-icons {
-  font-size: 16px;        /* fixed size = consistency */
-  line-height: 1;
-  vertical-align: middle;
-  transform: translateY(1px); /* fixes "raised" look */
-  margin-right: 4px;
-}
-  .card-title .material-icons { font-size: 1.1em; color: var(--accent); }
+/* Badges handled by app.js */
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+  .card-title  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 </style>
 </head>
 <body>
@@ -140,7 +106,8 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <nav class="topbar-nav">
-    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
     <a href="profile.html"><span class="material-icons">person</span> Profile</a>
   </nav>
   <div class="topbar-right">
@@ -150,19 +117,18 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
 </div>
 
 <div class="container">
-  <div class="card" style="overflow:visible;">
-    <div class="profile-header-container">
-      <div id="userBanner" class="profile-banner"></div>
-      <div class="profile-header-content">
-        <img id="picDisplay" src="empty.jpg" onerror="this.src='empty.jpg'">
-        <div class="profile-info">
-          <h2 id="uname"></h2>
-          <div class="bio-display" id="bioDisplay">No bio yet.</div>
-          <div class="stats">
-            <span><strong id="statFollowers">0</strong> followers</span>
-            <span><strong id="statFollowing">0</strong> following</span>
-            <span><strong id="statPosts">0</strong> posts</span>
-          </div>
+  <div class="card">
+    <div class="card-title"><span class="material-icons">person</span> My Profile</div>
+    <div id="userBanner" class="profile-banner" style="display:none;"></div>
+    <div class="profile-header" style="padding: 0 14px 14px;">
+      <img id="picDisplay" src="empty.jpg" onerror="this.src='empty.jpg'">
+      <div class="profile-info">
+        <h2 id="uname"></h2>
+        <div id="bioDisplay" class="bio-display">No bio yet.</div>
+        <div class="stats">
+          <span><strong id="statFollowers">0</strong> followers</span>
+          <span><strong id="statFollowing">0</strong> following</span>
+          <span><strong id="statPosts">0</strong> posts</span>
         </div>
       </div>
     </div>
@@ -225,35 +191,12 @@ input[type=file] { font-size: 12px; margin-bottom: 4px; }
 </div>
 
 <script src="config.js"></script>
+<script src="theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
 <script>
-const SUPABASE_URL = window.ERMN_URL;
-const SUPABASE_KEY = window.ERMN_KEY;
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const me = localStorage.getItem("currentUser");
 if (!me) location.href = "index.html";
-
-// Apply theme
-(function(){
-  const t = localStorage.getItem("theme") || "classic";
-  const themes = {
-    classic:   { body:"linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%)",card:"#fff",topbar:"#3b5998",text:"#333",border:"#b0b7c3",accent:"#3b5998" },
-    bubblegum: { body:"linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)",card:"#fff5fb",topbar:"#e91e8c",text:"#5a0030",border:"#f9a8d4",accent:"#e91e8c" },
-    midnight:  { body:"linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)",card:"#1a1a2e",topbar:"#0d0d1f",text:"#c8d0e8",border:"#2a2a4a",accent:"#7b68ee" },
-    y2k:       { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)",card:"#fff",topbar:"#0055cc",text:"#002266",border:"#99bbff",accent:"#0055cc" },
-    limeade:   { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)",card:"#f9fff9",topbar:"#2d7a2d",text:"#1a3d1a",border:"#a3d9a3",accent:"#2d7a2d" },
-  };
-  const th = themes[t] || themes.classic;
-  document.documentElement.style.setProperty("--body-bg", th.body);
-  document.documentElement.style.setProperty("--card-bg", th.card);
-  document.documentElement.style.setProperty("--topbar-bg", th.topbar);
-  document.documentElement.style.setProperty("--text", th.text);
-  document.documentElement.style.setProperty("--border", th.border);
-  document.documentElement.style.setProperty("--accent", th.accent);
-  document.body.style.background = th.body;
-  document.querySelector(".topbar").style.background = th.topbar;
-})();
 
 let tempPic = null;
 document.getElementById("fileInput").addEventListener("change", function(e) {
@@ -264,13 +207,13 @@ document.getElementById("fileInput").addEventListener("change", function(e) {
 
 async function savePic() {
   if (!tempPic) { document.getElementById("picMsg").innerText = "Please select a file first."; document.getElementById("picMsg").className = "msg err"; return; }
-  const { error } = await sb.from("users").update({ pic: tempPic }).eq("username", me);
+  const { error } = await sb.from("users").update({ pic: tempPic }).ilike("username", me);
   if (error) { document.getElementById("picMsg").innerText = "Error: " + error.message; document.getElementById("picMsg").className = "msg err"; return; }
   const file = document.getElementById("fileInput").files[0];
   if (!file) return;
   const r = new FileReader();
   r.onload = async () => {
-    const { error } = await sb.from("users").update({ pic: r.result }).eq("username", me);
+    const { error } = await sb.from("users").update({ pic: r.result }).ilike("username", me);
     if (!error) {
       document.getElementById("picDisplay").src = r.result;
       document.getElementById("picMsg").innerText = "Picture updated!";
@@ -285,7 +228,7 @@ function saveBanner() {
   if (!file) return;
   const r = new FileReader();
   r.onload = async () => {
-    const { error } = await sb.from("users").update({ banner: r.result }).eq("username", me);
+    const { error } = await sb.from("users").update({ banner: r.result }).ilike("username", me);
     if (!error) {
       document.getElementById("userBanner").style.backgroundImage = "url('" + r.result + "')";
       document.getElementById("userBanner").style.display = "block";
@@ -298,7 +241,7 @@ function saveBanner() {
 
 async function saveBio() {
   const bio = document.getElementById("bioInput").value.trim();
-  const { error } = await sb.from("users").update({ bio }).eq("username", me);
+  const { error } = await sb.from("users").update({ bio }).ilike("username", me);
   if (error) { document.getElementById("bioMsg").innerText = "Error: " + error.message; document.getElementById("bioMsg").className = "msg err"; return; }
   document.getElementById("bioMsg").innerText = "Bio saved!";
   document.getElementById("bioMsg").className = "msg ok";
@@ -451,7 +394,7 @@ async function deletePost(postId) {
 }
 
 async function loadPosts() {
-  const { data: posts } = await sb.from("posts").select("id, text, created_at").eq("username", me).order("created_at", { ascending: false });
+  const { data: posts } = await sb.from("posts").select("id, text, created_at").ilike("username", me).order("created_at", { ascending: false });
   const postIds = (posts || []).map(p => p.id);
   const [{ data: polls }, { data: pollVotes }] = await Promise.all([
     postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({ data: [] }),
@@ -497,10 +440,10 @@ async function loadPosts() {
 }
 
 async function load() {
-  const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", me);
-  const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", me);
+  const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("following", me);
+  const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("follower", me);
   document.getElementById("uname").innerText = "@" + me;
-  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, spotify_data").eq("username", me).maybeSingle();
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, spotify_data").ilike("username", me).maybeSingle();
   if (user) {
     if (user.pic) document.getElementById("picDisplay").src = user.pic;
     if (user.bio) {
@@ -509,6 +452,7 @@ async function load() {
     }
     if (user.banner) {
       document.getElementById("userBanner").style.backgroundImage = "url('" + user.banner + "')";
+      document.getElementById("userBanner").style.display = "block";
     }
     if (user.spotify_data) {
       displaySelectedMusic(user.spotify_data);
@@ -525,5 +469,6 @@ async function load() {
 
 load();
 </script>
+<script src="dev_tools_loader.js"></script>
 </body>
 </html>

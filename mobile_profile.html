@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ermn. · Profile</title>
 <link rel="icon" href="wicon.png">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-:root{--accent:#3b5998;}
+:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Tahoma,Verdana,sans-serif;background:linear-gradient(180deg,#dfe7f3,#f0f2f5);min-height:100vh;font-size:14px;padding-bottom:60px;}
-.topbar{background:var(--accent);height:48px;display:flex;align-items:center;padding:0 12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:14px;padding-bottom:60px;}
+.topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
 .topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
 .main{padding:12px;}
-.card{background:white;border:1px solid #b0b7c3;border-radius:4px;margin-bottom:12px;overflow:hidden;}
-.card-title{background:linear-gradient(180deg,#e8edf7,#d8e0f0);border-bottom:1px solid #b0b7c3;padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:12px;overflow:hidden;}
+.card-title{background:var(--card-header);border-bottom:1px solid var(--border);padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
 .card-body{padding:14px;}
 .profile-header{display:flex;gap:14px;align-items:center;margin-top:10px;}
 #picDisplay{width:70px;height:70px;object-fit:cover;border:2px solid var(--border);border-radius:2px;background:var(--card-bg);flex-shrink:0;}
@@ -31,29 +31,7 @@ input[type=file]{font-size:13px;padding:6px 0;}
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:50;}
 .bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;}
 .bottom-nav a .icon{font-size:20px;}
-.badge-icon {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  background-color: var(--accent);
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  vertical-align: middle;
-  margin-left: 3px;
-  cursor: help;
-}
-.badge-verified {
-  -webkit-mask-image: url('verifiedbadge.png');
-  mask-image: url('verifiedbadge.png');
-}
-.badge-developer {
-  -webkit-mask-image: url('devbadge.png');
-  mask-image: url('devbadge.png');
-}
+/* Badges handled by app.js */
 /* Modal */
 .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;}
 .modal-backdrop.open{display:flex;}
@@ -65,9 +43,30 @@ input[type=file]{font-size:13px;padding:6px 0;}
 .modal-user a{text-decoration:none;color:var(--accent);font-weight:bold;font-size:14px;}
 .stats span{cursor:pointer;}
 .stats strong{color:var(--accent);}
-.material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
-.card-title .material-icons { font-size: 1.1em; color: var(--accent); }
-.bottom-nav a .material-icons { font-size: 24px; margin-bottom: 2px; }
+  .badge-icon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    background-color: var(--accent);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    vertical-align: middle;
+    margin-left: 3px;
+    filter: var(--badge-glow);
+  }
+  .badge-verified {
+    -webkit-mask-image: url('verifiedbadge.png');
+    mask-image: url('verifiedbadge.png');
+  }
+  .badge-developer {
+    -webkit-mask-image: url('devbadge.png');
+    mask-image: url('devbadge.png');
+  }
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
 </style>
 </head>
 <body>
@@ -138,7 +137,8 @@ input[type=file]{font-size:13px;padding:6px 0;}
   </div>
 </div>
 <nav class="bottom-nav">
-  <a href="mobile_feed.html"><span class="material-icons">home</span><span>Feed</span></a>
+  <a href="mobile_feed.html"><span class="material-icons">home</span><span>Home</span></a>
+  <a href="mobile_algo_feed.html"><span class="material-icons">explore</span><span>Feed</span></a>
   <a href="mobile_profile.html"><span class="material-icons">person</span><span>Profile</span></a>
   <a href="mobile_settings.html"><span class="material-icons">settings</span><span>Settings</span></a>
 </nav>
@@ -149,15 +149,12 @@ input[type=file]{font-size:13px;padding:6px 0;}
   </div>
 </div>
 <script src="config.js"></script>
+<script src="theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
 <script>
-const SUPABASE_URL=window.ERMN_URL;
-const SUPABASE_KEY=window.ERMN_KEY;
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const me=localStorage.getItem("currentUser");
 if(!me)location.href="mobile.html";
-function escapeHtml(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function timeAgo(d){const diff=Math.floor((Date.now()-new Date(d))/1000);if(diff<60)return diff+"s ago";if(diff<3600)return Math.floor(diff/60)+"m ago";if(diff<86400)return Math.floor(diff/3600)+"h ago";return Math.floor(diff/86400)+"d ago";}
 
 let tempPic=null;
 document.getElementById("fileInput").addEventListener("change",function(e){
@@ -165,7 +162,7 @@ document.getElementById("fileInput").addEventListener("change",function(e){
   r.onload=async function(){
     tempPic=r.result;
     document.getElementById("picDisplay").src=r.result;
-    const{error}=await sb.from("users").update({pic:r.result}).eq("username",me);
+    const{error}=await sb.from("users").update({pic:r.result}).ilike("username",me);
     document.getElementById("picMsg").innerText=error?"Error saving pic.":"Picture updated!";
     setTimeout(()=>document.getElementById("picMsg").innerText="", 3000);
   };
@@ -177,7 +174,7 @@ document.getElementById("bannerInput").addEventListener("change",function(e){
   r.onload=async function(){
     document.getElementById("userBanner").style.backgroundImage="url('"+r.result+"')";
     document.getElementById("userBanner").style.display="block";
-    const{error}=await sb.from("users").update({banner:r.result}).eq("username",me);
+    const{error}=await sb.from("users").update({banner:r.result}).ilike("username",me);
     document.getElementById("bannerMsg").innerText=error?"Error saving banner.":"Banner updated!";
     setTimeout(()=>document.getElementById("bannerMsg").innerText="", 3000);
   };
@@ -186,7 +183,7 @@ document.getElementById("bannerInput").addEventListener("change",function(e){
 
 async function saveBio(){
   const bio=document.getElementById("bioInput").value.trim();
-  const{error}=await sb.from("users").update({bio}).eq("username",me);
+  const{error}=await sb.from("users").update({bio}).ilike("username",me);
   document.getElementById("bioMsg").innerText=error?"Error saving.":"Bio saved!";
   document.getElementById("bioDisplay").innerText=bio||"No bio yet.";
 }
@@ -359,10 +356,10 @@ async function openModal(type) {
 function closeModal(){ document.getElementById("modalBackdrop").classList.remove("open"); }
 
 async function load(){
-  const{data:user}=await sb.from("users").select("pic,bio,banner,spotify_data,verified,is_developer").eq("username",me).maybeSingle();
-  const{count:fc}=await sb.from("follows").select("*",{count:"exact",head:true}).eq("following",me);
-  const{count:fgc}=await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower",me);
-  const{data:posts}=await sb.from("posts").select("id,text,created_at").eq("username",me).order("created_at",{ascending:false});
+  const{data:user}=await sb.from("users").select("pic,bio,banner,spotify_data,verified,is_developer").ilike("username",me).maybeSingle();
+  const{count:fc}=await sb.from("follows").select("*",{count:"exact",head:true}).ilike("following",me);
+  const{count:fgc}=await sb.from("follows").select("*",{count:"exact",head:true}).ilike("follower",me);
+  const{data:posts}=await sb.from("posts").select("id,text,created_at").ilike("username",me).order("created_at",{ascending:false});
   const postIds = (posts || []).map(p => p.id);
   const [{ data: polls }, { data: pollVotes }] = await Promise.all([
     postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({ data: [] }),
@@ -420,28 +417,7 @@ async function load(){
 }
 load();
 
-// Apply saved theme
-// Apply saved theme
-(function() {
-  const t = localStorage.getItem("theme") || "classic";
-  const themes = {
-    classic:   { body:"linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%)",card:"#fff",topbar:"#3b5998",text:"#333",border:"#b0b7c3",accent:"#3b5998" },
-    bubblegum: { body:"linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)",card:"#fff5fb",topbar:"#e91e8c",text:"#5a0030",border:"#f9a8d4",accent:"#e91e8c" },
-    midnight:  { body:"linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)",card:"#1a1a2e",topbar:"#0d0d1f",text:"#c8d0e8",border:"#2a2a4a",accent:"#7b68ee" },
-    y2k:       { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)",card:"#fff",topbar:"#0055cc",text:"#002266",border:"#99bbff",accent:"#0055cc" },
-    limeade:   { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)",card:"#f9fff9",topbar:"#2d7a2d",text:"#1a3d1a",border:"#a3d9a3",accent:"#2d7a2d" },
-  };
-  const th = themes[t] || themes.classic;
-  document.documentElement.style.setProperty("--body-bg", th.body);
-  document.documentElement.style.setProperty("--card-bg", th.card);
-  document.documentElement.style.setProperty("--topbar-bg", th.topbar);
-  document.documentElement.style.setProperty("--text", th.text);
-  document.documentElement.style.setProperty("--border", th.border);
-  document.documentElement.style.setProperty("--accent", th.accent);
-  document.body.style.background = th.body;
-  document.querySelector(".topbar").style.background = th.topbar;
-  document.querySelector(".bottom-nav").style.background = th.topbar;
-})();
+// Handled by theme.js
 </script>
 </body>
 </html>

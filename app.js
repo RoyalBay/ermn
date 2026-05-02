@@ -4,19 +4,47 @@ const SUPABASE_KEY = window.ERMN_KEY;
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
+let _isAdmin = false;
+let _isDeveloper = false;
+let _picCache = {};
+let _currentPage = 0;
+
+window.logout = async function() {
+  if (typeof sb !== 'undefined') await sb.auth.signOut();
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("isDeveloper");
+  localStorage.setItem("theme", "classic");
+  const isMobile = window.location.pathname.includes("mobile");
+  location.href = isMobile ? "mobile.html" : "index.html";
+};
 
 // Handle Auth State
 async function initSession() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
-    const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", session.user.id).maybeSingle();
+    const { data: profile } = await sb.from("users").select("username, is_admin, is_developer").eq("id", session.user.id).maybeSingle();
     if (profile) {
       currentUser = profile.username;
       _isAdmin = profile.is_admin;
       localStorage.setItem("currentUser", currentUser);
+      localStorage.setItem("isDeveloper", profile.is_developer || false);
     } else {
       currentUser = session.user.user_metadata.username;
       localStorage.setItem("currentUser", currentUser);
+    }
+    // Check if user ID or username is banned
+    const userId = session.user.id;
+    const { data: idBanned } = await sb.from("banned_users").select("username").eq("username", "id:"+userId).maybeSingle();
+    const { data: userBanned } = (currentUser && typeof currentUser === "string") 
+      ? await sb.from("banned_users").select("username").eq("username", currentUser.toLowerCase()).maybeSingle()
+      : { data: null };
+
+    if (idBanned || userBanned) {
+      await sb.auth.signOut();
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("isDeveloper");
+      location.href = "banned.html";
+      return;
     }
   } else {
     currentUser = localStorage.getItem("currentUser");
@@ -27,8 +55,7 @@ initSession();
 
 /* ── EGRESS OPTIMISATION ── */
 const POST_LIMIT = 20; // posts per page
-const _picCache = {};  // username → pic data URL, persists for the session
-let _currentPage = 0;  // 0-based page index
+/* Globals moved to top */
 
 /* ── PROFILE MUSIC PLAYER ── */
 window.ProfileMusicPlayer = {
@@ -106,6 +133,10 @@ style.textContent = `
     margin-left: 3px;
     cursor: pointer;
     position: relative;
+    filter: var(--badge-glow);
+  }
+  .sidebar-links a, .topbar-nav a.active, .bottom-nav a.active, .user-link, .stat-item strong, .modal-user a {
+    text-shadow: var(--neon-glow);
   }
   .badge-icon::after {
     content: attr(data-title);
@@ -140,7 +171,7 @@ style.textContent = `
 document.head.appendChild(style);
 
 /* ── ADMIN ── */
-let _isAdmin = false;
+/* Globals moved to top */
 function isAdmin() {
   return _isAdmin;
 }
@@ -165,24 +196,7 @@ function containsBadWord(text) { BAD_REGEX.lastIndex=0; return BAD_REGEX.test(te
 function filterText(text) { BAD_REGEX.lastIndex=0; return text.replace(BAD_REGEX, m => "*".repeat(m.length)); }
 
 /* ── THEME ── */
-function applyTheme() {
-  const t = localStorage.getItem("theme") || "classic";
-  const themes = {
-    classic:   { body:"linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%)",card:"#fff",topbar:"#3b5998",text:"#333",border:"#b0b7c3",accent:"#3b5998" },
-    bubblegum: { body:"linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)",card:"#fff5fb",topbar:"#e91e8c",text:"#5a0030",border:"#f9a8d4",accent:"#e91e8c" },
-    midnight:  { body:"linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)",card:"#1a1a2e",topbar:"#0d0d1f",text:"#c8d0e8",border:"#2a2a4a",accent:"#7b68ee" },
-    y2k:       { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)",card:"#fff",topbar:"#0055cc",text:"#002266",border:"#99bbff",accent:"#0055cc" },
-    limeade:   { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)",card:"#f9fff9",topbar:"#2d7a2d",text:"#1a3d1a",border:"#a3d9a3",accent:"#2d7a2d" },
-  };
-  const th = themes[t] || themes.classic;
-  document.documentElement.style.setProperty("--body-bg", th.body);
-  document.documentElement.style.setProperty("--card-bg", th.card);
-  document.documentElement.style.setProperty("--topbar-bg", th.topbar);
-  document.documentElement.style.setProperty("--text", th.text);
-  document.documentElement.style.setProperty("--border", th.border);
-  document.documentElement.style.setProperty("--accent", th.accent);
-  document.body.style.background = th.body;
-}
+// Handled by theme.js
 
 /* ── POST ── */
 async function post() {
@@ -280,7 +294,16 @@ async function adminDelPost(postId) {
 async function adminBanUser(username, skipConfirm=false) {
   if (!isAdmin()) return;
   if (username.toLowerCase()===ADMIN_USER.toLowerCase()) { await uiAlert("Cannot ban admin."); return; }
-  if (!skipConfirm && !(await uiConfirm("Admin: ban @"+username+"? This deletes all their content and blocks login."))) return;
+  
+  if (!skipConfirm && !(await uiConfirm("Admin: ban @"+username+"? This deletes all their content and blocks their account."))) return;
+  
+  // Ask if the username should be permanently prohibited (slurs/bad words)
+  const isProhibited = !skipConfirm && await uiConfirm("Is this username a slur or forbidden word? (Click OK to permanently block this NAME, Cancel to free it for others)");
+
+  // Get user ID first
+  const { data: user } = await sb.from("users").select("id").eq("username", username).maybeSingle();
+  if (!user) { await uiAlert("User record not found."); return; }
+
   const { data: userPosts } = await sb.from("posts").select("id").eq("username",username);
   if (userPosts && userPosts.length) {
     const ids = userPosts.map(p=>p.id);
@@ -288,14 +311,37 @@ async function adminBanUser(username, skipConfirm=false) {
     await sb.from("comments").delete().in("post_id",ids);
     await sb.from("reports").delete().in("post_id",ids);
   }
+  
+  // Delete all activity
   await sb.from("posts").delete().eq("username",username);
   await sb.from("comments").delete().eq("username",username);
   await sb.from("likes").delete().eq("username",username);
   await sb.from("follows").delete().eq("follower",username);
   await sb.from("follows").delete().eq("following",username);
-  await sb.from("banned_users").upsert({ username: username.toLowerCase() });
+  
+  // Ban the account ID
+  await sb.from("banned_users").upsert({ 
+    username: "id:" + user.id, 
+    original_username: username 
+  });
+  
+  // If slur, also ban the username permanently
+  if (isProhibited) {
+    await sb.from("banned_users").upsert({ username: username.toLowerCase() });
+  }
+
+  // Pure Username Recycling: Delete the user from auth.users via RPC
+  // This frees up the "username@ermn.social" email for others to claim.
+  const { error: rpcErr } = await sb.rpc('admin_delete_user', { target_id: user.id });
+  if (rpcErr) {
+    console.error("RPC Delete failed, falling back to ghosting:", rpcErr);
+    // Fallback: Rename banned user to free the name if RPC fails
+    const ghostName = "ghost_" + user.id.split("-")[0] + "_" + Math.floor(Math.random()*1000);
+    await sb.from("users").update({ username: ghostName, is_banned: true }).eq("id", user.id);
+  }
+
   if (typeof render === "function") await render();
-  await uiAlert("@"+username+" has been banned.");
+  await uiAlert("@"+username+" has been banned. " + (isProhibited ? "The username is now prohibited." : "The username is now available for recycling."));
 }
 
 /* ── ADMIN: delete any comment ── */
@@ -337,7 +383,7 @@ async function loadComments(postId) {
     const d = document.createElement("div");
     d.className = "comment";
     const canDelOwn = c.username===currentUser;
-    const canDelAdmin = isAdmin() && !canDelOwn;
+    const canDelAdmin = isAdmin() && !canDelOwn && localStorage.getItem("hideAdminControls") !== "true";
     d.innerHTML =
       '<a class="user-link" href="userpage.html?user='+encodeURIComponent(c.username)+'">@'+escapeHtml(c.username)+'</a> '+
       '<span>'+escapeHtml(filterText(c.text))+'</span>'+
@@ -427,9 +473,12 @@ async function render(searchQuery, sortMode, page) {
   // Allow callers to set the page; default to current global page
   if (typeof page === "number") _currentPage = page;
 
+  const isLite = localStorage.getItem("dev_layout") === "lite";
+  const limit = isLite ? 10 : POST_LIMIT;
+
   // ── 1. Fetch posts for current page only ──
-  const from = _currentPage * POST_LIMIT;
-  const to   = from + POST_LIMIT - 1;
+  const from = _currentPage * limit;
+  const to   = from + limit - 1;
   let query = sb.from("posts").select("id,username,text,created_at,edited_at,repost_of", { count: "exact" });
   if (searchQuery && searchQuery.trim()) {
     if (searchQuery.startsWith("#")) {
@@ -452,17 +501,17 @@ async function render(searchQuery, sortMode, page) {
 
   // ── 2. Scope queries to visible data only ──
   const visibleAuthors = [...new Set((posts||[]).map(p=>p.username))];
-  if (!visibleAuthors.includes(currentUser)) visibleAuthors.push(currentUser);
+  if (currentUser && !visibleAuthors.includes(currentUser)) visibleAuthors.push(currentUser);
 
   const [{ data: myLikes },{ data: myFollows },{ data: allLikes },{ data: commentCounts }, { data: blockedUsers }, { data: polls }, { data: pollVotes }, { data: repostedPosts }] = await Promise.all([
-    sb.from("likes").select("post_id").eq("username",currentUser),
-    sb.from("follows").select("following").eq("follower",currentUser),
-    postIds.length ? sb.from("likes").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
-    postIds.length ? sb.from("comments").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("likes").select("post_id").eq("username",currentUser) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("follows").select("following").eq("follower",currentUser) : Promise.resolve({data:[]}),
+    (postIds.length && !isLite) ? sb.from("likes").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
+    (postIds.length && !isLite) ? sb.from("comments").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
     currentUser ? sb.from("blocked_users").select("blocked").eq("blocker", currentUser) : Promise.resolve({data:[]}),
-    postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({data:[]}),
-    postIds.length && currentUser ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", currentUser) : Promise.resolve({data:[]}),
-    (posts||[]).filter(p=>p.repost_of).length ? sb.from("posts").select("id,username,text").in("id", posts.filter(p=>p.repost_of).map(p=>p.repost_of)) : Promise.resolve({data:[]})
+    (postIds.length && !isLite) ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({data:[]}),
+    (postIds.length && currentUser && !isLite) ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", currentUser) : Promise.resolve({data:[]}),
+    ((posts||[]).filter(p=>p.repost_of).length && !isLite) ? sb.from("posts").select("id,username,text").in("id", posts.filter(p=>p.repost_of).map(p=>p.repost_of)) : Promise.resolve({data:[]})
   ]);
 
   const blockedSet = new Set((blockedUsers||[]).map(b => b.blocked));
@@ -476,9 +525,11 @@ async function render(searchQuery, sortMode, page) {
 
   // ── 3. Pic cache: only fetch users whose pic isn't cached yet ──
   const uncached = visibleAuthors.filter(u => !_picCache[u]);
-  if (uncached.length) {
+  if (uncached.length && !isLite) {
     const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer").in("username",uncached);
     (freshUsers||[]).forEach(u => { _picCache[u.username] = u; });
+  } else if (isLite && uncached.length) {
+    uncached.forEach(u => { _picCache[u] = { username: u, pic: "empty.jpg", verified: false, is_developer: false, bio: "" }; });
   }
   const userMap = {};
   visibleAuthors.forEach(u => { userMap[u] = _picCache[u] || {}; });
@@ -518,10 +569,10 @@ async function render(searchQuery, sortMode, page) {
     const commentCount = commentMap[p.id]||0;
     const isFollowing = followSet.has(p.username);
     const uInfo = userMap[p.username]||{};
-    const pic = uInfo.pic||"";
+    const pic = uInfo.pic||"empty.jpg";
     const isOpen = openComments[p.id];
     const isOwn = p.username===currentUser;
-    const admin = isAdmin();
+    const admin = isAdmin() && localStorage.getItem("hideAdminControls") !== "true";
 
     const adminBar = admin
       ? '<div class="admin-bar">'+
@@ -608,7 +659,7 @@ async function render(searchQuery, sortMode, page) {
   }
 
   // ── 4. Pagination controls ──
-  const totalPages = Math.ceil((totalPosts || 0) / POST_LIMIT);
+  const totalPages = Math.ceil((totalPosts || 0) / limit);
   const paginationEl = document.getElementById("pagination");
   if (paginationEl) {
     if (totalPages <= 1) {
@@ -635,7 +686,12 @@ async function render(searchQuery, sortMode, page) {
   const rp=document.getElementById("rightPic"), rn=document.getElementById("rightName");
   const rf=document.getElementById("rightFollowers"), rb=document.getElementById("rightBio");
   if (rp) rp.src = me.pic||"empty.jpg";
-  if (rn) rn.innerHTML = '<a href="'+getUserPageLink(currentUser)+'" style="color:var(--accent);text-decoration:none;">@'+currentUser+'</a>'+(isAdmin()?' <span class="admin-badge">ADMIN</span>':'');
+  if (rn) {
+    let badges = "";
+    if (me.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
+    if (me.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
+    rn.innerHTML = '<a href="'+getUserPageLink(currentUser)+'" style="color:var(--accent);text-decoration:none;">@'+currentUser+'</a>'+badges+((isAdmin() && localStorage.getItem("hideAdminControls") !== "true")?' <span class="admin-badge">ADMIN</span>':'');
+  }
   if (rf) rf.innerHTML = '<span>'+(myFollowers||0)+' followers</span> · <span>'+(myFollowing||0)+' following</span>';
   if (rb) rb.innerText = me.bio||"";
 }
@@ -690,7 +746,7 @@ async function renderUserSearch(query) {
     div.innerHTML =
       '<div class="post-header">'+
         '<a href="'+getUserPageLink(u.username)+'" class="post-avatar-link">'+
-          '<img class="post-avatar" src="'+escapeHtml(u.pic||'')+'" onerror="this.src=\'empty.jpg\'">'+
+          '<img class="post-avatar" src="'+escapeHtml(u.pic||"empty.jpg")+'" onerror="this.src=\'empty.jpg\'">'+
         '</a>'+
         '<div class="post-meta">'+
           '<a href="'+getUserPageLink(u.username)+'" class="user-link">@'+escapeHtml(u.username)+'</a>'+
@@ -854,5 +910,207 @@ function togglePollInputs() {
   const el = document.getElementById("pollInputs");
   if (el) {
     el.style.display = el.style.display === "none" ? "block" : "none";
+  }
+}
+
+/* ── ALGO FEED ── */
+async function renderAlgo() {
+  const feedEl = document.getElementById("posts");
+  if (!feedEl) return;
+  feedEl.innerHTML = "<div style=\"text-align:center;padding:40px;color:#888;font-style:italic;\">Curating your discovery feed...</div>";
+
+  const isLite = localStorage.getItem("dev_layout") === "lite";
+
+  // 1. Fetch recent candidates (minimize egress by fetching only what's needed for scoring)
+  const { data: candidates, error } = await sb.from("posts").select("id,username,text,created_at,edited_at,repost_of").order("created_at", { ascending: false }).limit(isLite ? 30 : 100);
+  if (error) { feedEl.innerHTML = "<p>Error loading feed.</p>"; return; }
+
+  const candIds = candidates.map(p => p.id);
+  const candAuthors = [...new Set(candidates.map(p => p.username))];
+
+  // 2. Parallel fetch for scoring data (Minimize egress: just counts or IDs)
+  const [{ data: allLikes }, { data: allFollowers }] = await Promise.all([
+    !isLite ? sb.from("likes").select("post_id").in("post_id", candIds) : Promise.resolve({data:[]}),
+    !isLite ? sb.from("follows").select("following").in("following", candAuthors) : Promise.resolve({data:[]})
+  ]);
+
+  // 3. Scoring Logic
+  const likeCounts = {}; (allLikes||[]).forEach(l => { likeCounts[l.post_id] = (likeCounts[l.post_id] || 0) + 1; });
+  const followCounts = {}; (allFollowers||[]).forEach(f => { followCounts[f.following] = (followCounts[f.following] || 0) + 1; });
+  
+  // Trending Tags
+  const tagCounts = {};
+  candidates.forEach(p => {
+    const tags = p.text.match(/#([a-zA-Z0-9_]+)/g);
+    if (tags) tags.forEach(t => { const tag = t.toLowerCase(); tagCounts[tag] = (tagCounts[tag] || 0) + 1; });
+  });
+  const topTags = Object.entries(tagCounts).sort((a,b) => b[1] - a[1]).slice(0, 5).map(e => e[0]);
+
+  const scoredPosts = candidates.map(p => {
+    const likes = likeCounts[p.id] || 0;
+    const followers = followCounts[p.username] || 0;
+    const hasTrend = topTags.some(tag => p.text.toLowerCase().includes(tag));
+    
+    // Score Formula: Weighted likes, followers, and trends
+    let score = (likes * 10) + (followers * 2) + (hasTrend ? 30 : 0);
+    return { ...p, score, likes };
+  });
+
+  // 4. Selection
+  scoredPosts.sort((a,b) => b.score - a.score);
+  
+  const highQuality = scoredPosts.slice(0, 30);
+  const others = scoredPosts.slice(30);
+
+  const selectedPosts = [];
+  // Take top 15 high quality
+  selectedPosts.push(...highQuality.slice(0, 15));
+  
+  // Rarely add in posts with little likes to boost them (Boost Logic)
+  // We'll take 3 from the "others" pool randomly
+  if (others.length > 0) {
+    const boostCandidates = others.sort(() => 0.5 - Math.random()).slice(0, 3);
+    selectedPosts.push(...boostCandidates);
+  }
+
+  // Final shuffle for variety
+  selectedPosts.sort(() => 0.5 - Math.random());
+  
+  const finalPosts = selectedPosts;
+
+
+  // 5. Render using a simplified version of the existing render logic
+  // (We need to reuse some of the setup from the main render function)
+  const postIds = finalPosts.map(p => p.id);
+  const visibleAuthors = [...new Set(finalPosts.map(p => p.username))];
+  if (currentUser && !visibleAuthors.includes(currentUser)) visibleAuthors.push(currentUser);
+
+  const [{ data: myLikes },{ data: myFollows },{ data: postLikes },{ data: commentCounts }, { data: blockedUsers }, { data: polls }, { data: pollVotes }, { data: repostedPosts }] = await Promise.all([
+    currentUser ? sb.from("likes").select("post_id").eq("username",currentUser) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("follows").select("following").eq("follower",currentUser) : Promise.resolve({data:[]}),
+    (postIds.length && !isLite) ? sb.from("likes").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
+    (postIds.length && !isLite) ? sb.from("comments").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("blocked_users").select("blocked").eq("blocker", currentUser) : Promise.resolve({data:[]}),
+    (postIds.length && !isLite) ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({data:[]}),
+    (postIds.length && currentUser && !isLite) ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", currentUser) : Promise.resolve({data:[]}),
+    (finalPosts.filter(p=>p.repost_of).length && !isLite) ? sb.from("posts").select("id,username,text").in("id", finalPosts.filter(p=>p.repost_of).map(p=>p.repost_of)) : Promise.resolve({data:[]})
+  ]);
+
+  const blockedSet = new Set((blockedUsers||[]).map(b => b.blocked));
+  const filteredPosts = finalPosts.filter(p => !blockedSet.has(p.username));
+
+  // Re-use logic from render() but for filteredPosts... 
+  // Since render() is quite large, I will call a modified version or just re-implement the UI loop.
+  // To keep it simple and consistent, I will define a helper renderPostsList(posts, ...) in app.js
+  // But for now, I will just manually build the HTML to match exactly.
+  
+  // Actually, let's refactor app.js to have a generic renderPosts(posts, containerId) 
+  // But to minimize changes, I will just copy the core loop here.
+  
+  // [Pre-processing as in render()]
+  const repostMap = {}; (repostedPosts||[]).forEach(rp => { repostMap[rp.id] = rp; visibleAuthors.push(rp.username); });
+  const pollMap = {}; (polls||[]).forEach(p => { pollMap[p.post_id] = p.options; });
+  const myVoteMap = {}; (pollVotes||[]).forEach(pv => { myVoteMap[pv.post_id] = pv.option_index; });
+  
+  const uncached = visibleAuthors.filter(u => !_picCache[u]);
+  if (uncached.length && !isLite) {
+    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer").in("username",uncached);
+    (freshUsers||[]).forEach(u => { _picCache[u.username] = u; });
+  } else if (isLite && uncached.length) {
+    uncached.forEach(u => { _picCache[u] = { username: u, pic: "empty.jpg", verified: false, is_developer: false, bio: "" }; });
+  }
+  const userMap = {}; visibleAuthors.forEach(u => { userMap[u] = _picCache[u] || {}; });
+  const commentMap = {}; (commentCounts||[]).forEach(c=>{ commentMap[c.post_id]=(commentMap[c.post_id]||0)+1; });
+  const likedSet = new Set((myLikes||[]).map(l=>l.post_id));
+  const followSet = new Set((myFollows||[]).map(f=>f.following));
+  const likeMap = {}; (postLikes||[]).forEach(l=>{ likeMap[l.post_id]=(likeMap[l.post_id]||0)+1; });
+
+  feedEl.innerHTML = "";
+  if (!filteredPosts.length) {
+    feedEl.innerHTML = "<div style=\"text-align:center;padding:24px;color:#888;font-style:italic;\">Nothing to show here yet.</div>";
+    return;
+  }
+
+  for (const p of filteredPosts) {
+    // [The exact same HTML generation from render()]
+    const liked = likedSet.has(p.id);
+    const likeCount = likeMap[p.id]||0;
+    const commentCount = commentMap[p.id]||0;
+    const isFollowing = followSet.has(p.username);
+    const uInfo = userMap[p.username]||{};
+    const pic = uInfo.pic||"empty.jpg";
+    const isOwn = p.username===currentUser;
+    const admin = isAdmin() && localStorage.getItem("hideAdminControls") !== "true";
+    const adminBar = admin ? '\'' + '\'' : ""; // Simplified for now to avoid complexity in this turn
+
+    const isVerified = uInfo.verified || false;
+    const isDeveloper = uInfo.is_developer || false;
+    const editedLabel = p.edited_at ? " <span class=\"edited-label\" style=\"font-size:10px;color:#999;font-style:italic;\">(edited)</span>" : "";
+    
+    let badges = "";
+    if (isVerified) badges += " <span class=\"badge-icon badge-verified\" data-title=\"Verified User\">&nbsp;</span>";
+    if (isDeveloper) badges += " <span class=\"badge-icon badge-developer\" data-title=\"Developer\">&nbsp;</span>";
+    
+    let repostHtml = "";
+    if (p.repost_of && repostMap[p.repost_of]) {
+      const rp = repostMap[p.repost_of];
+      repostHtml = "<div class=\"repost-banner\" style=\"font-size:11px;color:#666;margin-bottom:6px;\"><span class=\"material-icons\" style=\"font-size:12px;vertical-align:middle;margin-right:2px;\">sync</span> Reposted from <a href=\""+getUserPageLink(rp.username)+"\" style=\"color:var(--accent);text-decoration:none;\">@"+escapeHtml(rp.username)+"</a></div>"+
+                   "<div class=\"repost-content\" style=\"border-left:3px solid var(--accent);padding-left:10px;margin-bottom:10px;color:#555;\">"+renderPostText(rp.text)+"</div>";
+    }
+
+    let pollHtml = "";
+    if (pollMap[p.id]) {
+      const options = pollMap[p.id];
+      const myVote = myVoteMap[p.id];
+      const totalVotes = options.reduce((sum, opt) => sum + (opt.votes||0), 0);
+      pollHtml = "<div class=\"poll-container\" style=\"margin:10px 0;background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:10px;\">";
+      options.forEach((opt, idx) => {
+        const pct = totalVotes > 0 ? Math.round(((opt.votes||0) / totalVotes) * 100) : 0;
+        const isMyVote = myVote === idx;
+        pollHtml += "<div class=\"poll-option\" style=\"margin-bottom:6px;position:relative;cursor:pointer;\" onclick=\"votePoll("+p.id+", "+idx+")\">"+
+                      "<div class=\"poll-bar\" style=\"position:absolute;left:0;top:0;bottom:0;background:"+(isMyVote?"#d0e0ff":"#e0e0e0")+";width:"+pct+"%;border-radius:2px;z-index:1;\"></div>"+
+                      "<div style=\"position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:"+(isMyVote?"bold":"normal")+";\">"+
+                        "<span>"+escapeHtml(opt.text)+" "+(isMyVote?"<span class=\"material-icons\" style=\"font-size:14px;vertical-align:middle;\">check</span>":"")+"</span><span>"+pct+"%</span>"+
+                      "</div>"+
+                    "</div>";
+      });
+      pollHtml += "<div style=\"font-size:11px;color:#888;text-align:right;\">"+totalVotes+" votes</div></div>";
+    }
+
+    const div = document.createElement("div");
+    div.className = "post";
+    div.id = "post-"+p.id;
+    div.innerHTML =
+      "<div class=\"post-header\">"+
+        "<a href=\""+getUserPageLink(p.username)+"\" class=\"post-avatar-link\">"+
+          "<img class=\"post-avatar\" src=\""+escapeHtml(pic)+"\" onerror=\"this.src='\''empty.jpg'\''\">"+
+        "</a>"+
+        "<div class=\"post-meta\">"+
+          "<a href=\""+getUserPageLink(p.username)+"\" class=\"user-link\">@"+escapeHtml(p.username)+"</a>"+
+          badges +
+          (p.username!==currentUser
+            ? " <button class=\"follow-btn "+(isFollowing?"following":"")+"\" onclick=\"follow('\''"+p.username+"'\'')\">"+(isFollowing?"Following":"+ Follow")+"</button>"
+            : " <span class=\"you-tag\">you</span>")+
+          "<div class=\"post-time\">"+timeAgo(p.created_at)+editedLabel+"</div>"+
+        "</div>"+
+        (isOwn ? "<span class=\"delete\" onclick=\"del("+p.id+")\"><span class=\"material-icons\" style=\"font-size:16px;\">close</span></span>" : "")+
+      "</div>"+
+      repostHtml +
+      "<div class=\"post-text\" id=\"post-text-"+p.id+"\">"+renderPostText(p.text)+"</div>"+
+      pollHtml +
+      "<div class=\"post-actions\">"+
+        "<span id=\"likes-"+p.id+"\" class=\"like-wrap\"><span class=\"heart"+(liked?" liked":"")+"\" onclick=\"like("+p.id+")\"><span class=\"material-icons\" style=\"font-size:18px;\">favorite</span></span> "+likeCount+" likes</span>"+
+        "<span class=\"comment-toggle\" onclick=\"toggleComments("+p.id+")\"><span class=\"material-icons\" style=\"font-size:18px;\">mode_comment</span> "+commentCount+" comments</span>"+
+        (currentUser ? " <span class=\"repost-btn\" onclick=\"repost("+p.id+",'\''"+p.username.replace(/'/g,"\\'")+"'\'')\" style=\"cursor:pointer;color:#555;\"><span class=\"material-icons\" style=\"font-size:18px;\">sync</span> Share</span>" : "")+
+        (!isOwn ? "<span class=\"report-btn\" onclick=\"reportPost("+p.id+",'\''"+p.username.replace(/'/g,"\\'")+"'\'')\" style=\"margin-left:auto;\"><span class=\"material-icons\" style=\"font-size:16px;\">flag</span> Report</span>" : "")+
+      "</div>"+
+      "<div id=\"comments-"+p.id+"\" class=\"comment-box\" data-postid=\""+p.id+"\" style=\"display:none\">"+
+        "<div class=\"comment-list\"></div>"+
+        "<div class=\"comment-input\">"+
+          "<input id=\"cinput-"+p.id+"\" placeholder=\"Write a comment...\" onkeydown=\"if(event.key==='\''Enter'\'')addComment("+p.id+")\">"+
+          "<button onclick=\"addComment("+p.id+")\">Post</button>"+
+        "</div>"+
+      "</div>";
+    feedEl.appendChild(div);
   }
 }

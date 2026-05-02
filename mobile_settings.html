@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ermn. · Settings</title>
 <link rel="icon" href="wicon.png">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);--topbar-bg:#3b5998;}
+:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:100vh;font-size:14px;padding-bottom:70px;}
 
@@ -16,8 +16,8 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
 
 .main{padding:12px;}
 
-.card{background:white;border:1px solid #b0b7c3;border-radius:4px;margin-bottom:12px;overflow:hidden;}
-.card-title{background:linear-gradient(180deg,#e8edf7,#d8e0f0);border-bottom:1px solid #b0b7c3;padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:12px;overflow:hidden;}
+.card-title{background:var(--card-header);border-bottom:1px solid var(--border);padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
 .card-body{padding:14px;}
 
 /* Themes */
@@ -28,8 +28,8 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
 .swatch-label{font-size:11px;color:#444;}
 
 label{display:block;font-size:12px;font-weight:bold;color:#444;margin:10px 0 3px;}
-input[type=password]{width:100%;border:1px solid #bbb;padding:10px;font-family:inherit;font-size:14px;background:#fafafa;-webkit-appearance:none;border-radius:2px;}
-input:focus{outline:none;border-color:var(--accent);background:white;}
+input[type=password]{width:100%;border:1px solid var(--border);padding:10px;font-family:inherit;font-size:14px;background:var(--input-bg);color:var(--text);-webkit-appearance:none;border-radius:2px;}
+input:focus{outline:none;border-color:var(--accent);background:var(--card-bg);}
 
 .btn{background:var(--accent);color:white;border:none;padding:12px 20px;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:2px;margin-top:8px;width:100%;-webkit-tap-highlight-color:transparent;}
 .btn:active{opacity:0.85;}
@@ -48,9 +48,12 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
 .bottom-nav a .icon{font-size:20px;}
 .bottom-nav a:active{background:rgba(255,255,255,0.1);}
 .bottom-nav a .icon{font-size:20px;}
-.material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
-.card-title .material-icons { font-size: 1.1em; color: var(--accent); }
-.bottom-nav a .material-icons { font-size: 24px; margin-bottom: 2px; }
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+.card-title  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+.bottom-nav a  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 </style>
 </head>
 <body>
@@ -58,6 +61,20 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
 <div class="topbar"><span class="topbar-logo">ermn.</span></div>
 
 <div class="main">
+
+  <!-- Site Experience -->
+  <div class="card">
+    <div class="card-title"><span class="material-icons">auto_awesome</span> Site Experience</div>
+    <div class="card-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <strong style="display:block;font-size:14px;color:var(--accent);">Modernize UI</strong>
+          <span style="font-size:11px;color:#666;">Overhauls the retro aesthetic with modern rounded corners and spacing.</span>
+        </div>
+        <button id="modernizeBtn" onclick="toggleModernize()" style="padding:8px 16px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;border-radius:4px;min-width:100px;">...</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Theme -->
   <div class="card">
@@ -69,9 +86,9 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
           <div class="swatch-preview" style="background:linear-gradient(180deg,#dfe7f3,#f5f6f7);border-top:6px solid #3b5998;"></div>
           <div class="swatch-label">Classic</div>
         </button>
-        <button class="theme-swatch" id="sw-bubblegum" onclick="setTheme('bubblegum')">
-          <div class="swatch-preview" style="background:linear-gradient(180deg,#ffe4f3,#fff0fb);border-top:6px solid #e91e8c;"></div>
-          <div class="swatch-label">Bubblegum</div>
+        <button class="theme-swatch" id="sw-cherry" onclick="setTheme('cherry')">
+          <div class="swatch-preview" style="background:linear-gradient(180deg,#fff5f7,#fde2e4);border-top:6px solid #ffb7c5;"></div>
+          <div class="swatch-label">Cherry Blossom</div>
         </button>
         <button class="theme-swatch" id="sw-midnight" onclick="setTheme('midnight')">
           <div class="swatch-preview" style="background:linear-gradient(180deg,#0a0a1a,#1a1a2e);border-top:6px solid #7b68ee;"></div>
@@ -85,8 +102,47 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
           <div class="swatch-preview" style="background:linear-gradient(180deg,#e8fce8,#f5fff5);border-top:6px solid #2d7a2d;"></div>
           <div class="swatch-label">Limeade</div>
         </button>
+        <button class="theme-swatch" id="sw-cyberpunk" onclick="setTheme('cyberpunk')">
+          <div class="swatch-preview" style="background:linear-gradient(180deg,#0d0221,#0f084b);border-top:6px solid #ff00ff;"></div>
+          <div class="swatch-label">Cyberpunk</div>
+        </button>
       </div>
       <div class="msg ok" id="themeMsg"></div>
+    </div>
+  </div>
+
+  <!-- Account Security -->
+  <div class="card">
+    <div class="card-title"><span class="material-icons">security</span> Account Security</div>
+    <div class="card-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <strong style="display:block;font-size:14px;color:var(--accent);">Two-Factor Auth (2FA)</strong>
+          <span id="twoFAStatus" style="font-size:11px;color:#666;">Checking status...</span>
+        </div>
+        <button id="twoFAToggleBtn" onclick="toggle2FA()" style="padding:4px 8px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;font-size:11px;">...</button>
+      </div>
+      <div class="msg" id="securityMsg"></div>
+    </div>
+  </div>
+
+  <!-- 2FA Setup Modal -->
+  <div id="twoFAModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:white;width:100%;max-width:340px;border-radius:8px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+      <div style="background:var(--topbar-bg);color:white;padding:12px 16px;font-weight:bold;font-size:14px;display:flex;justify-content:space-between;align-items:center;">
+        <span><span class="material-icons" style="font-size:16px;vertical-align:middle;margin-right:4px;">security</span> Set Up 2FA</span>
+        <span onclick="closeTwoFAModal()" style="cursor:pointer;opacity:0.8;">&#x2715;</span>
+      </div>
+      <div style="padding:16px;">
+        <p style="font-size:13px;color:#444;margin-bottom:12px;">Scan this QR code with an authenticator app like Google Authenticator or Authy, then enter the 6-digit code to verify.</p>
+        <div style="text-align:center;margin-bottom:12px;">
+          <img id="twoFAQR" src="" style="width:160px;height:160px;border:1px solid #ddd;border-radius:4px;">
+        </div>
+        <p style="font-size:11px;color:#888;text-align:center;margin-bottom:12px;">Manual code: <strong id="twoFASecret" style="font-family:monospace;color:#333;"></strong></p>
+        <input type="text" id="twoFACode" placeholder="6-digit code" maxlength="6" inputmode="numeric" style="width:100%;padding:12px;font-size:20px;text-align:center;letter-spacing:8px;border:1px solid #ccc;font-family:monospace;margin-bottom:10px;-webkit-appearance:none;">
+        <button class="btn" onclick="verifyAndEnable2FA()" style="width:100%;">Verify &amp; Enable 2FA</button>
+        <div class="msg" id="twoFAModalMsg" style="margin-top:8px;text-align:center;"></div>
+      </div>
     </div>
   </div>
 
@@ -114,7 +170,7 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
           <strong style="display:block;font-size:14px;color:var(--accent);">Private Account</strong>
           <span style="font-size:11px;color:#666;">New followers must request to follow you.</span>
         </div>
-        <button id="privateToggleBtn" onclick="togglePrivate()" style="padding:6px 12px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;">...</button>
+        <button id="privateToggleBtn" onclick="togglePrivate()" style="padding:4px 8px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;font-size:11px;white-space:nowrap;">...</button>
       </div>
       <div>
         <strong style="display:block;font-size:13px;color:#444;margin-bottom:8px;">Follow Requests</strong>
@@ -131,6 +187,51 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
     </div>
   </div>
 
+  <div class="card" id="adminToggleCard" style="display:none;">
+    <div class="card-title"><span class="material-icons">security</span> Admin Toggle</div>
+    <div class="card-body">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <strong style="display:block;font-size:13px;color:var(--accent);">Hide Admin Controls</strong>
+          <span style="font-size:10px;color:#666;">Hides ban/delete buttons from the feed.</span>
+        </div>
+        <button id="adminToggleBtn" onclick="toggleAdminControls()" style="padding:4px 8px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;font-size:11px;white-space:nowrap;">...</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Portability -->
+  <div class="card" id="dataPortabilityCard">
+    <div class="card-title"><span class="material-icons">swap_horiz</span> Data Portability</div>
+    <div class="card-body">
+      <p style="margin:0 0 10px;font-size:12px;color:var(--text);opacity:0.8;line-height:1.5;">
+        Export your posts as a backup. If the database is wiped, re-import to restore your content.
+      </p>
+      <div style="margin-bottom:12px;">
+        <div style="font-weight:600;font-size:13px;margin-bottom:5px;"><span class="material-icons" style="font-size:16px;vertical-align:middle;margin-right:4px;margin-top:-2px;">file_download</span> Export My Data</div>
+        <div style="font-size:11px;color:var(--text);opacity:0.7;margin-bottom:7px;">Downloads a <code>.ermn</code> file with your posts, like counts, and timestamps.</div>
+        <button class="btn" id="exportBtn" onclick="exportData()" style="margin:0;width:100%;">Export Data</button>
+        <div class="msg" id="exportMsg" style="margin-top:5px;"></div>
+      </div>
+      <hr style="border:none;border-top:1px solid var(--border);margin:10px 0;">
+      <div>
+        <div style="font-weight:600;font-size:13px;margin-bottom:5px;"><span class="material-icons" style="font-size:16px;vertical-align:middle;margin-right:4px;margin-top:-2px;">file_upload</span> Import Backup</div>
+        <div style="font-size:11px;color:var(--text);opacity:0.7;margin-bottom:7px;">Select a <code>.ermn</code> file to restore your posts.</div>
+        <label for="importFile" class="btn" style="margin:0;display:block;text-align:center;cursor:pointer;width:100%;box-sizing:border-box;">Choose .ermn File</label>
+        <input type="file" id="importFile" accept=".ermn,.json" style="display:none;" onchange="previewImport(event)">
+        <div id="importPreview" style="display:none;margin-top:8px;background:rgba(0,0,0,0.04);border:1px solid var(--border);border-radius:6px;padding:8px;">
+          <div style="font-weight:600;font-size:12px;margin-bottom:5px;" id="importPreviewTitle">Preview</div>
+          <div id="importPreviewBody" style="font-size:11px;color:var(--text);opacity:0.85;"></div>
+          <div style="margin-top:8px;display:flex;gap:6px;">
+            <button class="btn" onclick="importData()" id="importConfirmBtn" style="margin:0;padding:5px 12px;font-size:12px;flex:1;">Restore Posts</button>
+            <button onclick="cancelImport()" style="padding:5px 10px;font-size:12px;background:transparent;border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text);font-family:inherit;">Cancel</button>
+          </div>
+        </div>
+        <div class="msg" id="importMsg" style="margin-top:5px;"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Account Info -->
   <div class="card">
     <div class="card-title"><span class="material-icons">info</span> Account Info</div>
@@ -140,49 +241,47 @@ input:focus{outline:none;border-color:var(--accent);background:white;}
     </div>
   </div>
 
+  <!-- Logout -->
+  <div class="card">
+    <div class="card-body">
+      <button onclick="logout()" style="width:100%;padding:12px;background:#c00;color:white;border:none;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent;">
+        <span class="material-icons" style="font-size:18px;">logout</span> Log Out
+      </button>
+    </div>
+  </div>
+
 </div>
 
 <nav class="bottom-nav">
-  <a href="mobile_feed.html"><span class="material-icons">home</span><span>Feed</span></a>
+  <a href="mobile_feed.html"><span class="material-icons">home</span><span>Home</span></a>
+  <a href="mobile_algo_feed.html"><span class="material-icons">explore</span><span>Feed</span></a>
   <a href="mobile_profile.html"><span class="material-icons">person</span><span>Profile</span></a>
   <a href="mobile_settings.html"><span class="material-icons">settings</span><span>Settings</span></a>
 </nav>
 
 <script src="config.js"></script>
+<script src="theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
 <script>
-const SUPABASE_URL = window.ERMN_URL;
-const SUPABASE_KEY = window.ERMN_KEY;
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
 const me = localStorage.getItem("currentUser");
 if (!me) location.href = "mobile.html";
 
-const themeKeys = ["classic","bubblegum","midnight","y2k","limeade"];
+const themeKeys = ["classic","cherry","midnight","y2k","limeade","cyberpunk"];
 const themeColors = {
     classic:   { body:"linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%)",card:"#fff",topbar:"#3b5998",text:"#333",border:"#b0b7c3",accent:"#3b5998" },
-    bubblegum: { body:"linear-gradient(180deg,#ffe4f3 0%,#fff0fb 100%)",card:"#fff5fb",topbar:"#e91e8c",text:"#5a0030",border:"#f9a8d4",accent:"#e91e8c" },
+    cherry:    { body:"linear-gradient(180deg,#fff5f7 0%,#fde2e4 100%)",card:"#fff",topbar:"#ffb7c5",text:"#5f4b4b",border:"#ffcad4",accent:"#ff8fa3" },
     midnight:  { body:"linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)",card:"#1a1a2e",topbar:"#0d0d1f",text:"#c8d0e8",border:"#2a2a4a",accent:"#7b68ee" },
     y2k:       { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)",card:"#fff",topbar:"#0055cc",text:"#002266",border:"#99bbff",accent:"#0055cc" },
     limeade:   { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)",card:"#f9fff9",topbar:"#2d7a2d",text:"#1a3d1a",border:"#a3d9a3",accent:"#2d7a2d" },
+    cyberpunk: { body:"linear-gradient(180deg,#0d0221 0%,#0f084b 100%)",card:"#1a1a3a",topbar:"#26084d",text:"#00f2ff",border:"#ff00ff",accent:"#ff00ff" },
 };
 
 function setTheme(t) {
   localStorage.setItem("theme", t);
+  if (typeof applyTheme === "function") applyTheme();
   themeKeys.forEach(k => document.getElementById("sw-"+k).classList.remove("active"));
   document.getElementById("sw-"+t).classList.add("active");
-  const th = themeColors[t];
-  if (th) {
-    document.documentElement.style.setProperty("--body-bg", th.body);
-    document.documentElement.style.setProperty("--card-bg", th.card);
-    document.documentElement.style.setProperty("--topbar-bg", th.topbar);
-    document.documentElement.style.setProperty("--text", th.text);
-    document.documentElement.style.setProperty("--border", th.border);
-    document.documentElement.style.setProperty("--accent", th.accent);
-    document.body.style.background = th.body;
-    document.querySelector(".topbar").style.background = th.topbar;
-    document.querySelector(".bottom-nav").style.background = th.topbar;
-  }
   document.getElementById("themeMsg").innerText = "Theme applied!";
   setTimeout(() => { document.getElementById("themeMsg").innerText = ""; }, 2000);
 }
@@ -208,32 +307,108 @@ async function changePassword() {
 }
 
 // Init — apply saved theme
+if (typeof applyTheme === "function") applyTheme();
 const cur = localStorage.getItem("theme") || "classic";
-const curTheme = themeColors[cur] || themeColors.classic;
-if (curTheme) {
-  document.documentElement.style.setProperty("--body-bg", curTheme.body);
-  document.documentElement.style.setProperty("--card-bg", curTheme.card);
-  document.documentElement.style.setProperty("--topbar-bg", curTheme.topbar);
-  document.documentElement.style.setProperty("--text", curTheme.text);
-  document.documentElement.style.setProperty("--border", curTheme.border);
-  document.documentElement.style.setProperty("--accent", curTheme.accent);
-  document.body.style.background = curTheme.body;
-  document.querySelector(".topbar").style.background = curTheme.topbar;
-  document.querySelector(".bottom-nav").style.background = curTheme.topbar;
-}
 document.getElementById("sw-"+cur).classList.add("active");
 document.getElementById("infoUser").innerText = "@" + me;
 
 async function loadInfo() {
-  const { data: user } = await sb.from("users").select("created_at, is_private").eq("username", me).maybeSingle();
+  const { data: user } = await sb.from("users").select("created_at, is_private, is_admin").eq("username", me).maybeSingle();
   if (user) {
     if (user.created_at) document.getElementById("infoJoined").innerText = new Date(user.created_at).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
     const btn = document.getElementById("privateToggleBtn");
-    btn.innerText = user.is_private ? "Enabled (Turn Off)" : "Disabled (Turn On)";
+    btn.innerText = user.is_private ? "Enabled (Off)" : "Disabled (On)";
     btn.style.background = user.is_private ? "#e8fce8" : "#eee";
     btn.style.borderColor = user.is_private ? "#2d7a2d" : "#ccc";
+
+    if (user.is_admin) {
+      document.getElementById("adminToggleCard").style.display = "block";
+      updateAdminToggleBtn();
+    }
+    
+    await load2FAStatus();
   }
   loadRequests();
+}
+
+function updateAdminToggleBtn() {
+  const hide = localStorage.getItem("hideAdminControls") === "true";
+  const btn = document.getElementById("adminToggleBtn");
+  btn.innerText = hide ? "Hidden" : "Visible";
+  btn.style.background = hide ? "#fce8e8" : "#e8fce8";
+  btn.style.color = hide ? "#c00" : "#2d7a2d";
+  btn.style.borderColor = hide ? "#c00" : "#2d7a2d";
+}
+
+function toggleAdminControls() {
+  const hide = localStorage.getItem("hideAdminControls") === "true";
+  localStorage.setItem("hideAdminControls", !hide);
+  updateAdminToggleBtn();
+}
+
+async function toggle2FA() {
+  const { data: factors } = await sb.auth.mfa.listFactors();
+  const totp = factors?.totp?.find(f => f.status === 'verified');
+  if (totp) {
+    if (!await uiConfirm("Disable Two-Factor Authentication? Your account will be less secure.")) return;
+    const { error } = await sb.auth.mfa.unenroll({ factorId: totp.id });
+    const msg = document.getElementById("securityMsg");
+    if (error) {
+      msg.innerText = "Error: " + error.message; msg.className = "msg err";
+    } else {
+      msg.innerText = "2FA has been disabled."; msg.className = "msg ok";
+      load2FAStatus();
+    }
+    setTimeout(() => msg.innerText = "", 4000);
+  } else {
+    const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'ermn-authenticator' });
+    if (error) {
+      const msg = document.getElementById("securityMsg");
+      msg.innerText = "Error: " + error.message; msg.className = "msg err";
+      setTimeout(() => msg.innerText = "", 4000);
+      return;
+    }
+    window._pending2FAFactorId = data.id;
+    document.getElementById("twoFAQR").src = data.totp.qr_code;
+    document.getElementById("twoFASecret").innerText = data.totp.secret;
+    document.getElementById("twoFACode").value = "";
+    document.getElementById("twoFAModalMsg").innerText = "";
+    document.getElementById("twoFAModal").style.display = "flex";
+  }
+}
+
+function closeTwoFAModal() {
+  document.getElementById("twoFAModal").style.display = "none";
+}
+
+async function verifyAndEnable2FA() {
+  const code = document.getElementById("twoFACode").value.replace(/\D/g, "");
+  const msgEl = document.getElementById("twoFAModalMsg");
+  if (code.length !== 6) { msgEl.innerText = "Enter a 6-digit code."; msgEl.className = "msg err"; return; }
+  const factorId = window._pending2FAFactorId;
+  const { data: challengeData, error: challengeErr } = await sb.auth.mfa.challenge({ factorId });
+  if (challengeErr) { msgEl.innerText = challengeErr.message; msgEl.className = "msg err"; return; }
+  const { error: verifyErr } = await sb.auth.mfa.verify({ factorId, challengeId: challengeData.id, code });
+  if (verifyErr) { msgEl.innerText = "Invalid code. Try again."; msgEl.className = "msg err"; return; }
+  msgEl.innerText = "2FA enabled!";
+  msgEl.className = "msg ok";
+  setTimeout(() => { closeTwoFAModal(); load2FAStatus(); }, 1200);
+}
+
+async function load2FAStatus() {
+  const { data: factors } = await sb.auth.mfa.listFactors();
+  const totp = factors?.totp?.find(f => f.status === 'verified');
+  const btn = document.getElementById("twoFAToggleBtn");
+  const statusEl = document.getElementById("twoFAStatus");
+  if (totp) {
+    btn.innerText = "Enabled";
+    btn.style.background = "#e8fce8"; btn.style.color = "#2d7a2d"; btn.style.borderColor = "#2d7a2d";
+    if (statusEl) statusEl.innerText = "Your account is protected with 2FA.";
+  } else {
+    btn.innerText = "Disabled";
+    btn.style.background = "#fce8e8"; btn.style.color = "#c00"; btn.style.borderColor = "#c00";
+    if (statusEl) statusEl.innerText = "2FA is not enabled. Add an extra layer of security.";
+  }
 }
 
 async function togglePrivate() {
@@ -303,7 +478,161 @@ async function unblockUser(target) {
   loadBlockedUsers();
 }
 
+// =====================================================
+// DATA PORTABILITY — Export & Import
+// =====================================================
+
+let _importPayload = null;
+
+async function exportData() {
+  const btn = document.getElementById("exportBtn");
+  const msg = document.getElementById("exportMsg");
+  btn.disabled = true;
+  btn.innerText = "Exporting…";
+  msg.className = "msg"; msg.innerText = "";
+
+  try {
+    const { data: posts, error: postsErr } = await sb
+      .from("posts").select("id, text, repost_of, edited_at, created_at")
+      .eq("username", me).order("created_at", { ascending: true });
+    if (postsErr) throw postsErr;
+
+    const postIds = posts.map(p => p.id);
+    let likeCounts = {};
+    if (postIds.length > 0) {
+      const { data: likes } = await sb.from("likes").select("post_id").in("post_id", postIds);
+      if (likes) likes.forEach(l => { likeCounts[l.post_id] = (likeCounts[l.post_id] || 0) + 1; });
+    }
+
+    const payload = {
+      _ermn_export: true, version: 1,
+      exported_at: new Date().toISOString(), username: me,
+      posts: posts.map(p => ({
+        id: p.id, text: p.text, repost_of: p.repost_of,
+        edited_at: p.edited_at, created_at: p.created_at,
+        like_count: likeCounts[p.id] || 0,
+      }))
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ermn-backup-${me}-${new Date().toISOString().slice(0,10)}.ermn`;
+    a.click();
+    URL.revokeObjectURL(url);
+
+    msg.innerHTML = `<span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:2px;margin-top:-2px;">check_circle</span> Exported ${posts.length} post${posts.length !== 1 ? "s" : ""}.`;
+    msg.className = "msg ok";
+  } catch (e) {
+    msg.innerText = "Export failed: " + e.message;
+    msg.className = "msg err";
+  }
+  btn.disabled = false; btn.innerText = "Export Data";
+}
+
+function previewImport(event) {
+  const file = event.target.files[0];
+  const msg = document.getElementById("importMsg");
+  const preview = document.getElementById("importPreview");
+  msg.innerText = ""; _importPayload = null; preview.style.display = "none";
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data._ermn_export || !Array.isArray(data.posts)) {
+        msg.innerText = "Invalid backup file."; msg.className = "msg err"; return;
+      }
+      if (data.username !== me) {
+        msg.innerHTML = `<span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:2px;margin-top:-2px;">warning</span> Backup belongs to @${data.username}. Posts will be credited to @${me}.`;
+        msg.className = "msg err";
+      }
+      _importPayload = data;
+      const exported = new Date(data.exported_at).toLocaleDateString();
+      document.getElementById("importPreviewTitle").innerText = "Backup Preview";
+      document.getElementById("importPreviewBody").innerHTML =
+        `<b>Original user:</b> @${escapeHtml(data.username)}<br>` +
+        `<b>Exported:</b> ${exported}<br>` +
+        `<b>Posts:</b> ${data.posts.length}<br>` +
+        `<b>Total likes:</b> ${data.posts.reduce((s,p)=>s+p.like_count,0)}<br><br>` +
+        `<span style="color:#c00;font-size:10px;"><span class="material-icons" style="font-size:12px;vertical-align:middle;margin-right:2px;margin-top:-2px;">warning</span> Existing posts will be duplicated.</span>`;
+      preview.style.display = "block";
+    } catch(err) { msg.innerText = "Could not read file: " + err.message; msg.className = "msg err"; }
+  };
+  reader.readAsText(file);
+}
+
+function cancelImport() {
+  _importPayload = null;
+  document.getElementById("importPreview").style.display = "none";
+  document.getElementById("importFile").value = "";
+  document.getElementById("importMsg").innerText = "";
+}
+
+async function importData() {
+  if (!_importPayload) return;
+  const confirmed = await uiConfirm(`Restore ${_importPayload.posts.length} post(s) from this backup?\n\nPosts will be re-created under @${me} with original timestamps. Like counts will be noted in post text.\n\nProceed?`);
+  if (!confirmed) return;
+  const btn = document.getElementById("importConfirmBtn");
+  const msg = document.getElementById("importMsg");
+  btn.disabled = true; btn.innerText = "Restoring…";
+  msg.className = "msg"; msg.innerText = "";
+  let success = 0, failed = 0;
+  for (const post of _importPayload.posts) {
+    const restoredText = post.like_count > 0
+      ? `${post.text}\n\n[Restored · ${post.like_count} like${post.like_count !== 1 ? "s" : ""} before archive]`
+      : post.text;
+    const { error } = await sb.from("posts").insert({
+      username: me, text: restoredText,
+      created_at: post.created_at, edited_at: post.edited_at || null, repost_of: null,
+    });
+    if (error) { failed++; } else { success++; }
+  }
+  msg.innerHTML = failed === 0
+    ? `<span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:2px;margin-top:-2px;">check_circle</span> Restored ${success} post${success!==1?"s":""}!`
+    : `Restored ${success}; ${failed} failed.`;
+  msg.className = failed === 0 ? "msg ok" : "msg err";
+  btn.disabled = false; btn.innerText = "Restore Posts";
+  document.getElementById("importPreview").style.display = "none";
+  document.getElementById("importFile").value = "";
+  _importPayload = null;
+}
+
+// =====================================================
+
+// Modernize UI Toggle
+function updateModernizeBtn() {
+  const isMod = localStorage.getItem("modernize_ui") === "true";
+  const btn = document.getElementById("modernizeBtn");
+  if (!btn) return;
+  btn.innerText = isMod ? "Modern ON" : "Classic OFF";
+  
+  if (isMod) {
+    btn.style.background = "#e8fce8";
+    btn.style.color = "#2d7a2d";
+    btn.style.borderColor = "#2d7a2d";
+    btn.style.borderRadius = "4px";
+    btn.style.boxShadow = "none";
+  } else {
+    // Old ermn UI style
+    btn.style.background = "var(--accent)";
+    btn.style.color = "white";
+    btn.style.borderColor = "transparent";
+    btn.style.borderRadius = "0px";
+    btn.style.boxShadow = "none";
+  }
+}
+
+function toggleModernize() {
+  const isMod = localStorage.getItem("modernize_ui") === "true";
+  localStorage.setItem("modernize_ui", isMod ? "false" : "true");
+  if (typeof checkModernize === "function") checkModernize();
+  updateModernizeBtn();
+}
+
 loadInfo();
+updateModernizeBtn();
 loadBlockedUsers();
 </script>
 </body>

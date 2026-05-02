@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ermn. · Admin Panel</title>
 <link rel="icon" href="wicon.png">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;}
+:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:13px;}
 .topbar { background:#800; height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.4); border-bottom:2px solid rgba(0,0,0,0.2); }
@@ -55,16 +55,20 @@ tr:hover td{background:#fef8f8;}
 .search-row{display:flex;gap:8px;margin-bottom:10px;}
 .search-row input{flex:1;padding:5px 8px;border:1px solid #bbb;font-family:inherit;font-size:13px;}
 .search-row button{background:#8b0000;color:white;border:none;padding:5px 12px;font-size:13px;cursor:pointer;}
-  .material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
-  .tab .material-icons { font-size: 1.1em; color: #800; }
-  .tab.active .material-icons { font-size: 1.1em; color: #500; }
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+  .tab  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+  .tab.active  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 </style>
 </head>
 <body>
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <nav class="topbar-nav">
-    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
     <a href="profile.html"><span class="material-icons">person</span> Profile</a>
   </nav>
   <div class="topbar-right">
@@ -119,6 +123,7 @@ tr:hover td{background:#fef8f8;}
 </div>
 
 <script src="config.js"></script>
+<script src="theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
@@ -140,11 +145,7 @@ async function initAdmin() {
 }
 
 
-async function logout(){ 
-  await sb.auth.signOut();
-  localStorage.removeItem("currentUser"); 
-  location.href="index.html"; 
-}
+/* logout handled in app.js */
 
 function showTab(id) {
   // Update Tabs
@@ -162,13 +163,14 @@ function showTab(id) {
 }
 
 async function loadStats() {
-  const [{ count: uc },{ count: pc },{ count: rc }] = await Promise.all([
-    sb.from("users").select("*",{count:"exact",head:true}),
+  const [{ data: ud, error: ue },{ count: pc },{ count: rc }] = await Promise.all([
+    sb.from("users").select("*"),
     sb.from("posts").select("*",{count:"exact",head:true}),
     sb.from("reports").select("*",{count:"exact",head:true}),
   ]);
   
-  document.getElementById("statUsers").innerText = uc||0;
+  const activeCount = (ud||[]).filter(u => u.is_banned !== true).length;
+  document.getElementById("statUsers").innerText = activeCount;
   document.getElementById("statPosts").innerText = pc||0;
   document.getElementById("statReports").innerText = rc||0;
 }
@@ -224,8 +226,9 @@ let allUsers = [];
 async function loadUsers() {
   const el = document.getElementById("usersBody");
   el.innerHTML = "<div class='empty-msg'>Loading...</div>";
-  const { data: users } = await sb.from("users").select("username,pic,bio,verified,is_developer,created_at").order("created_at",{ascending:false});
-  allUsers = users||[];
+  const { data: users, error } = await sb.from("users").select("*").order("created_at",{ascending:false});
+  if (error) { el.innerHTML = "<div class='empty-msg'>Error: " + error.message + "</div>"; return; }
+  allUsers = (users||[]).filter(u => u.is_banned !== true);
   renderUsers(allUsers);
 }
 
@@ -240,8 +243,10 @@ function renderUsers(users) {
     if (u.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
     html += `<div class="user-row">
       <img src="${escapeHtml(u.pic||"")}" onerror="this.src='empty.jpg'">
-      <a class="uname" href="userpage.html?user=${encodeURIComponent(u.username)}" target="_blank">@${escapeHtml(u.username)}${badges}${isAdminUser?' <span class="material-icons" style="font-size:14px;color:#800;">security</span>':''}</a>
-      <span style="font-size:11px;color:#888;">${new Date(u.created_at).toLocaleDateString()}</span>
+      <div style="flex:1;">
+        <a class="uname" href="userpage.html?user=${encodeURIComponent(u.username)}" target="_blank">@${escapeHtml(u.username)}${badges}${isAdminUser?' <span class="material-icons" style="font-size:14px;color:#800;">security</span>':''}</a>
+        <div style="font-size:10px;color:#888;">Joined ${new Date(u.created_at).toLocaleDateString()}</div>
+      </div>
       ${!isAdminUser ? `<button class="action-btn btn-ban" onclick="adminBanUser('${u.username.replace(/'/g,"\\'")}').then(()=>{loadUsers();loadStats();})">Ban</button>` : ''}
     </div>`;
   }
@@ -257,12 +262,18 @@ function filterUsers() {
 async function loadBanned() {
   const el = document.getElementById("bannedBody");
   el.innerHTML = "<div class='empty-msg'>Loading...</div>";
-  const { data: banned } = await sb.from("banned_users").select("username,banned_at").order("banned_at",{ascending:false});
+  const { data: banned } = await sb.from("banned_users").select("*").order("banned_at",{ascending:false});
   if (!banned||!banned.length) { el.innerHTML = "<div class='empty-msg'>No banned users.</div>"; return; }
-  let html = '<table><tr><th>Username</th><th>Banned At</th><th>Action</th></tr>';
+  let html = '<table><tr><th>Type</th><th>Identifier</th><th>Original User</th><th>Banned At</th><th>Action</th></tr>';
   for (const b of banned) {
+    const isId = b.username.startsWith("id:");
+    const type = isId ? "Account ID" : "Username";
+    const label = isId ? b.username.replace("id:","") : "@"+b.username;
+    const original = b.original_username ? "@" + b.original_username : "N/A";
     html += `<tr>
-      <td>@${escapeHtml(b.username)}</td>
+      <td>${type}</td>
+      <td style="font-family:monospace;font-size:11px;">${escapeHtml(label)}</td>
+      <td style="font-weight:bold;color:#800;">${escapeHtml(original)}</td>
       <td>${b.banned_at ? new Date(b.banned_at).toLocaleDateString() : 'N/A'}</td>
       <td><button class="action-btn btn-dismiss" onclick="unban('${b.username.replace(/'/g,"\\'")}')">Unban</button></td>
     </tr>`;
@@ -279,6 +290,7 @@ async function unban(username) {
 
 function escapeHtml(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
+applyTheme();
 initAdmin();
 </script>
 </body>

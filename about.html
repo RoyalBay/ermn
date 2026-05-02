@@ -2,17 +2,21 @@
 <html>
 
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ermn. · about</title>
-  <link rel="icon" href="wicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
+<link rel="icon" href="wicon.png">  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
   <style>
     :root {
       --accent: #3b5998;
-      --accent2: #8b9dc3;
-      --bg1: #dfe7f3;
-      --bg2: #f5f6f7;
+      --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
+      --card-bg: #fff;
+      --topbar-bg: #3b5998;
+      --text: #333;
+      --border: #b0b7c3;
+      --card-header: linear-gradient(180deg,#e8edf7,#d8e0f0);
+      --input-bg: #fafafa;
     }
 
     * {
@@ -23,12 +27,13 @@
 
     body {
       font-family: Tahoma, Verdana, sans-serif;
-      background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      background: var(--body-bg);
       min-height: 100vh;
-      color: #333;
+      color: var(--text);
+      font-size: 13px;
     }
 
-.topbar { background:var(--accent); height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.3); border-bottom:2px solid rgba(0,0,0,0.2); }
+.topbar { background:var(--topbar-bg); height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.3); border-bottom:2px solid rgba(0,0,0,0.2); }
 .topbar-logo { font-size:22px; font-weight:bold; color:white; letter-spacing:-1px; font-style:italic; text-shadow:1px 1px 2px rgba(0,0,0,0.3); text-decoration:none; }
 .topbar-nav { display:flex; gap:4px; margin-left:10px; }
 .topbar-nav a { color:rgba(255,255,255,0.85); font-size:12px; text-decoration:none; padding:4px 8px; border-radius:2px; display:flex; align-items:center; }
@@ -36,7 +41,8 @@
 .topbar-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
 .topbar-right button, .topbar-right a.btn-top { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; text-decoration:none; border-radius:0; }
 .topbar-right button:hover, .topbar-right a.btn-top:hover { background:rgba(255,255,255,0.35); }
-.material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 
     .topbar-logo {
       font-size: 22px;
@@ -89,10 +95,10 @@
     }
 
     .card {
-      background: white;
-      border: 1px solid #b0b7c3;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
       padding: 20px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
       margin-bottom: 20px;
     }
 
@@ -166,6 +172,7 @@
       mask-position: center;
       flex-shrink: 0;
       margin-top: 2px;
+      filter: var(--badge-glow);
     }
 
     .badge-verified {
@@ -204,13 +211,15 @@
       color: #3b5998;
     }
   </style>
+  
 </head>
 
 <body>
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <nav class="topbar-nav">
-    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
     <a href="profile.html"><span class="material-icons">person</span> Profile</a>
   </nav>
   <div class="topbar-right">
@@ -308,6 +317,7 @@
   </div>
 
   <script src="config.js"></script>
+  <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
   <script>

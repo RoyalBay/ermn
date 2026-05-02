@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>ermn. · Profile</title>
 <link rel="icon" href="wicon.png">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <style>
-:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;}
+:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:100vh;font-size:14px;padding-bottom:60px;color:var(--text);}
 .topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
 .topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
 .main{padding:12px;}
 .card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:12px;overflow:hidden;}
-.card-title{background:linear-gradient(180deg,#e8edf7,#d8e0f0);border-bottom:1px solid var(--border);padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
+.card-title{background:var(--card-header);border-bottom:1px solid var(--border);padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
 .card-body{padding:14px;}
 .profile-header{display:flex;gap:14px;align-items:flex-start;}
 #userPic{width:80px;height:80px;object-fit:cover;border:3px solid var(--border);border-radius:2px;}
@@ -40,9 +40,35 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
 .modal-user{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee;}
 .modal-user img{width:32px;height:32px;object-fit:cover;border-radius:2px;}
 .modal-user a{text-decoration:none;color:var(--accent);font-weight:bold;font-size:14px;}
-.material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
-.card-title .material-icons { font-size: 1.1em; color: var(--accent); }
-.bottom-nav a .material-icons { font-size: 24px; margin-bottom: 2px; }
+.badge-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  background-color: var(--accent);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  vertical-align: middle;
+  margin-left: 3px;
+  filter: var(--badge-glow);
+}
+.badge-verified {
+  -webkit-mask-image: url('verifiedbadge.png');
+  mask-image: url('verifiedbadge.png');
+}
+.badge-developer {
+  -webkit-mask-image: url('devbadge.png');
+  mask-image: url('devbadge.png');
+}
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+.card-title  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+.bottom-nav a  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 </style>
 </head>
 <body>
@@ -65,11 +91,11 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
             <style>
               .music-banner {
                 margin: 0;
-                background: linear-gradient(180deg, #f8f9fb, #eceef2);
-                border: 1px solid #9196a1;
+                background: var(--card-header);
+                border: 1px solid var(--border);
                 border-radius: 0px;
                 padding: 4px 8px 4px 4px;
-                box-shadow: 1px 1px 0px white inset;
+                box-shadow: 1px 1px 0px rgba(255,255,255,0.1) inset;
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -108,9 +134,10 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
 </div>
 
 <nav class="bottom-nav">
-  <a href="mobile_feed.html"><span class="material-icons">home</span>Feed</a>
-  <a href="mobile_profile.html"><span class="material-icons">person</span>Profile</a>
-  <a href="mobile_settings.html"><span class="material-icons">settings</span>Settings</a>
+  <a href="mobile_feed.html"><span class="material-icons">home</span><span>Home</span></a>
+  <a href="mobile_algo_feed.html"><span class="material-icons">explore</span><span>Feed</span></a>
+  <a href="mobile_profile.html"><span class="material-icons">person</span><span>Profile</span></a>
+  <a href="mobile_settings.html"><span class="material-icons">settings</span><span>Settings</span></a>
 </nav>
 
 <div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
@@ -121,6 +148,7 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
 </div>
 
 <script src="config.js"></script>
+<script src="theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
@@ -152,17 +180,17 @@ async function toggleFollow() {
   if (!me) return;
   const btn = document.getElementById("followBtn");
   if (isFollowing) {
-    await sb.from("follows").delete().eq("follower", me).eq("following", viewUser);
+    await sb.from("follows").delete().eq("follower", me).ilike("following", viewUser);
     isFollowing = false;
     btn.innerText = "Follow"; btn.classList.remove("following");
     const fc = parseInt(document.getElementById("statFollowers").innerText);
     if (!isNaN(fc)) document.getElementById("statFollowers").innerText = Math.max(0, fc - 1);
   } else {
-    const { data: targetData } = await sb.from("users").select("is_private").eq("username", viewUser).maybeSingle();
+    const { data: targetData } = await sb.from("users").select("is_private").ilike("username", viewUser).maybeSingle();
     if (targetData && targetData.is_private) {
-      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
+      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", me).ilike("target", viewUser).maybeSingle();
       if (existingReq) {
-        await sb.from("follow_requests").delete().eq("requester", me).eq("target", viewUser);
+        await sb.from("follow_requests").delete().eq("requester", me).ilike("target", viewUser);
         btn.innerText = "Follow";
       } else {
         await sb.from("follow_requests").insert({ requester: me, target: viewUser });
@@ -191,10 +219,10 @@ async function openModal(type) {
   list.innerHTML = "<div style='color:#888'>Loading...</div>";
   let usernames = [];
   if (type === "followers") {
-    const { data } = await sb.from("follows").select("follower").eq("following", viewUser);
+    const { data } = await sb.from("follows").select("follower").ilike("following", viewUser);
     usernames = (data || []).map(r => r.follower);
   } else {
-    const { data } = await sb.from("follows").select("following").eq("follower", viewUser);
+    const { data } = await sb.from("follows").select("following").ilike("follower", viewUser);
     usernames = (data || []).map(r => r.following);
   }
   if (!usernames.length) { list.innerHTML = "<div style='color:#888;font-style:italic;'>Nobody here yet.</div>"; return; }
@@ -212,10 +240,10 @@ async function openModal(type) {
 function closeModal(){ document.getElementById("modalBackdrop").classList.remove("open"); }
 
 async function load() {
-  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, spotify_data").eq("username", viewUser).maybeSingle();
-  const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("following", viewUser);
-  const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).eq("follower", viewUser);
-  const { data: posts } = await sb.from("posts").select("id, text, created_at").eq("username", viewUser).order("created_at", { ascending: false });
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, spotify_data").ilike("username", viewUser).maybeSingle();
+  const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("following", viewUser);
+  const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("follower", viewUser);
+  const { data: posts } = await sb.from("posts").select("id, text, created_at").ilike("username", viewUser).order("created_at", { ascending: false });
 
   if (user && user.spotify_data) {
     userMusicData = user.spotify_data;
@@ -245,15 +273,15 @@ async function load() {
   if (me && viewUser !== me) {
     document.getElementById("followBtn").style.display = "inline-block";
     document.getElementById("blockBtn").style.display = "inline-block";
-    const { data: blockCheck } = await sb.from("blocked_users").select("blocked").eq("blocker", me).eq("blocked", viewUser).maybeSingle();
+    const { data: blockCheck } = await sb.from("blocked_users").select("blocked").eq("blocker", me).ilike("blocked", viewUser).maybeSingle();
     isBlocked = !!blockCheck;
     if (isBlocked) document.getElementById("blockBtn").innerText = "Unblock";
-    const { data: fcheck } = await sb.from("follows").select("follower").eq("follower", me).eq("following", viewUser).maybeSingle();
+    const { data: fcheck } = await sb.from("follows").select("follower").eq("follower", me).ilike("following", viewUser).maybeSingle();
     isFollowing = !!fcheck;
     const btn = document.getElementById("followBtn");
     if (isFollowing) { btn.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following'; btn.classList.add("following"); }
     else {
-      const { data: reqCheck } = await sb.from("follow_requests").select("requester").eq("requester", me).eq("target", viewUser).maybeSingle();
+      const { data: reqCheck } = await sb.from("follow_requests").select("requester").eq("requester", me).ilike("target", viewUser).maybeSingle();
       if (reqCheck) btn.innerHTML = '<span class="material-icons" style="font-size:14px;">hourglass_empty</span> Requested'; else btn.innerText = "Follow";
     }
   } else if (viewUser === me) {
@@ -287,12 +315,12 @@ async function load() {
       const options = pollMap[p.id];
       const myVote = myVoteMap[p.id];
       const totalVotes = options.reduce((sum, opt) => sum + (opt.votes||0), 0);
-      pollHtml = '<div class="poll-container" style="margin:10px 0;background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:10px;">';
+      pollHtml = '<div class="poll-container" style="margin:10px 0;background:var(--card-header);border:1px solid var(--border);border-radius:4px;padding:10px;">';
       options.forEach((opt, idx) => {
         const pct = totalVotes > 0 ? Math.round(((opt.votes||0) / totalVotes) * 100) : 0;
         const isMyVote = myVote === idx;
         pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
-                      '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'#d0e0ff':'#e0e0e0')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
+                      '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'var(--accent)':'rgba(255,255,255,0.1)')+';opacity:'+(isMyVote?'0.3':'0.1')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
                       '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
                         '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span>':'')+'</span><span>'+pct+'%</span>'+
                       '</div>'+

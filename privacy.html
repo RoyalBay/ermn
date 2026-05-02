@@ -2,11 +2,11 @@
 <html>
 
 <head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ermn. · privacy</title>
-  <link rel="icon" href="wicon.png">
-  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
+<link rel="icon" href="wicon.png">  <link href="https://fonts.googleapis.com/css2?family=Trebuchet+MS&display=swap" rel="stylesheet">
   <style>
     :root {
       --accent: #3b5998;
@@ -36,7 +36,8 @@
 .topbar-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
 .topbar-right button, .topbar-right a.btn-top { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; text-decoration:none; border-radius:0; }
 .topbar-right button:hover, .topbar-right a.btn-top:hover { background:rgba(255,255,255,0.35); }
-.material-icons { font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 4px; }
+  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
 
     .topbar-logo {
       font-size: 22px;
@@ -135,13 +136,15 @@
       color: #3b5998;
     }
   </style>
+  
 </head>
 
 <body>
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <nav class="topbar-nav">
-    <a href="feed.html"><span class="material-icons">home</span> Feed</a>
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
     <a href="profile.html"><span class="material-icons">person</span> Profile</a>
   </nav>
   <div class="topbar-right">
@@ -166,11 +169,20 @@
       <h2>Information We Collect</h2>
       <p>We only collect what is absolutely necessary to make the site work:</p>
       <ul>
-        <li><b>Account Information:</b> Your username and email (stored securely via Supabase Auth).</li>
+        <li><b>Account Information:</b> Your username, email, and Two-Factor Authentication (2FA) status (stored securely via Supabase Auth).</li>
         <li><b>Profile Content:</b> Your bio and profile picture (to show others who you are).</li>
         <li><b>User Content:</b> The posts, likes, and comments you share on the platform.</li>
-        <li><b>Local Storage:</b> We use your browser's local storage to keep you logged in and save your theme preferences.</li>
+        <li><b>Local Storage:</b> We use your browser's local storage to keep you logged in and save your theme, layout (e.g., Lite Mode), and developer tool preferences.</li>
       </ul>
+    </div>
+
+    <div class="card">
+      <h2>Two-Factor Authentication (2FA)</h2>
+      <p>
+        When you enable 2FA, we store a secure, encrypted "secret" used to verify your identity. 
+        This data is used solely to generate your login challenges and is never shared or used for tracking. 
+        Enabling 2FA is the best way to ensure that only you can access your account, even if your password is compromised.
+      </p>
     </div>
 
     <div class="card">
@@ -209,6 +221,7 @@
   </div>
 
   <script src="config.js"></script>
+  <script src="theme.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js"></script>
   <script>
