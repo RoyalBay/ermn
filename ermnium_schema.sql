@@ -2,6 +2,13 @@
 -- ERMNIUM SCHEMA — Virtual Currency for ermn (POINTS EDITION)
 -- ============================================================
 
+-- DROP OLD TABLES TO ENSURE FRESH SCHEMA (CAUTION: CLEARS EXISTING DATA)
+DROP TABLE IF EXISTS ermnium_inventory;
+DROP TABLE IF EXISTS ermnium_transactions;
+DROP TABLE IF EXISTS ermnium_shop;
+DROP TABLE IF EXISTS ermnium_wallets;
+DROP TABLE IF EXISTS ermnium_config;
+
 -- 1. Global config (single row)
 CREATE TABLE IF NOT EXISTS ermnium_config (
   id int PRIMARY KEY DEFAULT 1 CHECK (id = 1),
