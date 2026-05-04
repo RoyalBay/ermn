@@ -173,7 +173,8 @@ async function login() {
     localStorage.setItem("currentUser", profile.username);
     if (profile.is_admin) {
       const secret = await uiPrompt("Admin account detected.\nEnter the Admin Secret Key:");
-      if (secret !== window.ERMN_ADMIN_SECRET) {
+      const { data: isCorrect, error: rpcErr } = await sb.rpc('verify_admin_secret', { provided_secret: secret });
+      if (rpcErr || !isCorrect) {
         await uiAlert("Invalid Admin Secret Key. Access denied.");
         await sb.auth.signOut();
         localStorage.removeItem("currentUser");

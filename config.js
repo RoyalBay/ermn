@@ -6,7 +6,6 @@
 (function () {
   window.ERMN_URL = "https://glxkfdltajezuvptippt.supabase.co";
   window.ERMN_KEY = "sb_publishable_TcAcjr-U6SKDZf4gfNq9zg_CM3zXq1B";
-  window.ERMN_ADMIN_SECRET = "ermn_admin_2026";
 })();
 
 window.uiPrompt = function (msg, def) {

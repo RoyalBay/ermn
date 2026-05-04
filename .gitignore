@@ -1,0 +1,10 @@
+# Secrets
+secure_admin.sql
+
+# Database Scripts (Optional to ignore, but recommended if they contain sensitive schema details)
+fix_missing_columns.sql
+better_rls.sql
+
+# OS Files
+.DS_Store
+Thumbs.db
