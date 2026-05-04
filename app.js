@@ -283,9 +283,18 @@ async function del(postId) {
 async function adminDelPost(postId) {
   if (!isAdmin()) return;
   if (!(await uiConfirm("Admin: permanently delete this post?"))) return;
-  const secret = sessionStorage.getItem("adminSecret");
+  let secret = sessionStorage.getItem("adminSecret");
+  if (!secret) {
+    secret = await uiPrompt("Admin Secret required for this action:");
+    if (!secret) return;
+    sessionStorage.setItem("adminSecret", secret);
+  }
   const { error } = await sb.rpc('admin_delete_post_secure', { target_post_id: postId, provided_secret: secret });
-  if (error) { await uiAlert("Admin Error: " + error.message); return; }
+  if (error) { 
+    if (error.message.includes('Unauthorized')) sessionStorage.removeItem("adminSecret");
+    await uiAlert("Admin Error: " + error.message); 
+    return; 
+  }
   await render();
 }
 
@@ -296,10 +305,17 @@ async function adminBanUser(username, skipConfirm=false) {
   
   if (!skipConfirm && !(await uiConfirm("Admin: ban @"+username+"? This deletes all their content and blocks their account."))) return;
   
-  const secret = sessionStorage.getItem("adminSecret");
+  let secret = sessionStorage.getItem("adminSecret");
+  if (!secret) {
+    secret = await uiPrompt("Admin Secret required for this action:");
+    if (!secret) return;
+    sessionStorage.setItem("adminSecret", secret);
+  }
+  
   const { error } = await sb.rpc('admin_ban_user_secure', { target_username: username, provided_secret: secret });
   
   if (error) {
+    if (error.message.includes('Unauthorized')) sessionStorage.removeItem("adminSecret");
     await uiAlert("Admin Error: " + error.message);
     return;
   }
@@ -312,9 +328,18 @@ async function adminBanUser(username, skipConfirm=false) {
 async function adminDelComment(commentId, postId) {
   if (!isAdmin()) return;
   if (!(await uiConfirm("Admin: delete this comment?"))) return;
-  const secret = sessionStorage.getItem("adminSecret");
+  let secret = sessionStorage.getItem("adminSecret");
+  if (!secret) {
+    secret = await uiPrompt("Admin Secret required for this action:");
+    if (!secret) return;
+    sessionStorage.setItem("adminSecret", secret);
+  }
   const { error } = await sb.rpc('admin_delete_comment_secure', { target_comment_id: commentId, provided_secret: secret });
-  if (error) { await uiAlert("Admin Error: " + error.message); return; }
+  if (error) { 
+    if (error.message.includes('Unauthorized')) sessionStorage.removeItem("adminSecret");
+    await uiAlert("Admin Error: " + error.message); 
+    return; 
+  }
   await loadComments(postId);
 }
 

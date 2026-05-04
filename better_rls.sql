@@ -52,6 +52,7 @@ CREATE POLICY "Posts visibility" ON posts FOR SELECT USING (
   EXISTS (
     SELECT 1 FROM users u
     WHERE u.username = posts.username
+    AND (u.is_banned = false OR public.is_admin())
     AND (
       u.is_private = false OR 
       u.id = auth.uid() OR
