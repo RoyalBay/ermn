@@ -365,7 +365,7 @@ function closeModal() {
 async function load() {
   document.title = "ermn. · @" + viewUser;
 
-  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, is_banned, spotify_data").ilike("username", viewUser).maybeSingle();
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, is_banned, spotify_data, equipped_background, equipped_shell").ilike("username", viewUser).maybeSingle();
 
   // Banned user screen
   if (user && user.is_banned) {
@@ -385,6 +385,17 @@ async function load() {
     document.getElementById("userName").innerText = "@" + viewUser;
     document.getElementById("userPosts").innerHTML = "<div style='color:#888;font-style:italic;'>User not found.</div>";
     return;
+  }
+
+  // Apply cosmetics
+  if (user.equipped_background) {
+    document.querySelector(".card").style.background = user.equipped_background;
+    document.querySelector(".profile-header").style.color = "white";
+    document.querySelector(".bio-text").style.color = "rgba(255,255,255,0.85)";
+    document.querySelector(".profile-info h2").style.color = "white";
+  }
+  if (user.equipped_shell) {
+    document.getElementById("userPic").style.cssText += "border:" + user.equipped_shell + ";";
   }
 
   const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("following", viewUser);

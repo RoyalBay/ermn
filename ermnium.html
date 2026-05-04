@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ermn. · Ermnium Exchange</title>
+<link rel="icon" href="wicon.png">
+<style>
+:root{--accent:#3b5998;--accent2:#8b9dc3;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;--green:#27ae60;--red:#e74c3c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:13px;}
+.topbar{background:var(--topbar-bg);height:44px;display:flex;align-items:center;padding:0 12px;gap:10px;position:sticky;top:0;z-index:50;box-shadow:0 2px 5px rgba(0,0,0,0.3);border-bottom:2px solid rgba(0,0,0,0.2);}
+.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;text-shadow:1px 1px 2px rgba(0,0,0,0.3);}
+.topbar-nav{display:flex;gap:4px;margin-left:10px;}
+.topbar-nav a{color:rgba(255,255,255,0.85);font-size:12px;text-decoration:none;padding:4px 8px;border-radius:2px;}
+.topbar-nav a:hover{background:rgba(255,255,255,0.15);color:white;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:6px;}
+.topbar-right button{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);padding:4px 10px;font-size:12px;cursor:pointer;font-family:inherit;}
+.topbar-right button:hover{background:rgba(255,255,255,0.35);}
+.material-icons{font-family:"Material Icons";font-size:1.2em;vertical-align:middle;line-height:1;position:relative;top:-1px;margin-right:2px;}
+.topbar-nav .material-icons{font-size:1.3em;margin-right:3px;}
+
+.container{max-width:960px;margin:16px auto;padding:0 10px;display:grid;grid-template-columns:1fr 320px;gap:12px;}
+.card{background:var(--card-bg);border:1px solid var(--border);margin-bottom:12px;}
+.card-title{background:var(--card-header);border-bottom:1px solid var(--border);padding:6px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
+.card-body{padding:14px;}
+
+/* Price ticker */
+.price-hero{text-align:center;padding:20px;}
+.price-hero .ern-logo{font-size:36px;font-weight:bold;color:var(--accent);font-style:italic;letter-spacing:-2px;}
+.price-hero .price-big{font-size:32px;font-weight:bold;margin:8px 0 4px;}
+.price-hero .price-change{font-size:14px;font-weight:bold;padding:2px 8px;border-radius:2px;display:inline-block;}
+.price-hero .up{color:var(--green);background:#e8f5e9;}
+.price-hero .down{color:var(--red);background:#fce4ec;}
+.price-hero .supply{font-size:11px;color:#888;margin-top:6px;}
+
+/* Chart */
+#chartCanvas{width:100%;height:220px;display:block;border:1px solid #eee;background:#fafbfc;cursor:crosshair;}
+.chart-controls{display:flex;gap:6px;margin-top:6px;}
+.chart-controls button{background:var(--input-bg);border:1px solid var(--border);padding:3px 10px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--text);}
+.chart-controls button.active{background:var(--accent);color:white;border-color:var(--accent);}
+
+/* Trade */
+.trade-tabs{display:flex;border-bottom:2px solid var(--border);}
+.trade-tab{flex:1;text-align:center;padding:8px;font-weight:bold;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;color:#888;}
+.trade-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.trade-tab.sell-active{color:var(--red);border-bottom-color:var(--red);}
+.trade-form{padding:14px;}
+.trade-form label{font-size:12px;font-weight:bold;color:#555;display:block;margin-bottom:4px;}
+.trade-form input{width:100%;border:1px solid var(--border);padding:8px;font-size:14px;font-family:inherit;background:var(--input-bg);color:var(--text);margin-bottom:10px;}
+.trade-form input:focus{outline:none;border-color:var(--accent);}
+.trade-summary{background:#f8f9fb;border:1px solid #eee;padding:8px 10px;font-size:12px;margin-bottom:10px;display:flex;justify-content:space-between;}
+.trade-btn{width:100%;padding:10px;font-family:inherit;font-size:14px;font-weight:bold;border:none;cursor:pointer;color:white;}
+.trade-btn.buy{background:var(--green);}
+.trade-btn.buy:hover{background:#219a52;}
+.trade-btn.sell{background:var(--red);}
+.trade-btn.sell:hover{background:#c0392b;}
+.trade-btn:disabled{opacity:0.5;cursor:default;}
+
+/* Wallet */
+.wallet-balance{font-size:28px;font-weight:bold;color:var(--accent);margin-bottom:4px;}
+.wallet-cad{font-size:14px;color:#666;margin-bottom:10px;}
+.wallet-stats{display:flex;gap:16px;font-size:12px;color:#555;}
+.wallet-stats span strong{color:var(--accent);}
+
+/* Transactions */
+.tx-list{max-height:200px;overflow-y:auto;}
+.tx-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dotted #eee;font-size:12px;}
+.tx-row:last-child{border-bottom:none;}
+.tx-type{font-weight:bold;text-transform:uppercase;font-size:10px;padding:1px 5px;border-radius:2px;}
+.tx-type.buy{background:#e8f5e9;color:var(--green);}
+.tx-type.sell{background:#fce4ec;color:var(--red);}
+.tx-type.purchase{background:#e3f2fd;color:#1976d2;}
+.tx-type.signup_bonus{background:#fff8e1;color:#f57f17;}
+
+/* Shop */
+.shop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.shop-item{border:1px solid var(--border);padding:10px;text-align:center;position:relative;}
+.shop-preview{width:100%;height:50px;border:1px solid #ddd;margin-bottom:6px;}
+.shop-name{font-weight:bold;font-size:13px;color:var(--accent);}
+.shop-price{font-size:12px;color:#666;margin:2px 0 6px;}
+.shop-desc{font-size:10px;color:#888;margin-bottom:6px;}
+.shop-btn{background:var(--accent);color:white;border:none;padding:4px 12px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold;}
+.shop-btn:hover{background:#4a6aaa;}
+.shop-btn.owned{background:#27ae60;}
+.shop-btn.equipped{background:#f39c12;color:white;}
+.shop-btn:disabled{opacity:0.5;cursor:default;}
+.owned-badge{position:absolute;top:4px;right:4px;background:#27ae60;color:white;font-size:9px;padding:1px 5px;font-weight:bold;}
+
+@media(max-width:768px){.container{grid-template-columns:1fr;}.sidebar-col{order:-1;}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="topbar-logo">ermn.</span>
+  <nav class="topbar-nav">
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
+    <a href="profile.html"><span class="material-icons">person</span> Profile</a>
+    <a href="ermnium.html" style="background:rgba(255,255,255,0.15);color:white;"><span class="material-icons">toll</span> Ermnium</a>
+  </nav>
+  <div class="topbar-right">
+    <button onclick="location.href='settings.html'"><span class="material-icons" style="font-size:14px;">settings</span> Settings</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="main-col">
+    <!-- PRICE TICKER -->
+    <div class="card">
+      <div class="card-body price-hero">
+        <div class="ern-logo">◈ ermnium</div>
+        <div class="price-big" id="currentPrice">$0.1000 CAD</div>
+        <span class="price-change up" id="priceChange">+0.00%</span>
+        <div class="supply" id="supplyInfo">Total Supply: 0 ERN</div>
+      </div>
+    </div>
+
+    <!-- CHART -->
+    <div class="card">
+      <div class="card-title"><span class="material-icons">show_chart</span> Price Chart</div>
+      <div class="card-body">
+        <canvas id="chartCanvas"></canvas>
+        <div id="chartTooltip" style="display:none;position:absolute;background:#333;color:white;padding:4px 8px;font-size:11px;border-radius:2px;pointer-events:none;z-index:10;"></div>
+      </div>
+    </div>
+
+    <!-- SHOP -->
+    <div class="card">
+      <div class="card-title"><span class="material-icons">storefront</span> Ermnium Shop</div>
+      <div class="card-body">
+        <div class="shop-grid" id="shopGrid"><div style="color:#888;font-style:italic;">Loading shop...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sidebar-col">
+    <!-- WALLET -->
+    <div class="card">
+      <div class="card-title"><span class="material-icons">account_balance_wallet</span> My Wallet</div>
+      <div class="card-body">
+        <div class="wallet-balance" id="walletBalance">0.00 ERN</div>
+        <div class="wallet-cad" id="walletCad">≈ $0.00 CAD</div>
+        <div class="wallet-stats">
+          <span>Bought: <strong id="walletBought">0</strong></span>
+          <span>Sold: <strong id="walletSold">0</strong></span>
+        </div>
+        <div id="bonusBanner" style="display:none;margin-top:10px;background:#fff8e1;border:1px solid #ffe082;padding:8px;text-align:center;">
+          <div style="font-size:12px;color:#f57f17;font-weight:bold;">🎁 Welcome Bonus Available!</div>
+          <button onclick="claimBonus()" style="margin-top:6px;background:#f57f17;color:white;border:none;padding:6px 16px;font-weight:bold;cursor:pointer;font-family:inherit;">Claim 100 ERN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRADE -->
+    <div class="card">
+      <div class="card-title"><span class="material-icons">swap_horiz</span> Trade</div>
+      <div class="trade-tabs">
+        <div class="trade-tab active" id="buyTab" onclick="setTradeMode('buy')">Buy</div>
+        <div class="trade-tab" id="sellTab" onclick="setTradeMode('sell')">Sell</div>
+      </div>
+      <div class="trade-form">
+        <label id="tradeLabel">Amount to Buy (ERN)</label>
+        <input type="number" id="tradeAmount" min="1" step="1" value="10" oninput="updateTradeSummary()">
+        <div class="trade-summary">
+          <span id="tradeSummaryLabel">Cost:</span>
+          <span id="tradeSummaryValue">$1.00 CAD</span>
+        </div>
+        <button class="trade-btn buy" id="tradeBtn" onclick="executeTrade()">Buy ERN</button>
+      </div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div class="card">
+      <div class="card-title"><span class="material-icons">receipt_long</span> Recent Transactions</div>
+      <div class="card-body">
+        <div class="tx-list" id="txList"><div style="color:#888;font-style:italic;">Loading...</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="theme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+if (!localStorage.getItem("currentUser")) location.href = "index.html";
+applyTheme();
+
+let tradeMode = 'buy';
+let currentPriceCad = 0.10;
+let priceHistory = [];
+let myBalance = 0;
+let myInventory = new Set();
+
+// ── LOAD ALL DATA ──
+async function loadErmnium() {
+  const [configRes, walletRes, txRes, shopRes, invRes] = await Promise.all([
+    sb.from("ermnium_config").select("price_cad, price_history, total_supply").eq("id",1).single(),
+    sb.from("ermnium_wallets").select("balance, total_bought, total_sold").eq("username", currentUser || localStorage.getItem("currentUser")).maybeSingle(),
+    sb.from("ermnium_transactions").select("type, amount, price_cad, total_cad, item_name, created_at").order("created_at",{ascending:false}).limit(20),
+    sb.from("ermnium_shop").select("*").order("price_ern",{ascending:true}),
+    sb.from("ermnium_inventory").select("item_id").eq("username", currentUser || localStorage.getItem("currentUser"))
+  ]);
+
+  // Config
+  if (configRes.data) {
+    currentPriceCad = parseFloat(configRes.data.price_cad);
+    priceHistory = configRes.data.price_history || [];
+    document.getElementById("currentPrice").innerText = "$" + currentPriceCad.toFixed(4) + " CAD";
+    document.getElementById("supplyInfo").innerText = "Total Supply: " + Math.round(configRes.data.total_supply) + " ERN";
+    if (priceHistory.length >= 2) {
+      const first = priceHistory[0].p, last = priceHistory[priceHistory.length-1].p;
+      const pct = ((last - first) / first * 100).toFixed(2);
+      const el = document.getElementById("priceChange");
+      el.innerText = (pct >= 0 ? "+" : "") + pct + "%";
+      el.className = "price-change " + (pct >= 0 ? "up" : "down");
+    }
+    drawChart();
+  }
+
+  // Wallet
+  if (walletRes.data) {
+    myBalance = parseFloat(walletRes.data.balance);
+    document.getElementById("walletBalance").innerText = myBalance.toFixed(2) + " ERN";
+    document.getElementById("walletCad").innerText = "≈ $" + (myBalance * currentPriceCad).toFixed(2) + " CAD";
+    document.getElementById("walletBought").innerText = Math.round(walletRes.data.total_bought);
+    document.getElementById("walletSold").innerText = Math.round(walletRes.data.total_sold);
+  } else {
+    document.getElementById("bonusBanner").style.display = "block";
+  }
+
+  // Transactions
+  const txEl = document.getElementById("txList");
+  if (txRes.data && txRes.data.length) {
+    txEl.innerHTML = "";
+    txRes.data.forEach(tx => {
+      const label = tx.type === 'purchase' ? tx.item_name : (tx.total_cad ? "$"+parseFloat(tx.total_cad).toFixed(2)+" CAD" : "");
+      txEl.innerHTML += '<div class="tx-row"><div><span class="tx-type '+tx.type+'">'+tx.type+'</span> '+parseFloat(tx.amount).toFixed(0)+' ERN</div><div style="color:#888;">'+label+'</div></div>';
+    });
+  } else { txEl.innerHTML = '<div style="color:#888;font-style:italic;">No transactions yet.</div>'; }
+
+  // Inventory
+  myInventory = new Set();
+  if (invRes.data) invRes.data.forEach(i => myInventory.add(i.item_id));
+
+  // Shop
+  if (shopRes.data) renderShop(shopRes.data);
+
+  updateTradeSummary();
+}
+
+// ── CHART ──
+function drawChart() {
+  const canvas = document.getElementById("chartCanvas");
+  const ctx = canvas.getContext("2d");
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  const W = rect.width, H = rect.height;
+  ctx.clearRect(0,0,W,H);
+
+  if (priceHistory.length < 2) {
+    ctx.fillStyle = "#888"; ctx.font = "13px Tahoma";
+    ctx.textAlign = "center"; ctx.fillText("Not enough data yet — trade to generate chart data!", W/2, H/2);
+    return;
+  }
+
+  const prices = priceHistory.map(p => p.p);
+  const minP = Math.min(...prices) * 0.98, maxP = Math.max(...prices) * 1.02;
+  const range = maxP - minP || 0.01;
+  const padL=45,padR=10,padT=15,padB=25;
+  const cW=W-padL-padR, cH=H-padT-padB;
+
+  // Grid
+  ctx.strokeStyle="#e8e8e8"; ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=padT+cH*(i/4); ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
+    ctx.fillStyle="#999";ctx.font="10px Tahoma";ctx.textAlign="right";
+    ctx.fillText("$"+(maxP-range*(i/4)).toFixed(3),padL-4,y+3);
+  }
+
+  // Line + gradient fill
+  const gradient = ctx.createLinearGradient(0,padT,0,H-padB);
+  const isUp = prices[prices.length-1] >= prices[0];
+  gradient.addColorStop(0, isUp?"rgba(39,174,96,0.3)":"rgba(231,76,60,0.3)");
+  gradient.addColorStop(1, "rgba(255,255,255,0)");
+
+  ctx.beginPath();
+  ctx.moveTo(padL, padT+cH);
+  for(let i=0;i<prices.length;i++){
+    const x=padL+(i/(prices.length-1))*cW;
+    const y=padT+cH*(1-(prices[i]-minP)/range);
+    ctx.lineTo(x,y);
+  }
+  ctx.lineTo(padL+cW, padT+cH);
+  ctx.closePath();
+  ctx.fillStyle=gradient; ctx.fill();
+
+  ctx.beginPath();
+  for(let i=0;i<prices.length;i++){
+    const x=padL+(i/(prices.length-1))*cW;
+    const y=padT+cH*(1-(prices[i]-minP)/range);
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle=isUp?"#27ae60":"#e74c3c"; ctx.lineWidth=2; ctx.stroke();
+
+  // Last price dot
+  const lastX=padL+cW, lastY=padT+cH*(1-(prices[prices.length-1]-minP)/range);
+  ctx.beginPath();ctx.arc(lastX,lastY,4,0,Math.PI*2);ctx.fillStyle=isUp?"#27ae60":"#e74c3c";ctx.fill();
+}
+
+// ── TRADE ──
+function setTradeMode(mode) {
+  tradeMode = mode;
+  document.getElementById("buyTab").className = "trade-tab" + (mode==="buy"?" active":"");
+  document.getElementById("sellTab").className = "trade-tab" + (mode==="sell"?" sell-active":"");
+  document.getElementById("tradeLabel").innerText = "Amount to "+(mode==="buy"?"Buy":"Sell")+" (ERN)";
+  document.getElementById("tradeSummaryLabel").innerText = mode==="buy"?"Cost:":"Proceeds:";
+  const btn = document.getElementById("tradeBtn");
+  btn.innerText = mode==="buy"?"Buy ERN":"Sell ERN";
+  btn.className = "trade-btn "+mode;
+  updateTradeSummary();
+}
+
+function updateTradeSummary() {
+  const amt = parseFloat(document.getElementById("tradeAmount").value) || 0;
+  document.getElementById("tradeSummaryValue").innerText = "$" + (amt * currentPriceCad).toFixed(2) + " CAD";
+}
+
+async function executeTrade() {
+  const amt = parseFloat(document.getElementById("tradeAmount").value);
+  if (!amt || amt <= 0) { await uiAlert("Enter a valid amount."); return; }
+  if (tradeMode === 'sell' && amt > myBalance) { await uiAlert("Insufficient ERN balance."); return; }
+  const conf = await uiConfirm(tradeMode==="buy"
+    ? "Buy "+amt+" ERN for $"+(amt*currentPriceCad).toFixed(2)+" CAD?"
+    : "Sell "+amt+" ERN for $"+(amt*currentPriceCad).toFixed(2)+" CAD?");
+  if (!conf) return;
+  document.getElementById("tradeBtn").disabled = true;
+  const { data, error } = await sb.rpc("ermnium_trade",{trade_type:tradeMode,trade_amount:amt});
+  document.getElementById("tradeBtn").disabled = false;
+  if (error) { await uiAlert("Trade Error: "+error.message); return; }
+  await uiAlert("Trade complete! New balance: "+parseFloat(data.new_balance).toFixed(2)+" ERN");
+  loadErmnium();
+}
+
+async function claimBonus() {
+  const { data, error } = await sb.rpc("ermnium_claim_bonus");
+  if (error) { await uiAlert("Error: "+error.message); return; }
+  if (data.success) { await uiAlert("🎁 You received 100 ERN!"); }
+  else { await uiAlert(data.reason); }
+  document.getElementById("bonusBanner").style.display = "none";
+  loadErmnium();
+}
+
+// ── SHOP ──
+function renderShop(items) {
+  const el = document.getElementById("shopGrid");
+  el.innerHTML = "";
+  items.forEach(item => {
+    const owned = myInventory.has(item.id);
+    const d = document.createElement("div");
+    d.className = "shop-item";
+    d.innerHTML = '<div class="shop-preview" style="background:'+item.preview_css+';"></div>'+
+      (owned?'<div class="owned-badge">OWNED</div>':'')+
+      '<div class="shop-name">'+escapeHtml(item.name)+'</div>'+
+      '<div class="shop-price">'+item.price_ern+' ERN · '+item.type+'</div>'+
+      '<div class="shop-desc">'+escapeHtml(item.description)+'</div>'+
+      (owned
+        ? '<button class="shop-btn owned" onclick="equipItem('+item.id+')">Equip</button> <button class="shop-btn" style="background:#888;margin-top:4px;" onclick="unequipType(\''+item.type+'\')">Unequip</button>'
+        : '<button class="shop-btn"'+(myBalance<item.price_ern?' disabled':'')+' onclick="buyItem('+item.id+')">Buy · '+item.price_ern+' ERN</button>');
+    el.appendChild(d);
+  });
+}
+
+async function buyItem(itemId) {
+  if (!(await uiConfirm("Purchase this item?"))) return;
+  const { data, error } = await sb.rpc("ermnium_purchase_item",{target_item_id:itemId});
+  if (error) { await uiAlert("Error: "+error.message); return; }
+  await uiAlert("Purchased "+data.item_name+"!");
+  loadErmnium();
+}
+
+async function equipItem(itemId) {
+  const { error } = await sb.rpc("ermnium_equip_item",{target_item_id:itemId});
+  if (error) { await uiAlert("Error: "+error.message); return; }
+  await uiAlert("Equipped!");
+}
+
+async function unequipType(type) {
+  const { error } = await sb.rpc("ermnium_unequip",{cosmetic_type:type});
+  if (error) { await uiAlert("Error: "+error.message); return; }
+  await uiAlert("Unequipped!");
+}
+
+// ── INIT ──
+document.addEventListener("sessionReady", () => { loadErmnium(); });
+if (currentUser) document.dispatchEvent(new Event("sessionReady"));
+window.addEventListener("resize", () => { if(priceHistory.length>=2) drawChart(); });
+</script>
+<script src="dev_tools_loader.js"></script>
+</body>
+</html>
