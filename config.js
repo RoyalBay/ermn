@@ -5,7 +5,8 @@
  */
 (function () {
   window.ERMN_URL = "https://glxkfdltajezuvptippt.supabase.co";
-  window.ERMN_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdseGtmZGx0YWplenV2cHRpcHB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNDA0NDcsImV4cCI6MjA5MjgxNjQ0N30.2PTpFCp20SHOlLcgxldYNHAtVxnsB8UuP6n8HpCa944";
+  window.ERMN_KEY = "sb_publishable_TcAcjr-U6SKDZf4gfNq9zg_CM3zXq1B";
+  window.ERMN_ADMIN_SECRET = "ermn_admin_2026";
 })();
 
 window.uiPrompt = function (msg, def) {

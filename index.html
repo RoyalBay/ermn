@@ -400,9 +400,20 @@
       }
 
       // Check if profile exists (sync might be in progress)
-      const { data: profile } = await sb.from("users").select("username").eq("id", data.user.id).maybeSingle();
+      const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", data.user.id).maybeSingle();
       if (profile) {
         localStorage.setItem("currentUser", profile.username);
+        if (profile.is_admin) {
+          const secret = await uiPrompt("Admin account detected.\nPlease enter the Admin Secret Key:");
+          if (secret !== window.ERMN_ADMIN_SECRET) {
+            await uiAlert("Invalid Admin Secret Key. Access denied.");
+            await sb.auth.signOut();
+            localStorage.removeItem("currentUser");
+            setBusy(false);
+            setMsg("Access denied: Invalid admin secret.", true);
+            return;
+          }
+        }
       } else {
         // Fallback to metadata if profile not yet synced
         localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);

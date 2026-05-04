@@ -168,8 +168,23 @@ async function login() {
   }
 
   // Check if profile exists
-  const { data: profile } = await sb.from("users").select("username").eq("id", data.user.id).maybeSingle();
-  localStorage.setItem("currentUser", profile ? profile.username : (data.user.user_metadata.username || rawU));
+  const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", data.user.id).maybeSingle();
+  if (profile) {
+    localStorage.setItem("currentUser", profile.username);
+    if (profile.is_admin) {
+      const secret = await uiPrompt("Admin account detected.\nEnter the Admin Secret Key:");
+      if (secret !== window.ERMN_ADMIN_SECRET) {
+        await uiAlert("Invalid Admin Secret Key. Access denied.");
+        await sb.auth.signOut();
+        localStorage.removeItem("currentUser");
+        setBusy(false);
+        setMsg("Invalid admin secret.", true);
+        return;
+      }
+    }
+  } else {
+    localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);
+  }
 
   const checkU = localStorage.getItem("currentUser").toLowerCase();
   const { data: banned } = await sb.from("banned_users").select("username").eq("username", checkU).maybeSingle();
