@@ -87,6 +87,10 @@ create table if not exists reports (
 create table if not exists banned_users (
   username text primary key,
   original_username text,
+  original_pic text,
+  original_bio text,
+  original_banner text,
+  original_spotify_data jsonb,
   banned_at timestamptz default now()
 );
 
