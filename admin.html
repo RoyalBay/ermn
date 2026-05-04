@@ -226,7 +226,7 @@ let allUsers = [];
 async function loadUsers() {
   const el = document.getElementById("usersBody");
   el.innerHTML = "<div class='empty-msg'>Loading...</div>";
-  const { data: users, error } = await sb.from("users").select("*").order("created_at",{ascending:false});
+  const { data: users, error } = await sb.from("users").select("username, verified, is_developer, pic, created_at, is_banned").order("created_at",{ascending:false});
   if (error) { el.innerHTML = "<div class='empty-msg'>Error: " + error.message + "</div>"; return; }
   allUsers = (users||[]).filter(u => u.is_banned !== true);
   renderUsers(allUsers);
@@ -262,7 +262,7 @@ function filterUsers() {
 async function loadBanned() {
   const el = document.getElementById("bannedBody");
   el.innerHTML = "<div class='empty-msg'>Loading...</div>";
-  const { data: banned } = await sb.from("banned_users").select("*").order("banned_at",{ascending:false});
+  const { data: banned } = await sb.from("banned_users").select("username, original_username, banned_at").order("banned_at",{ascending:false});
   if (!banned||!banned.length) { el.innerHTML = "<div class='empty-msg'>No banned users.</div>"; return; }
   let html = '<table><tr><th>Type</th><th>Identifier</th><th>Original User</th><th>Banned At</th><th>Action</th></tr>';
   for (const b of banned) {

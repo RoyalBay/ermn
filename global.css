@@ -1,0 +1,33 @@
+:root {
+  --accent: #3b5998;
+  --accent2: #8b9dc3;
+  --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
+  --card-bg: #fff;
+  --topbar-bg: #3b5998;
+  --text: #333;
+  --border: #b0b7c3;
+  --card-header: linear-gradient(180deg,#e8edf7,#d8e0f0);
+  --input-bg: #fafafa;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:var(--text); min-height:100vh; font-size:13px; }
+
+/* Topbar */
+.topbar { background:var(--topbar-bg); height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.3); border-bottom:2px solid rgba(0,0,0,0.2); }
+.topbar-logo { font-size:22px; font-weight:bold; color:white; letter-spacing:-1px; font-style:italic; text-shadow:1px 1px 2px rgba(0,0,0,0.3); }
+.topbar-nav { display:flex; gap:4px; margin-left:10px; }
+.topbar-nav a { color:rgba(255,255,255,0.85); font-size:12px; text-decoration:none; padding:4px 8px; border-radius:2px; }
+.topbar-nav a:hover { background:rgba(255,255,255,0.15); color:white; }
+.topbar-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
+.topbar-right button { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; }
+.topbar-right button:hover { background:rgba(255,255,255,0.35); }
+
+/* Material Icons Helper */
+.material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
+.topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+
+/* Cards */
+.card { background:var(--card-bg); border:1px solid var(--border); margin-bottom:12px; }
+.card-title { background:var(--card-header); border-bottom:1px solid var(--border); padding:6px 12px; font-size:13px; font-weight:bold; color:var(--accent); display:flex; justify-content:space-between; align-items:center; }
+.card-body { padding:14px; }

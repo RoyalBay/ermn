@@ -241,16 +241,4 @@ begin
 end
 $$;
 
--- ADMIN: PURE USERNAME RECYCLING
--- This function allows admins to delete users from auth.users, freeing up their username/email.
-create or replace function public.admin_delete_user(target_id uuid)
-returns void as $$
-begin
-  if exists (select 1 from public.users where id = auth.uid() and is_admin = true) then
-    delete from auth.users where id = target_id;
-  else
-    raise exception 'Unauthorized';
-  end if;
-end;
-$$ language plpgsql security definer;
 
