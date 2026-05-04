@@ -361,14 +361,23 @@ function setTradeMode(mode) {
 
 function updateTradeSummary() {
   const amt = parseFloat(document.getElementById("tradeAmount").value) || 0;
-  document.getElementById("tradeSummaryValue").innerText = (amt * currentPricePoints).toFixed(2) + " Points";
+  const priceChange = amt * 0.001;
+  let total = 0;
+  if (tradeMode === 'buy') {
+    total = amt * (currentPricePoints + priceChange / 2);
+  } else {
+    total = Math.max(0, amt * (currentPricePoints - priceChange / 2));
+  }
+  document.getElementById("tradeSummaryValue").innerText = total.toFixed(2) + " Points";
 }
 
 async function executeTrade() {
   const amt = parseFloat(document.getElementById("tradeAmount").value);
   if (!amt || amt <= 0) { await uiAlert("Enter a valid amount."); return; }
   
-  const totalPoints = amt * currentPricePoints;
+  const priceChange = amt * 0.001;
+  const totalPoints = tradeMode === 'buy' ? amt * (currentPricePoints + priceChange / 2) : Math.max(0, amt * (currentPricePoints - priceChange / 2));
+  
   if (tradeMode === 'buy' && totalPoints > myPoints) { await uiAlert("Insufficient Points balance."); return; }
   if (tradeMode === 'sell' && amt > myBalance) { await uiAlert("Insufficient ERN balance."); return; }
   
