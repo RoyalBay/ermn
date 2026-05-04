@@ -2,6 +2,48 @@
 -- HARDENED ROW LEVEL SECURITY (RLS) FOR ERMN
 -- ============================================================
 
+-- 0. Schema Hardening & Sync Fixes
+-- Ensure missing columns exist in users table to prevent trigger failures
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS equipped_background text DEFAULT NULL;
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS equipped_shell text DEFAULT NULL;
+
+-- Robust handle_new_user function to sync auth.users to public.users
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  -- Insert into public.users with conflict handling
+  INSERT INTO public.users (id, username, email)
+  VALUES (
+    new.id, 
+    COALESCE(new.raw_user_meta_data->>'username', 'user_' || substr(new.id::text, 1, 8)),
+    new.email
+  )
+  ON CONFLICT (id) DO UPDATE SET
+    username = EXCLUDED.username,
+    email = EXCLUDED.email;
+
+  -- Automatically create a wallet for the new user if it doesn't exist
+  IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'ermnium_wallets') THEN
+    INSERT INTO public.ermnium_wallets (username, balance, points_balance)
+    VALUES (
+      COALESCE(new.raw_user_meta_data->>'username', 'user_' || substr(new.id::text, 1, 8)),
+      0,
+      10 -- Starter points
+    )
+    ON CONFLICT (username) DO NOTHING;
+  END IF;
+
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Re-apply trigger to ensure it uses the new function
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+
+
 -- 1. Helper Functions
 CREATE OR REPLACE FUNCTION public.is_not_banned()
 RETURNS boolean AS $$
