@@ -182,6 +182,7 @@ async function login() {
         setMsg("Invalid admin secret.", true);
         return;
       }
+      sessionStorage.setItem("adminSecret", secret);
     }
   } else {
     localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);

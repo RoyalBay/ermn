@@ -1,8 +1,8 @@
 -- ============================================================
--- ENHANCED ROW LEVEL SECURITY (RLS) FOR ERMN
+-- HARDENED ROW LEVEL SECURITY (RLS) FOR ERMN
 -- ============================================================
 
--- 1. Helper Function: Check if user is banned
+-- 1. Helper Functions
 CREATE OR REPLACE FUNCTION public.is_not_banned()
 RETURNS boolean AS $$
 BEGIN
@@ -13,7 +13,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 2. Helper Function: Check if user is admin
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS boolean AS $$
 BEGIN
@@ -24,12 +23,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- 3. POSTS: Better Visibility & Mutation Controls
-DROP POLICY IF EXISTS "Posts are viewable by everyone" ON posts;
-DROP POLICY IF EXISTS "Authenticated users can create posts" ON posts;
-DROP POLICY IF EXISTS "Owners or admins can update/delete posts" ON posts;
+-- 2. USERS TABLE
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Public profiles are viewable by everyone" ON users;
+DROP POLICY IF EXISTS "Users can update own profile" ON users;
 
--- Select: Anyone can see public posts, but private posts only to followers/owner
+CREATE POLICY "Public profiles are viewable by everyone" ON users FOR SELECT USING (true);
+
+-- Only allow updating specific non-sensitive fields
+CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (
+  auth.uid() = id AND public.is_not_banned()
+) WITH CHECK (
+  auth.uid() = id AND 
+  -- Ensure sensitive flags are NOT changed by the user
+  is_admin = (SELECT is_admin FROM users WHERE id = auth.uid()) AND
+  is_developer = (SELECT is_developer FROM users WHERE id = auth.uid()) AND
+  is_banned = (SELECT is_banned FROM users WHERE id = auth.uid()) AND
+  username = (SELECT username FROM users WHERE id = auth.uid())
+);
+
+-- 3. POSTS TABLE
+ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Posts visibility" ON posts;
+DROP POLICY IF EXISTS "Authenticated users can create posts" ON posts;
+DROP POLICY IF EXISTS "Owners or admins can modify posts" ON posts;
+
 CREATE POLICY "Posts visibility" ON posts FOR SELECT USING (
   EXISTS (
     SELECT 1 FROM users u
@@ -43,61 +61,72 @@ CREATE POLICY "Posts visibility" ON posts FOR SELECT USING (
   )
 );
 
--- Insert: Only non-banned authenticated users
-CREATE POLICY "Authenticated users can create posts" ON posts FOR INSERT WITH CHECK (
+CREATE POLICY "Owners can insert posts" ON posts FOR INSERT WITH CHECK (
   auth.role() = 'authenticated' AND 
   public.is_not_banned() AND
   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND username = posts.username)
 );
 
--- Update/Delete: Owners or Admins
-CREATE POLICY "Owners or admins can modify posts" ON posts FOR ALL USING (
-  auth.role() = 'authenticated' AND (
-    (EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND username = posts.username) AND public.is_not_banned()) OR
-    public.is_admin()
-  )
+CREATE POLICY "Owners can update posts" ON posts FOR UPDATE USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND username = posts.username) AND
+  public.is_not_banned()
 );
 
--- 4. USERS: Protect sensitive fields
-DROP POLICY IF EXISTS "Users can update own profile" ON users;
-CREATE POLICY "Users can update own profile" ON users FOR UPDATE USING (
-  auth.uid() = id AND public.is_not_banned()
-) WITH CHECK (
-  auth.uid() = id AND 
-  (is_admin = (SELECT is_admin FROM users WHERE id = auth.uid())) -- Prevent self-promotion to admin
+-- Note: Deleting posts is handled via Secure RPC for Admins, 
+-- but we allow owners to delete their own.
+CREATE POLICY "Owners can delete posts" ON posts FOR DELETE USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND username = posts.username) AND
+  public.is_not_banned()
 );
 
--- 5. LIKES: Prevent banned likes
+-- 4. LIKES TABLE
+ALTER TABLE likes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Anyone can see likes" ON likes;
 DROP POLICY IF EXISTS "Authenticated users can like" ON likes;
-CREATE POLICY "Authenticated users can like" ON likes FOR INSERT WITH CHECK (
+DROP POLICY IF EXISTS "Owners can unlike" ON likes;
+
+CREATE POLICY "Anyone can see likes" ON likes FOR SELECT USING (true);
+
+CREATE POLICY "Owners can like" ON likes FOR INSERT WITH CHECK (
   auth.role() = 'authenticated' AND public.is_not_banned() AND
   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND username = likes.username)
 );
 
--- 6. COMMENTS: Privacy matching posts
-DROP POLICY IF EXISTS "Anyone can read comments" ON comments;
-CREATE POLICY "Comments visibility" ON comments FOR SELECT USING (
-  EXISTS (
-    SELECT 1 FROM posts p
-    WHERE p.id = comments.post_id
-  ) -- Selection is already restricted by "Posts visibility" via joining in app logic, 
-    -- but we can explicitly check if the post is visible.
+CREATE POLICY "Owners can unlike" ON likes FOR DELETE USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND username = likes.username) AND
+  public.is_not_banned()
 );
 
+-- 5. COMMENTS TABLE
+ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Comments visibility" ON comments;
 DROP POLICY IF EXISTS "Authenticated users can comment" ON comments;
-CREATE POLICY "Authenticated users can comment" ON comments FOR INSERT WITH CHECK (
+DROP POLICY IF EXISTS "Owners or admins can delete comments" ON comments;
+
+CREATE POLICY "Comments visibility" ON comments FOR SELECT USING (
+  EXISTS (SELECT 1 FROM posts p WHERE p.id = comments.post_id)
+);
+
+CREATE POLICY "Owners can comment" ON comments FOR INSERT WITH CHECK (
   auth.role() = 'authenticated' AND public.is_not_banned() AND
   EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND username = comments.username)
 );
 
--- 7. BANNED_USERS: Only admins can manage, everyone can see
-DROP POLICY IF EXISTS "Admins can manage banned users" ON banned_users;
-CREATE POLICY "Admins can manage banned users" ON banned_users FOR ALL USING (
-  public.is_admin()
+CREATE POLICY "Owners can delete own comments" ON comments FOR DELETE USING (
+  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND username = comments.username) AND
+  public.is_not_banned()
 );
 
--- 8. FOLLOW_REQUESTS: Secure handling
-DROP POLICY IF EXISTS "Users can manage their own follow requests" ON follow_requests;
-CREATE POLICY "Users can manage their own follow requests" ON follow_requests FOR ALL USING (
-  EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND (username = requester OR username = target))
-);
+-- 6. BANNED_USERS & REPORTS (ADMIN ONLY)
+ALTER TABLE banned_users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reports ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Admins can manage banned users" ON banned_users;
+DROP POLICY IF EXISTS "Anyone can check ban status" ON banned_users;
+CREATE POLICY "Anyone can check ban status" ON banned_users FOR SELECT USING (true);
+-- No direct mutations allowed; must use Secure RPC.
+
+DROP POLICY IF EXISTS "Admins can view reports" ON reports;
+DROP POLICY IF EXISTS "Authenticated users can report" ON reports;
+CREATE POLICY "Admins can view reports" ON reports FOR SELECT USING (public.is_admin());
+CREATE POLICY "Users can report" ON reports FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND public.is_not_banned());

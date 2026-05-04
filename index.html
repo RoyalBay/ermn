@@ -414,6 +414,7 @@
             setMsg("Access denied: Invalid admin secret.", true);
             return;
           }
+          sessionStorage.setItem("adminSecret", secret);
         }
       } else {
         // Fallback to metadata if profile not yet synced

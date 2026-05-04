@@ -283,10 +283,9 @@ async function del(postId) {
 async function adminDelPost(postId) {
   if (!isAdmin()) return;
   if (!(await uiConfirm("Admin: permanently delete this post?"))) return;
-  await sb.from("likes").delete().eq("post_id",postId);
-  await sb.from("comments").delete().eq("post_id",postId);
-  await sb.from("reports").delete().eq("post_id",postId);
-  await sb.from("posts").delete().eq("id",postId);
+  const secret = sessionStorage.getItem("adminSecret");
+  const { error } = await sb.rpc('admin_delete_post_secure', { target_post_id: postId, provided_secret: secret });
+  if (error) { await uiAlert("Admin Error: " + error.message); return; }
   await render();
 }
 
@@ -297,58 +296,25 @@ async function adminBanUser(username, skipConfirm=false) {
   
   if (!skipConfirm && !(await uiConfirm("Admin: ban @"+username+"? This deletes all their content and blocks their account."))) return;
   
-  // Ask if the username should be permanently prohibited (slurs/bad words)
-  const isProhibited = !skipConfirm && await uiConfirm("Is this username a slur or forbidden word? (Click OK to permanently block this NAME, Cancel to free it for others)");
-
-  // Get user ID first
-  const { data: user } = await sb.from("users").select("id").eq("username", username).maybeSingle();
-  if (!user) { await uiAlert("User record not found."); return; }
-
-  const { data: userPosts } = await sb.from("posts").select("id").eq("username",username);
-  if (userPosts && userPosts.length) {
-    const ids = userPosts.map(p=>p.id);
-    await sb.from("likes").delete().in("post_id",ids);
-    await sb.from("comments").delete().in("post_id",ids);
-    await sb.from("reports").delete().in("post_id",ids);
-  }
+  const secret = sessionStorage.getItem("adminSecret");
+  const { error } = await sb.rpc('admin_ban_user_secure', { target_username: username, provided_secret: secret });
   
-  // Delete all activity
-  await sb.from("posts").delete().eq("username",username);
-  await sb.from("comments").delete().eq("username",username);
-  await sb.from("likes").delete().eq("username",username);
-  await sb.from("follows").delete().eq("follower",username);
-  await sb.from("follows").delete().eq("following",username);
-  
-  // Ban the account ID
-  await sb.from("banned_users").upsert({ 
-    username: "id:" + user.id, 
-    original_username: username 
-  });
-  
-  // If slur, also ban the username permanently
-  if (isProhibited) {
-    await sb.from("banned_users").upsert({ username: username.toLowerCase() });
-  }
-
-  // Pure Username Recycling: Delete the user from auth.users via RPC
-  // This frees up the "username@ermn.social" email for others to claim.
-  const { error: rpcErr } = await sb.rpc('admin_delete_user', { target_id: user.id });
-  if (rpcErr) {
-    console.error("RPC Delete failed, falling back to ghosting:", rpcErr);
-    // Fallback: Rename banned user to free the name if RPC fails
-    const ghostName = "ghost_" + user.id.split("-")[0] + "_" + Math.floor(Math.random()*1000);
-    await sb.from("users").update({ username: ghostName, is_banned: true }).eq("id", user.id);
+  if (error) {
+    await uiAlert("Admin Error: " + error.message);
+    return;
   }
 
   if (typeof render === "function") await render();
-  await uiAlert("@"+username+" has been banned. " + (isProhibited ? "The username is now prohibited." : "The username is now available for recycling."));
+  await uiAlert("@"+username+" has been banned. Their content has been restricted.");
 }
 
 /* ── ADMIN: delete any comment ── */
 async function adminDelComment(commentId, postId) {
   if (!isAdmin()) return;
   if (!(await uiConfirm("Admin: delete this comment?"))) return;
-  await sb.from("comments").delete().eq("id",commentId);
+  const secret = sessionStorage.getItem("adminSecret");
+  const { error } = await sb.rpc('admin_delete_comment_secure', { target_comment_id: commentId, provided_secret: secret });
+  if (error) { await uiAlert("Admin Error: " + error.message); return; }
   await loadComments(postId);
 }
 
