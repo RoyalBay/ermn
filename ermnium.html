@@ -112,7 +112,7 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
     <div class="card">
       <div class="card-body price-hero">
         <div class="ern-logo">◈ ermnium</div>
-        <div class="price-big" id="currentPrice">$0.1000 CAD</div>
+        <div class="price-big" id="currentPrice">1.0000 Points</div>
         <span class="price-change up" id="priceChange">+0.00%</span>
         <div class="supply" id="supplyInfo">Total Supply: 0 ERN</div>
       </div>
@@ -120,10 +120,18 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
 
     <!-- CHART -->
     <div class="card">
-      <div class="card-title"><span class="material-icons">show_chart</span> Price Chart</div>
+      <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span><span class="material-icons">show_chart</span> Price Chart</span>
+        <div class="chart-controls" id="timeframeControls">
+          <button onclick="setTimeframe(1)" id="tf1h">1H</button>
+          <button onclick="setTimeframe(6)" id="tf6h">6H</button>
+          <button onclick="setTimeframe(24)" id="tf24h" class="active">1D</button>
+          <button onclick="setTimeframe(168)" id="tf1w">1W</button>
+          <button onclick="setTimeframe(0)" id="tfAll">All</button>
+        </div>
+      </div>
       <div class="card-body">
         <canvas id="chartCanvas"></canvas>
-        <div id="chartTooltip" style="display:none;position:absolute;background:#333;color:white;padding:4px 8px;font-size:11px;border-radius:2px;pointer-events:none;z-index:10;"></div>
       </div>
     </div>
 
@@ -142,14 +150,14 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
       <div class="card-title"><span class="material-icons">account_balance_wallet</span> My Wallet</div>
       <div class="card-body">
         <div class="wallet-balance" id="walletBalance">0.00 ERN</div>
-        <div class="wallet-cad" id="walletCad">≈ $0.00 CAD</div>
+        <div class="wallet-cad" id="walletPoints">0.00 Points</div>
         <div class="wallet-stats">
           <span>Bought: <strong id="walletBought">0</strong></span>
           <span>Sold: <strong id="walletSold">0</strong></span>
         </div>
         <div id="bonusBanner" style="display:none;margin-top:10px;background:#fff8e1;border:1px solid #ffe082;padding:8px;text-align:center;">
           <div style="font-size:12px;color:#f57f17;font-weight:bold;">🎁 Welcome Bonus Available!</div>
-          <button onclick="claimBonus()" style="margin-top:6px;background:#f57f17;color:white;border:none;padding:6px 16px;font-weight:bold;cursor:pointer;font-family:inherit;">Claim 100 ERN</button>
+          <button onclick="claimBonus()" style="margin-top:6px;background:#f57f17;color:white;border:none;padding:6px 16px;font-weight:bold;cursor:pointer;font-family:inherit;">Claim 10 Points</button>
         </div>
       </div>
     </div>
@@ -166,7 +174,7 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
         <input type="number" id="tradeAmount" min="1" step="1" value="10" oninput="updateTradeSummary()">
         <div class="trade-summary">
           <span id="tradeSummaryLabel">Cost:</span>
-          <span id="tradeSummaryValue">$1.00 CAD</span>
+          <span id="tradeSummaryValue">10.00 Points</span>
         </div>
         <button class="trade-btn buy" id="tradeBtn" onclick="executeTrade()">Buy ERN</button>
       </div>
@@ -191,29 +199,33 @@ if (!localStorage.getItem("currentUser")) location.href = "index.html";
 applyTheme();
 
 let tradeMode = 'buy';
-let currentPriceCad = 0.10;
+let currentPricePoints = 1.0;
 let priceHistory = [];
 let myBalance = 0;
+let myPoints = 0;
 let myInventory = new Set();
+let currentTimeframe = 24; // Hours
 
 // ── LOAD ALL DATA ──
 async function loadErmnium() {
   const [configRes, walletRes, txRes, shopRes, invRes] = await Promise.all([
-    sb.from("ermnium_config").select("price_cad, price_history, total_supply").eq("id",1).single(),
-    sb.from("ermnium_wallets").select("balance, total_bought, total_sold").eq("username", currentUser || localStorage.getItem("currentUser")).maybeSingle(),
-    sb.from("ermnium_transactions").select("type, amount, price_cad, total_cad, item_name, created_at").order("created_at",{ascending:false}).limit(20),
+    sb.from("ermnium_config").select("price_points, price_history, total_supply").eq("id",1).single(),
+    sb.from("ermnium_wallets").select("balance, points_balance, total_bought, total_sold").eq("username", currentUser || localStorage.getItem("currentUser")).maybeSingle(),
+    sb.from("ermnium_transactions").select("type, amount, price_points, total_points, item_name, created_at").order("created_at",{ascending:false}).limit(20),
     sb.from("ermnium_shop").select("*").order("price_ern",{ascending:true}),
     sb.from("ermnium_inventory").select("item_id").eq("username", currentUser || localStorage.getItem("currentUser"))
   ]);
 
   // Config
   if (configRes.data) {
-    currentPriceCad = parseFloat(configRes.data.price_cad);
+    currentPricePoints = parseFloat(configRes.data.price_points);
     priceHistory = configRes.data.price_history || [];
-    document.getElementById("currentPrice").innerText = "$" + currentPriceCad.toFixed(4) + " CAD";
+    document.getElementById("currentPrice").innerText = currentPricePoints.toFixed(4) + " Points";
     document.getElementById("supplyInfo").innerText = "Total Supply: " + Math.round(configRes.data.total_supply) + " ERN";
-    if (priceHistory.length >= 2) {
-      const first = priceHistory[0].p, last = priceHistory[priceHistory.length-1].p;
+    
+    const filtered = filterHistory(priceHistory, currentTimeframe);
+    if (filtered.length >= 2) {
+      const first = filtered[0].p, last = filtered[filtered.length-1].p;
       const pct = ((last - first) / first * 100).toFixed(2);
       const el = document.getElementById("priceChange");
       el.innerText = (pct >= 0 ? "+" : "") + pct + "%";
@@ -225,10 +237,12 @@ async function loadErmnium() {
   // Wallet
   if (walletRes.data) {
     myBalance = parseFloat(walletRes.data.balance);
+    myPoints = parseFloat(walletRes.data.points_balance);
     document.getElementById("walletBalance").innerText = myBalance.toFixed(2) + " ERN";
-    document.getElementById("walletCad").innerText = "≈ $" + (myBalance * currentPriceCad).toFixed(2) + " CAD";
+    document.getElementById("walletPoints").innerText = myPoints.toFixed(2) + " Points";
     document.getElementById("walletBought").innerText = Math.round(walletRes.data.total_bought);
     document.getElementById("walletSold").innerText = Math.round(walletRes.data.total_sold);
+    document.getElementById("bonusBanner").style.display = "none";
   } else {
     document.getElementById("bonusBanner").style.display = "block";
   }
@@ -238,7 +252,7 @@ async function loadErmnium() {
   if (txRes.data && txRes.data.length) {
     txEl.innerHTML = "";
     txRes.data.forEach(tx => {
-      const label = tx.type === 'purchase' ? tx.item_name : (tx.total_cad ? "$"+parseFloat(tx.total_cad).toFixed(2)+" CAD" : "");
+      const label = tx.type === 'purchase' ? tx.item_name : (tx.total_points ? parseFloat(tx.total_points).toFixed(2)+" Pts" : "");
       txEl.innerHTML += '<div class="tx-row"><div><span class="tx-type '+tx.type+'">'+tx.type+'</span> '+parseFloat(tx.amount).toFixed(0)+' ERN</div><div style="color:#888;">'+label+'</div></div>';
     });
   } else { txEl.innerHTML = '<div style="color:#888;font-style:italic;">No transactions yet.</div>'; }
@@ -253,6 +267,26 @@ async function loadErmnium() {
   updateTradeSummary();
 }
 
+function setTimeframe(hours) {
+  currentTimeframe = hours;
+  const buttons = document.querySelectorAll("#timeframeControls button");
+  buttons.forEach(b => b.classList.remove("active"));
+  if (hours === 1) document.getElementById("tf1h").classList.add("active");
+  else if (hours === 6) document.getElementById("tf6h").classList.add("active");
+  else if (hours === 24) document.getElementById("tf24h").classList.add("active");
+  else if (hours === 168) document.getElementById("tf1w").classList.add("active");
+  else if (hours === 0) document.getElementById("tfAll").classList.add("active");
+  
+  loadErmnium();
+}
+
+function filterHistory(history, hours) {
+  if (hours === 0) return history;
+  const now = Math.floor(Date.now() / 1000);
+  const cutoff = now - (hours * 3600);
+  return history.filter(h => h.t >= cutoff);
+}
+
 // ── CHART ──
 function drawChart() {
   const canvas = document.getElementById("chartCanvas");
@@ -265,14 +299,16 @@ function drawChart() {
   const W = rect.width, H = rect.height;
   ctx.clearRect(0,0,W,H);
 
-  if (priceHistory.length < 2) {
+  const filtered = filterHistory(priceHistory, currentTimeframe);
+
+  if (filtered.length < 2) {
     ctx.fillStyle = "#888"; ctx.font = "13px Tahoma";
-    ctx.textAlign = "center"; ctx.fillText("Not enough data yet — trade to generate chart data!", W/2, H/2);
+    ctx.textAlign = "center"; ctx.fillText("Not enough data in this timeframe.", W/2, H/2);
     return;
   }
 
-  const prices = priceHistory.map(p => p.p);
-  const minP = Math.min(...prices) * 0.98, maxP = Math.max(...prices) * 1.02;
+  const prices = filtered.map(p => p.p);
+  const minP = Math.min(...prices) * 0.99, maxP = Math.max(...prices) * 1.01;
   const range = maxP - minP || 0.01;
   const padL=45,padR=10,padT=15,padB=25;
   const cW=W-padL-padR, cH=H-padT-padB;
@@ -281,7 +317,7 @@ function drawChart() {
   ctx.strokeStyle="#e8e8e8"; ctx.lineWidth=1;
   for(let i=0;i<=4;i++){const y=padT+cH*(i/4); ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
     ctx.fillStyle="#999";ctx.font="10px Tahoma";ctx.textAlign="right";
-    ctx.fillText("$"+(maxP-range*(i/4)).toFixed(3),padL-4,y+3);
+    ctx.fillText((maxP-range*(i/4)).toFixed(3),padL-4,y+3);
   }
 
   // Line + gradient fill
@@ -308,10 +344,6 @@ function drawChart() {
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   }
   ctx.strokeStyle=isUp?"#27ae60":"#e74c3c"; ctx.lineWidth=2; ctx.stroke();
-
-  // Last price dot
-  const lastX=padL+cW, lastY=padT+cH*(1-(prices[prices.length-1]-minP)/range);
-  ctx.beginPath();ctx.arc(lastX,lastY,4,0,Math.PI*2);ctx.fillStyle=isUp?"#27ae60":"#e74c3c";ctx.fill();
 }
 
 // ── TRADE ──
@@ -329,29 +361,34 @@ function setTradeMode(mode) {
 
 function updateTradeSummary() {
   const amt = parseFloat(document.getElementById("tradeAmount").value) || 0;
-  document.getElementById("tradeSummaryValue").innerText = "$" + (amt * currentPriceCad).toFixed(2) + " CAD";
+  document.getElementById("tradeSummaryValue").innerText = (amt * currentPricePoints).toFixed(2) + " Points";
 }
 
 async function executeTrade() {
   const amt = parseFloat(document.getElementById("tradeAmount").value);
   if (!amt || amt <= 0) { await uiAlert("Enter a valid amount."); return; }
+  
+  const totalPoints = amt * currentPricePoints;
+  if (tradeMode === 'buy' && totalPoints > myPoints) { await uiAlert("Insufficient Points balance."); return; }
   if (tradeMode === 'sell' && amt > myBalance) { await uiAlert("Insufficient ERN balance."); return; }
+  
   const conf = await uiConfirm(tradeMode==="buy"
-    ? "Buy "+amt+" ERN for $"+(amt*currentPriceCad).toFixed(2)+" CAD?"
-    : "Sell "+amt+" ERN for $"+(amt*currentPriceCad).toFixed(2)+" CAD?");
+    ? "Buy "+amt+" ERN for "+totalPoints.toFixed(2)+" Points?"
+    : "Sell "+amt+" ERN for "+totalPoints.toFixed(2)+" Points?");
   if (!conf) return;
+  
   document.getElementById("tradeBtn").disabled = true;
   const { data, error } = await sb.rpc("ermnium_trade",{trade_type:tradeMode,trade_amount:amt});
   document.getElementById("tradeBtn").disabled = false;
   if (error) { await uiAlert("Trade Error: "+error.message); return; }
-  await uiAlert("Trade complete! New balance: "+parseFloat(data.new_balance).toFixed(2)+" ERN");
+  await uiAlert("Trade complete!");
   loadErmnium();
 }
 
 async function claimBonus() {
   const { data, error } = await sb.rpc("ermnium_claim_bonus");
   if (error) { await uiAlert("Error: "+error.message); return; }
-  if (data.success) { await uiAlert("🎁 You received 100 ERN!"); }
+  if (data.success) { await uiAlert("🎁 You received 10 Points!"); }
   else { await uiAlert(data.reason); }
   document.getElementById("bonusBanner").style.display = "none";
   loadErmnium();

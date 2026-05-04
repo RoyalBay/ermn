@@ -1,25 +1,26 @@
 -- ============================================================
--- ERMNIUM SCHEMA — Virtual Currency for ermn
+-- ERMNIUM SCHEMA — Virtual Currency for ermn (POINTS EDITION)
 -- ============================================================
 
 -- 1. Global config (single row)
 CREATE TABLE IF NOT EXISTS ermnium_config (
   id int PRIMARY KEY DEFAULT 1 CHECK (id = 1),
-  price_cad numeric NOT NULL DEFAULT 0.10,
+  price_points numeric NOT NULL DEFAULT 1.0, -- Default: 1 ERN = 1 Point
   price_history jsonb NOT NULL DEFAULT '[]'::jsonb,
   total_supply numeric NOT NULL DEFAULT 0,
   updated_at timestamptz DEFAULT now()
 );
 
 -- Seed the initial config row
-INSERT INTO ermnium_config (id, price_cad, price_history, total_supply)
-VALUES (1, 0.10, '[]'::jsonb, 0)
+INSERT INTO ermnium_config (id, price_points, price_history, total_supply)
+VALUES (1, 1.0, '[]'::jsonb, 0)
 ON CONFLICT (id) DO NOTHING;
 
 -- 2. Per-user wallets
 CREATE TABLE IF NOT EXISTS ermnium_wallets (
   username text PRIMARY KEY REFERENCES users(username) ON DELETE CASCADE,
-  balance numeric NOT NULL DEFAULT 0,
+  balance numeric NOT NULL DEFAULT 0, -- Ermnium Balance
+  points_balance numeric NOT NULL DEFAULT 0, -- Points Balance (The Base Currency)
   total_bought numeric NOT NULL DEFAULT 0,
   total_sold numeric NOT NULL DEFAULT 0,
   created_at timestamptz DEFAULT now()
@@ -30,9 +31,9 @@ CREATE TABLE IF NOT EXISTS ermnium_transactions (
   id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
   username text NOT NULL REFERENCES users(username) ON DELETE CASCADE,
   type text NOT NULL CHECK (type IN ('buy', 'sell', 'purchase', 'signup_bonus')),
-  amount numeric NOT NULL,
-  price_cad numeric,
-  total_cad numeric,
+  amount numeric NOT NULL, -- ERN amount
+  price_points numeric, -- Price in points
+  total_points numeric, -- Total points traded
   item_name text,
   created_at timestamptz DEFAULT now()
 );
@@ -82,7 +83,8 @@ RETURNS jsonb AS $$
 DECLARE
   current_price numeric;
   trade_total numeric;
-  user_balance numeric;
+  user_balance_ern numeric;
+  user_balance_points numeric;
   user_name text;
   new_price numeric;
   price_change numeric;
@@ -104,23 +106,29 @@ BEGIN
   END IF;
 
   -- Lock and get current price
-  SELECT price_cad, price_history INTO current_price, history
+  SELECT price_points, price_history INTO current_price, history
   FROM ermnium_config WHERE id = 1 FOR UPDATE;
 
   trade_total := trade_amount * current_price;
 
   -- Ensure wallet exists
-  INSERT INTO ermnium_wallets (username, balance)
-  VALUES (user_name, 0)
+  INSERT INTO ermnium_wallets (username, balance, points_balance)
+  VALUES (user_name, 0, 0)
   ON CONFLICT (username) DO NOTHING;
 
-  -- Get user balance
-  SELECT balance INTO user_balance FROM ermnium_wallets WHERE username = user_name;
+  -- Get user balances
+  SELECT balance, points_balance INTO user_balance_ern, user_balance_points 
+  FROM ermnium_wallets WHERE username = user_name;
 
   IF trade_type = 'buy' THEN
+    IF user_balance_points < trade_total THEN
+      RAISE EXCEPTION 'Insufficient Points. Need %, have %', trade_total, user_balance_points;
+    END IF;
+
     -- Update wallet
     UPDATE ermnium_wallets SET
       balance = balance + trade_amount,
+      points_balance = points_balance - trade_total,
       total_bought = total_bought + trade_amount
     WHERE username = user_name;
 
@@ -128,13 +136,13 @@ BEGIN
     price_change := (trade_amount * 0.001) + (random() * 0.005 - 0.0025);
     new_price := GREATEST(0.01, current_price + price_change);
 
-    -- Update global supply
+    -- Update global config
     UPDATE ermnium_config SET
-      price_cad = ROUND(new_price, 4),
+      price_points = ROUND(new_price, 4),
       total_supply = total_supply + trade_amount,
       price_history = (
         CASE
-          WHEN jsonb_array_length(history) >= 200
+          WHEN jsonb_array_length(history) >= 1000
           THEN (history - 0) || jsonb_build_array(jsonb_build_object('t', extract(epoch from now())::bigint, 'p', ROUND(new_price, 4)))
           ELSE history || jsonb_build_array(jsonb_build_object('t', extract(epoch from now())::bigint, 'p', ROUND(new_price, 4)))
         END
@@ -143,13 +151,14 @@ BEGIN
     WHERE id = 1;
 
   ELSIF trade_type = 'sell' THEN
-    IF user_balance < trade_amount THEN
-      RAISE EXCEPTION 'Insufficient ERN balance. You have % ERN', user_balance;
+    IF user_balance_ern < trade_amount THEN
+      RAISE EXCEPTION 'Insufficient ERN balance. You have % ERN', user_balance_ern;
     END IF;
 
     -- Update wallet
     UPDATE ermnium_wallets SET
       balance = balance - trade_amount,
+      points_balance = points_balance + trade_total,
       total_sold = total_sold + trade_amount
     WHERE username = user_name;
 
@@ -157,13 +166,13 @@ BEGIN
     price_change := (trade_amount * 0.001) + (random() * 0.005 - 0.0025);
     new_price := GREATEST(0.01, current_price - price_change);
 
-    -- Update global supply
+    -- Update global config
     UPDATE ermnium_config SET
-      price_cad = ROUND(new_price, 4),
+      price_points = ROUND(new_price, 4),
       total_supply = GREATEST(0, total_supply - trade_amount),
       price_history = (
         CASE
-          WHEN jsonb_array_length(history) >= 200
+          WHEN jsonb_array_length(history) >= 1000
           THEN (history - 0) || jsonb_build_array(jsonb_build_object('t', extract(epoch from now())::bigint, 'p', ROUND(new_price, 4)))
           ELSE history || jsonb_build_array(jsonb_build_object('t', extract(epoch from now())::bigint, 'p', ROUND(new_price, 4)))
         END
@@ -173,21 +182,22 @@ BEGIN
   END IF;
 
   -- Log transaction
-  INSERT INTO ermnium_transactions (username, type, amount, price_cad, total_cad)
+  INSERT INTO ermnium_transactions (username, type, amount, price_points, total_points)
   VALUES (user_name, trade_type, trade_amount, current_price, trade_total);
 
   -- Return updated state
   RETURN jsonb_build_object(
     'success', true,
     'new_balance', (SELECT balance FROM ermnium_wallets WHERE username = user_name),
+    'new_points', (SELECT points_balance FROM ermnium_wallets WHERE username = user_name),
     'new_price', new_price,
-    'trade_total_cad', trade_total
+    'trade_total_points', trade_total
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================================
--- RPC: PURCHASE SHOP ITEM
+-- RPC: PURCHASE SHOP ITEM (using ERN)
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.ermnium_purchase_item(target_item_id bigint)
 RETURNS jsonb AS $$
@@ -210,7 +220,7 @@ BEGIN
   IF item_price IS NULL THEN RAISE EXCEPTION 'Item not found'; END IF;
 
   -- Ensure wallet exists
-  INSERT INTO ermnium_wallets (username, balance) VALUES (user_name, 0) ON CONFLICT DO NOTHING;
+  INSERT INTO ermnium_wallets (username, balance, points_balance) VALUES (user_name, 0, 0) ON CONFLICT (username) DO NOTHING;
 
   -- Check balance
   SELECT balance INTO user_balance FROM ermnium_wallets WHERE username = user_name;
@@ -237,56 +247,7 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- ============================================================
--- RPC: EQUIP COSMETIC
--- ============================================================
-CREATE OR REPLACE FUNCTION public.ermnium_equip_item(target_item_id bigint)
-RETURNS void AS $$
-DECLARE
-  user_name text;
-  item_type text;
-  item_css text;
-BEGIN
-  SELECT username INTO user_name FROM public.users WHERE id = auth.uid();
-  IF user_name IS NULL THEN RAISE EXCEPTION 'Not authenticated'; END IF;
-
-  -- Check ownership
-  IF NOT EXISTS (SELECT 1 FROM ermnium_inventory WHERE username = user_name AND item_id = target_item_id) THEN
-    RAISE EXCEPTION 'You do not own this item';
-  END IF;
-
-  -- Get item details
-  SELECT s.type, s.css_value INTO item_type, item_css
-  FROM ermnium_shop s WHERE s.id = target_item_id;
-
-  IF item_type = 'background' THEN
-    UPDATE public.users SET equipped_background = item_css WHERE username = user_name;
-  ELSIF item_type = 'shell' THEN
-    UPDATE public.users SET equipped_shell = item_css WHERE username = user_name;
-  END IF;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- ============================================================
--- RPC: UNEQUIP COSMETIC
--- ============================================================
-CREATE OR REPLACE FUNCTION public.ermnium_unequip(cosmetic_type text)
-RETURNS void AS $$
-DECLARE
-  user_name text;
-BEGIN
-  SELECT username INTO user_name FROM public.users WHERE id = auth.uid();
-  IF user_name IS NULL THEN RAISE EXCEPTION 'Not authenticated'; END IF;
-
-  IF cosmetic_type = 'background' THEN
-    UPDATE public.users SET equipped_background = NULL WHERE username = user_name;
-  ELSIF cosmetic_type = 'shell' THEN
-    UPDATE public.users SET equipped_shell = NULL WHERE username = user_name;
-  END IF;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- ============================================================
--- RPC: CLAIM SIGNUP BONUS (once per user)
+-- RPC: CLAIM SIGNUP BONUS (10 Points)
 -- ============================================================
 CREATE OR REPLACE FUNCTION public.ermnium_claim_bonus()
 RETURNS jsonb AS $$
@@ -296,49 +257,18 @@ BEGIN
   SELECT username INTO user_name FROM public.users WHERE id = auth.uid();
   IF user_name IS NULL THEN RAISE EXCEPTION 'Not authenticated'; END IF;
 
-  -- Check if wallet already exists (bonus already claimed)
+  -- Check if wallet already exists
   IF EXISTS (SELECT 1 FROM ermnium_wallets WHERE username = user_name) THEN
     RETURN jsonb_build_object('success', false, 'reason', 'Bonus already claimed');
   END IF;
 
-  -- Create wallet with bonus
-  INSERT INTO ermnium_wallets (username, balance) VALUES (user_name, 100);
+  -- Create wallet with 10 Points
+  INSERT INTO ermnium_wallets (username, balance, points_balance) VALUES (user_name, 0, 10);
 
   -- Log it
   INSERT INTO ermnium_transactions (username, type, amount)
-  VALUES (user_name, 'signup_bonus', 100);
+  VALUES (user_name, 'signup_bonus', 10);
 
-  RETURN jsonb_build_object('success', true, 'balance', 100);
+  RETURN jsonb_build_object('success', true, 'points', 10);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- ============================================================
--- ROW LEVEL SECURITY
--- ============================================================
-ALTER TABLE ermnium_config ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ermnium_wallets ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ermnium_transactions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ermnium_shop ENABLE ROW LEVEL SECURITY;
-ALTER TABLE ermnium_inventory ENABLE ROW LEVEL SECURITY;
-
--- Config: anyone can read
-DROP POLICY IF EXISTS "Anyone can read ermnium config" ON ermnium_config;
-CREATE POLICY "Anyone can read ermnium config" ON ermnium_config FOR SELECT USING (true);
-
--- Wallets: users can read their own, public can see balances
-DROP POLICY IF EXISTS "Anyone can read wallets" ON ermnium_wallets;
-CREATE POLICY "Anyone can read wallets" ON ermnium_wallets FOR SELECT USING (true);
-
--- Transactions: users can read their own
-DROP POLICY IF EXISTS "Users can read own transactions" ON ermnium_transactions;
-CREATE POLICY "Users can read own transactions" ON ermnium_transactions FOR SELECT USING (
-  username = (SELECT username FROM users WHERE id = auth.uid())
-);
-
--- Shop: anyone can read
-DROP POLICY IF EXISTS "Anyone can read shop" ON ermnium_shop;
-CREATE POLICY "Anyone can read shop" ON ermnium_shop FOR SELECT USING (true);
-
--- Inventory: anyone can read (to show cosmetics)
-DROP POLICY IF EXISTS "Anyone can read inventory" ON ermnium_inventory;
-CREATE POLICY "Anyone can read inventory" ON ermnium_inventory FOR SELECT USING (true);
