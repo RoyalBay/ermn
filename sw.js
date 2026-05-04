@@ -1,16 +1,16 @@
-const CACHE_NAME = 'ermn-cache-v1';
+const CACHE_NAME = 'ermn-cache-v2';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/feed.html',
-  '/userpage.html',
-  '/profile.html',
-  '/admin.html',
-  '/app.js',
-  '/config.js',
-  '/theme.js',
-  '/wicon.png',
-  '/empty.jpg'
+  './',
+  './index.html',
+  './feed.html',
+  './userpage.html',
+  './profile.html',
+  './app.js',
+  './config.js',
+  './theme.js',
+  './global.css',
+  './wicon.png',
+  './empty.jpg'
 ];
 
 // Install event: cache static assets
@@ -19,6 +19,7 @@ self.addEventListener('install', event => {
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(ASSETS_TO_CACHE))
       .then(() => self.skipWaiting())
+      .catch(err => console.warn('SW install cache failed:', err))
   );
 });
 
@@ -38,31 +39,38 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Do not cache API requests to Supabase
-  if (url.origin.includes('supabase.co')) {
+  // Do not cache API requests to Supabase or external CDN
+  if (url.origin.includes('supabase.co') || url.origin.includes('cdn.jsdelivr.net')) {
     return;
   }
 
-  // Determine if the request is for an HTML page
-  const isHtml = event.request.mode === 'navigate' || 
-                 (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html'));
+  // Only handle GET requests
+  if (event.request.method !== 'GET') return;
+
+  const accept = event.request.headers.get('accept') || '';
+  const isHtml = event.request.mode === 'navigate' || accept.includes('text/html');
 
   if (isHtml) {
     // Network-first strategy for HTML pages to ensure freshness
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(event.request)
+        .then(response => {
+          // Update cache with fresh copy
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
   } else {
-    // Cache-first strategy for everything else (JS, CSS, Images)
+    // Stale-while-revalidate for everything else (JS, CSS, Images)
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
-        return cachedResponse || fetch(event.request).then(response => {
-          // Optionally cache new assets dynamically
-          return caches.open(CACHE_NAME).then(cache => {
-            cache.put(event.request, response.clone());
-            return response;
-          });
-        });
+        const fetchPromise = fetch(event.request).then(response => {
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, response.clone()));
+          return response;
+        }).catch(() => cachedResponse);
+        return cachedResponse || fetchPromise;
       })
     );
   }

@@ -22,7 +22,7 @@ window.logout = async function() {
 async function initSession() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
-    const { data: profile } = await sb.from("users").select("username, is_admin, is_developer").eq("id", session.user.id).maybeSingle();
+    const { data: profile } = await sb.from("users").select("username, is_admin, is_developer, is_banned").eq("id", session.user.id).maybeSingle();
     if (profile) {
       currentUser = profile.username;
       _isAdmin = profile.is_admin;
@@ -39,7 +39,10 @@ async function initSession() {
       ? await sb.from("banned_users").select("username").eq("username", currentUser.toLowerCase()).maybeSingle()
       : { data: null };
 
-    if (idBanned || userBanned) {
+    // Also check the is_banned flag directly on their profile
+    const profileBanned = profile && profile.is_banned;
+
+    if (idBanned || userBanned || profileBanned) {
       await sb.auth.signOut();
       localStorage.removeItem("currentUser");
       localStorage.removeItem("isDeveloper");
@@ -1104,4 +1107,15 @@ async function renderAlgo() {
       "</div>";
     feedEl.appendChild(div);
   }
+}
+
+// ── SERVICE WORKER REGISTRATION ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    // Use relative path so it works on GitHub Pages subpaths
+    const swPath = new URL('sw.js', document.baseURI).href;
+    navigator.serviceWorker.register(swPath).catch(err => {
+      console.warn('SW registration failed:', err);
+    });
+  });
 }
