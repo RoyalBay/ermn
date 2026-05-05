@@ -273,7 +273,7 @@ async function toggleFollow() {
   if (!me) return;
   const btn = document.getElementById("followBtn");
   if (isFollowing) {
-    await sb.from("follows").delete().eq("follower", me).ilike("following", viewUser);
+    await sb.from("follows").delete().ilike("follower", me).ilike("following", viewUser);
     isFollowing = false;
     btn.innerText = "Follow";
     btn.className = "";
@@ -283,9 +283,7 @@ async function toggleFollow() {
     // Check if target is private
     const { data: targetData } = await sb.from("users").select("is_private").ilike("username", viewUser).maybeSingle();
     if (targetData && targetData.is_private) {
-      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", me).ilike("target", viewUser).maybeSingle();
-      if (existingReq) {
-        await sb.from("follow_requests").delete().eq("requester", me).ilike("target", viewUser);
+        await sb.from("follow_requests").delete().ilike("requester", me).ilike("target", viewUser);
         btn.innerText = "Follow";
       } else {
         await sb.from("follow_requests").insert({ requester: me, target: viewUser });
@@ -312,9 +310,9 @@ async function blockUser() {
 
 async function likePost(postId, el) {
   if (!me) return;
-  const { data: existing } = await sb.from("likes").select("post_id").eq("post_id", postId).eq("username", me).maybeSingle();
+  const { data: existing } = await sb.from("likes").select("post_id").eq("post_id", postId).ilike("username", me).maybeSingle();
   if (existing) {
-    await sb.from("likes").delete().eq("post_id", postId).eq("username", me);
+    await sb.from("likes").delete().eq("post_id", postId).ilike("username", me);
     el.classList.remove("liked");
     const cnt = el.nextElementSibling;
     cnt.innerText = (parseInt(cnt.innerText) - 1) + " likes";
@@ -433,12 +431,12 @@ async function load() {
     document.getElementById("followBtn").style.display = "inline-block";
     document.getElementById("blockBtn").style.display = "inline-block";
     
-    const { data: blockCheck } = await sb.from("blocked_users").select("blocked").eq("blocker", me).ilike("blocked", viewUser).maybeSingle();
+    const { data: blockCheck } = await sb.from("blocked_users").select("blocked").ilike("blocker", me).ilike("blocked", viewUser).maybeSingle();
     isBlocked = !!blockCheck;
     if (isBlocked) {
       document.getElementById("blockBtn").innerText = "Unblock";
     }
-    const { data: fcheck } = await sb.from("follows").select("follower").eq("follower", me).ilike("following", viewUser).maybeSingle();
+    const { data: fcheck } = await sb.from("follows").select("follower").ilike("follower", me).ilike("following", viewUser).maybeSingle();
     isFollowing = !!fcheck;
     const btn = document.getElementById("followBtn");
     
@@ -457,14 +455,14 @@ async function load() {
   // Load this user's posts with like info
   let likedSet = new Set();
   if (me) {
-    const { data: myLikes } = await sb.from("likes").select("post_id").eq("username", me);
+    const { data: myLikes } = await sb.from("likes").select("post_id").ilike("username", me);
     likedSet = new Set((myLikes || []).map(l => l.post_id));
   }
   const postIds = (posts || []).map(p => p.id);
   const [{ data: allLikes }, { data: polls }, { data: pollVotes }] = await Promise.all([
     postIds.length ? sb.from("likes").select("post_id").in("post_id", postIds) : Promise.resolve({ data: [] }),
     postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({ data: [] }),
-    postIds.length && me ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", me) : Promise.resolve({ data: [] })
+    postIds.length && me ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).ilike("username", me) : Promise.resolve({ data: [] })
   ]);
 
   const likeMap = {};

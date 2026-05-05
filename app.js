@@ -409,7 +409,7 @@ async function upload(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = async () => {
-    const { error } = await sb.from("users").update({ pic:reader.result }).eq("username",currentUser);
+    const { error } = await sb.from("users").update({ pic:reader.result }).ilike("username",currentUser);
     if (error) { await uiAlert("Error uploading pic: "+error.message); return; }
     delete _picCache[currentUser]; // invalidate so next render fetches fresh pic
     const rp = document.getElementById("rightPic");
@@ -498,13 +498,13 @@ async function render(searchQuery, sortMode, page) {
   if (currentUser && !visibleAuthors.includes(currentUser)) visibleAuthors.push(currentUser);
 
   const [{ data: myLikes },{ data: myFollows },{ data: allLikes },{ data: commentCounts }, { data: blockedUsers }, { data: polls }, { data: pollVotes }, { data: repostedPosts }] = await Promise.all([
-    currentUser ? sb.from("likes").select("post_id").eq("username",currentUser) : Promise.resolve({data:[]}),
-    currentUser ? sb.from("follows").select("following").eq("follower",currentUser) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("likes").select("post_id").ilike("username",currentUser) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("follows").select("following").ilike("follower",currentUser) : Promise.resolve({data:[]}),
     (postIds.length && !isLite) ? sb.from("likes").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
     (postIds.length && !isLite) ? sb.from("comments").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
-    currentUser ? sb.from("blocked_users").select("blocked").eq("blocker", currentUser) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("blocked_users").select("blocked").ilike("blocker", currentUser) : Promise.resolve({data:[]}),
     (postIds.length && !isLite) ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({data:[]}),
-    (postIds.length && currentUser && !isLite) ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", currentUser) : Promise.resolve({data:[]}),
+    (postIds.length && currentUser && !isLite) ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).ilike("username", currentUser) : Promise.resolve({data:[]}),
     ((posts||[]).filter(p=>p.repost_of).length && !isLite) ? sb.from("posts").select("id,username,text").in("id", posts.filter(p=>p.repost_of).map(p=>p.repost_of)) : Promise.resolve({data:[]})
   ]);
 
@@ -673,8 +673,8 @@ async function render(searchQuery, sortMode, page) {
   // ── 5. Sidebar: use cached user data, only fetch follow counts ──
   const me = userMap[currentUser]||{};
   const [{ count: myFollowers },{ count: myFollowing }] = await Promise.all([
-    sb.from("follows").select("*",{count:"exact",head:true}).eq("following",currentUser),
-    sb.from("follows").select("*",{count:"exact",head:true}).eq("follower",currentUser),
+    sb.from("follows").select("*",{count:"exact",head:true}).ilike("following",currentUser),
+    sb.from("follows").select("*",{count:"exact",head:true}).ilike("follower",currentUser),
   ]);
 
   const rp=document.getElementById("rightPic"), rn=document.getElementById("rightName");
@@ -716,7 +716,7 @@ async function renderUserSearch(query) {
 
   const usernames = users.map(u => u.username);
   const [{ data: myFollows }, { data: allFollowers }] = await Promise.all([
-    currentUser ? sb.from("follows").select("following").eq("follower", currentUser).in("following", usernames) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("follows").select("following").ilike("follower", currentUser).in("following", usernames) : Promise.resolve({data:[]}),
     sb.from("follows").select("following").in("following", usernames),
   ]);
 
@@ -980,13 +980,13 @@ async function renderAlgo() {
   if (currentUser && !visibleAuthors.includes(currentUser)) visibleAuthors.push(currentUser);
 
   const [{ data: myLikes },{ data: myFollows },{ data: postLikes },{ data: commentCounts }, { data: blockedUsers }, { data: polls }, { data: pollVotes }, { data: repostedPosts }] = await Promise.all([
-    currentUser ? sb.from("likes").select("post_id").eq("username",currentUser) : Promise.resolve({data:[]}),
-    currentUser ? sb.from("follows").select("following").eq("follower",currentUser) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("likes").select("post_id").ilike("username",currentUser) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("follows").select("following").ilike("follower",currentUser) : Promise.resolve({data:[]}),
     (postIds.length && !isLite) ? sb.from("likes").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
     (postIds.length && !isLite) ? sb.from("comments").select("post_id").in("post_id",postIds) : Promise.resolve({data:[]}),
-    currentUser ? sb.from("blocked_users").select("blocked").eq("blocker", currentUser) : Promise.resolve({data:[]}),
+    currentUser ? sb.from("blocked_users").select("blocked").ilike("blocker", currentUser) : Promise.resolve({data:[]}),
     (postIds.length && !isLite) ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({data:[]}),
-    (postIds.length && currentUser && !isLite) ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", currentUser) : Promise.resolve({data:[]}),
+    (postIds.length && currentUser && !isLite) ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).ilike("username", currentUser) : Promise.resolve({data:[]}),
     (finalPosts.filter(p=>p.repost_of).length && !isLite) ? sb.from("posts").select("id,username,text").in("id", finalPosts.filter(p=>p.repost_of).map(p=>p.repost_of)) : Promise.resolve({data:[]})
   ]);
 
