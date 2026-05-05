@@ -9,6 +9,28 @@ let _isDeveloper = false;
 let _picCache = {};
 let _currentPage = 0;
 
+// Global check for logo and title update for Plus Users
+function updatePlusVisuals() {
+  if (localStorage.getItem("isPlus") === "true") {
+    document.querySelectorAll(".topbar-logo").forEach(el => {
+      if (el.textContent.trim() === "ermn.") el.textContent = "ermn.+";
+    });
+    if (document.title.includes("ermn.") && !document.title.includes("ermn.+")) {
+      document.title = document.title.replace("ermn.", "ermn.+");
+    }
+  }
+}
+
+// Initial run and observers
+updatePlusVisuals();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", updatePlusVisuals);
+}
+const titleEl = document.querySelector('title');
+if (titleEl) {
+  new MutationObserver(updatePlusVisuals).observe(titleEl, { childList: true });
+}
+
 window.logout = async function() {
   if (typeof sb !== 'undefined') await sb.auth.signOut();
   localStorage.removeItem("currentUser");
@@ -30,6 +52,9 @@ async function initSession() {
       localStorage.setItem("currentUser", currentUser);
       localStorage.setItem("isDeveloper", _isDeveloper || false);
       localStorage.setItem("isPlus", profile.is_plus || false);
+
+      // Update visuals if plus status changed or initialized
+      updatePlusVisuals();
 
       // Auto-claim Plus Stipend if needed
       if (profile.is_plus) {
@@ -67,6 +92,7 @@ async function initSession() {
     currentUser = localStorage.getItem("currentUser");
     _isDeveloper = localStorage.getItem("isDeveloper") === "true";
   }
+
 
   // Global Maintenance Check - Simplified & Optimized
   const isMaintenancePage = window.location.href.includes("maintenance.html");
