@@ -6,10 +6,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ermn. · Settings</title>
 <link rel="icon" href="wicon.png">
-<link rel="stylesheet" href="mobile_modern.css">
 <style>
-  .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; }
-  .info-row:last-child { border-bottom: none; }
+:root{--accent:#3b5998;--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:14px;padding-bottom:60px;}
+
+.topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;position:sticky;top:0;z-index:50;}
+.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
+
+.main{padding:8px; width:100%; max-width:100%;}
+
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;margin-bottom:10px; width:100%; overflow:hidden;}
+.card-title{background:var(--card-header);border-bottom:1px solid var(--border);padding:6px 12px;font-size:13px;font-weight:bold;color:var(--accent);display:flex;align-items:center;gap:6px;}
+.card-body{padding:12px;}
+
+label{display:block;font-size:12px;font-weight:bold;color:#444;margin:10px 0 3px;}
+input[type=text], input[type=password], select{width:100%;border:1px solid var(--border);padding:10px 8px;font-family:inherit;font-size:14px;background:var(--input-bg);color:var(--text);-webkit-appearance:none;}
+.btn{background:linear-gradient(180deg,#5274b3,#3b5998);color:white;border:1px solid #2a4070;padding:10px 16px;font-family:inherit;font-size:13px;font-weight:bold;cursor:pointer;margin-top:8px; width:100%; border-radius:2px;}
+.btn-alt{background:#eee; color:#333; border:1px solid #ccc;}
+
+.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:13px;}
+.info-row:last-child{border-bottom:none;}
+.msg{font-size:12px;margin-top:6px; min-height:16px;}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:100;}
+.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;}
+.bottom-nav a.active{background:rgba(255,255,255,0.15); color:white;}
+.bottom-nav a .material-icons { font-size: 20px; }
 </style>
 </head>
 <body>
@@ -19,62 +42,34 @@
 
 <div class="main">
   <div class="card">
-    <div class="compose-box" style="margin-bottom:0; border:none; border-radius:0;">
-      <h4 style="background:var(--accent); color:white; border:none;"><span class="material-icons">palette</span> Theme & Look</h4>
-    </div>
-    <div class="card-body" style="padding:15px;">
-      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
-        <button onclick="setTheme('classic')" style="border:none; background:none; text-align:center;">
-          <div style="height:30px; background:#3b5998; border-radius:4px; margin-bottom:4px;"></div>
-          <span style="font-size:10px; font-weight:bold;">Classic</span>
-        </button>
-        <button onclick="setTheme('midnight')" style="border:none; background:none; text-align:center;">
-          <div style="height:30px; background:#12122a; border-radius:4px; margin-bottom:4px;"></div>
-          <span style="font-size:10px; font-weight:bold;">Midnight</span>
-        </button>
-        <button onclick="setTheme('cyberpunk')" style="border:none; background:none; text-align:center;">
-          <div style="height:30px; background:#ff00ff; border-radius:4px; margin-bottom:4px;"></div>
-          <span style="font-size:10px; font-weight:bold;">Cyber</span>
-        </button>
-      </div>
+    <div class="card-title"><span class="material-icons">info</span> Account Info</div>
+    <div class="card-body">
+      <div class="info-row"><span>Username</span><span id="infoUser">@...</span></div>
+      <div class="info-row"><span>Member since</span><span id="infoJoined">...</span></div>
+      <button class="btn btn-alt" onclick="logout()" style="margin-top:15px; color:#c00;">Logout</button>
     </div>
   </div>
 
   <div class="card">
-    <div class="compose-box" style="margin-bottom:0; border:none; border-radius:0;">
-      <h4 style="background:#555; color:white; border:none;"><span class="material-icons">swap_horiz</span> Data Portability</h4>
-    </div>
-    <div class="card-body" style="padding:15px;">
-      <p style="font-size:12px; color:#666; margin-bottom:12px;">Export or restore your posts, likes, and balances.</p>
-      <button class="btn" onclick="exportData()" style="width:100%; margin-bottom:10px;">Export My Data (.ermn)</button>
-      <label for="importFile" class="btn" style="width:100%; display:block; text-align:center; background:#eee; color:#333; border:1px solid #ccc;">Import Backup</label>
+    <div class="card-title"><span class="material-icons">swap_horiz</span> Data Portability</div>
+    <div class="card-body">
+      <p style="font-size:12px; color:#666; margin-bottom:12px;">Export/Restore posts & balances.</p>
+      <button class="btn" onclick="exportData()">Export Data (.ermn)</button>
+      <label for="importFile" class="btn btn-alt" style="display:block; text-align:center;">Import Backup</label>
       <input type="file" id="importFile" accept=".ermn" style="display:none;" onchange="previewImport(event)">
       <div id="importMsg" class="msg"></div>
-      <div id="importPreview" style="display:none; margin-top:10px; background:#f9f9f9; padding:10px; border:1px solid #ddd; border-radius:6px;">
+      <div id="importPreview" style="display:none; margin-top:10px; background:#f9f9f9; padding:10px; border:1px solid #ddd;">
         <div id="importPreviewBody" style="font-size:12px; margin-bottom:10px;"></div>
-        <button class="btn" onclick="importData()" style="width:100%;">Restore Content</button>
+        <button class="btn" onclick="importData()">Restore Now</button>
       </div>
     </div>
   </div>
 
   <div class="card" id="devCard" style="display:none;">
-    <div class="compose-box" style="margin-bottom:0; border:none; border-radius:0;">
-      <h4 style="background:#c00; color:white; border:none;"><span class="material-icons">code</span> Developer Tools</h4>
-    </div>
-    <div class="card-body" style="padding:15px;">
-      <button id="maintenanceToggle" class="btn" style="width:100%; background:#c00;" onclick="toggleMaintenanceMode()">SITE MAINTENANCE: OFF</button>
+    <div class="card-title" style="background:#fce8e8; color:#c00;"><span class="material-icons">code</span> Developer Tools</div>
+    <div class="card-body">
+      <button id="maintenanceToggle" class="btn" style="background:#c00;" onclick="toggleMaintenanceMode()">SITE MAINTENANCE: OFF</button>
       <p style="font-size:10px; color:#888; margin-top:6px; text-align:center;">Nuclear switch: Shuts down site for non-staff.</p>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="compose-box" style="margin-bottom:0; border:none; border-radius:0;">
-      <h4 style="background:#3b5998; color:white; border:none;"><span class="material-icons">info</span> Account Info</h4>
-    </div>
-    <div class="card-body" style="padding:15px;">
-      <div class="info-row"><span>Username</span><span id="infoUser">@...</span></div>
-      <div class="info-row"><span>Member Since</span><span id="infoJoined">...</span></div>
-      <button class="btn" onclick="logout()" style="width:100%; background:#f5f6f7; color:#c00; border:1px solid #ddd; margin-top:15px;">Logout</button>
     </div>
   </div>
 </div>
@@ -105,9 +100,6 @@ async function loadSettings() {
   }
 }
 
-/* Reusing functions from desktop settings.html */
-/* I'll inject the necessary export/import logic here or ensure app.js has it */
-
 async function initMaintenanceStatus() {
   const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
   const active = config && config.value === true;
@@ -121,12 +113,11 @@ async function toggleMaintenanceMode() {
   const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
   const cur = config && config.value === true;
   const target = !cur;
-  if (target === true && !confirm("SHUT DOWN SITE FOR ALL USERS?")) return;
+  if (target === true && !confirm("SHUT DOWN SITE?")) return;
   await sb.from("site_config").upsert({ key: "maintenance_mode", value: target });
   initMaintenanceStatus();
 }
 
-// Data Portability functions (simplified for mobile)
 async function exportData() {
   const { data: posts } = await sb.from("posts").select("*").ilike("username", me).order("created_at", {ascending:true});
   const { data: wallet } = await sb.from("ermnium_wallets").select("*").ilike("username", me).maybeSingle();
@@ -135,7 +126,7 @@ async function exportData() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `ermn-mobile-backup-${me}.ermn`;
+  a.download = `ermn-backup-${me}.ermn`;
   a.click();
 }
 
@@ -149,7 +140,7 @@ function previewImport(e) {
       const data = JSON.parse(ev.target.result);
       if (!data._ermn_export) return;
       _importPayload = data;
-      document.getElementById("importPreviewBody").innerHTML = `<b>Posts:</b> ${data.posts.length}<br><b>ERN:</b> ${data.wallet?.balance || 0}`;
+      document.getElementById("importPreviewBody").innerHTML = `<b>Posts:</b> ${data.posts.length}<br><b>ERN Balance:</b> ${data.wallet?.balance || 0}`;
       document.getElementById("importPreview").style.display = "block";
     } catch(err) { alert("Invalid file"); }
   };

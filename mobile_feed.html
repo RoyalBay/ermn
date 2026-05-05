@@ -6,32 +6,78 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ermn. · Feed</title>
 <link rel="icon" href="wicon.png">
-<link rel="stylesheet" href="mobile_modern.css">
+<style>
+:root{--accent:#3b5998;--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:14px;padding-bottom:60px;}
+
+.topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;position:sticky;top:0;z-index:50;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
+.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
+.topbar-right{margin-left:auto;display:flex;gap:8px;}
+.topbar-right button{background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);padding:6px 10px;font-size:12px;cursor:pointer;font-family:inherit;border-radius:2px;}
+
+/* SEARCH - Adjusted for better mobile fit */
+.search-row{background:var(--card-bg);border-bottom:1px solid var(--border);padding:8px;display:flex;gap:4px;flex-wrap:wrap;}
+.search-row input{flex:1;min-width:100px;padding:8px;border:1px solid var(--border);font-size:14px;font-family:inherit;background:var(--input-bg);color:var(--text);-webkit-appearance:none;}
+.search-row select{padding:8px 4px;border:1px solid var(--border);font-size:13px;background:var(--input-bg);color:var(--text);}
+.search-row button{background:var(--accent);color:white;border:none;padding:8px 12px;font-size:13px;cursor:pointer;}
+
+.main{padding:8px; width:100%; max-width:100%; overflow-x:hidden;}
+
+.compose-box{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;padding:10px;margin-bottom:10px;}
+.compose-box h4{font-size:12px;color:var(--accent);margin-bottom:8px;font-weight:bold;background:var(--card-header);margin:-10px -10px 8px;padding:6px 10px;border-bottom:1px solid var(--border);}
+.compose-box textarea{width:100%;height:72px;resize:none;border:1px solid var(--border);padding:8px;font-family:inherit;font-size:14px;background:var(--input-bg);color:var(--text);-webkit-appearance:none;}
+.compose-box button{background:var(--accent);color:white;border:none;padding:10px 16px;margin-top:6px;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:2px; width:100%;}
+
+.post{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;margin-bottom:10px;padding:10px; width:100%; box-sizing:border-box;}
+.post-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;position:relative;}
+.post-avatar{width:44px;height:44px;object-fit:cover;border:2px solid var(--border);border-radius:2px;flex-shrink:0;}
+.post-meta{flex:1; min-width:0;}
+.user-link{color:var(--accent);font-weight:bold;text-decoration:none;font-size:15px; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.post-time{font-size:11px;color:#888;}
+.follow-btn{background:#e8edf7;color:var(--accent);border:1px solid var(--border);font-size:11px;padding:2px 6px;cursor:pointer;font-family:inherit;margin-top:2px;border-radius:2px;}
+.follow-btn.following{background:#d0f0d0;color:#2a6e2a;border-color:#8ec88e;}
+
+.post-text{line-height:1.5;margin-bottom:8px;word-break:break-word; font-size:14px;}
+.post-actions{display:flex;gap:16px;border-top:1px solid #eee;padding-top:8px;font-size:13px;flex-wrap:wrap;}
+.heart{cursor:pointer;color:#bbb;}
+.heart.liked{color:#e74c3c;}
+.like-wrap{color:#555; display:flex; align-items:center; gap:4px;}
+.comment-toggle{cursor:pointer;color:#555; display:flex; align-items:center; gap:4px;}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:100;}
+.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;}
+.bottom-nav a.active{background:rgba(255,255,255,0.15); color:white;}
+.bottom-nav a .material-icons { font-size: 20px; }
+
+/* Badges */
+.badge-icon { width: 14px; height: 14px; vertical-align: middle; margin-left: 2px; }
+.admin-badge { background:#c00; color:white; font-size:9px; padding:1px 4px; border-radius:2px; margin-left:4px; vertical-align: middle; }
+</style>
 </head>
 <body>
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
   <div class="topbar-right">
-    <button onclick="logout()" style="background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); border-radius:4px; color:white; padding:4px 8px; font-size:12px;">Logout</button>
+    <button onclick="logout()">Logout</button>
   </div>
 </div>
 
-<div class="search-row" style="background:white; border-bottom:1px solid #ddd; padding:10px; display:flex; gap:8px;">
-  <select id="searchMode" onchange="onModeChange()" style="padding:8px; border-radius:6px; border:1px solid #ddd; font-size:14px; width:80px;">
+<div class="search-row">
+  <select id="searchMode" onchange="onModeChange()">
     <option value="posts">Posts</option>
     <option value="users">Users</option>
   </select>
-  <input id="searchInput" placeholder="Search..." onkeydown="if(event.key==='Enter')doSearch()" style="flex:1; padding:8px; border-radius:6px; border:1px solid #ddd; font-size:14px;">
-  <button onclick="doSearch()" style="background:var(--accent); color:white; border:none; padding:8px 12px; border-radius:6px;"><span class="material-icons">search</span></button>
+  <input id="searchInput" placeholder="Search..." onkeydown="if(event.key==='Enter')doSearch()">
+  <button onclick="doSearch()"><span class="material-icons">search</span></button>
 </div>
 
 <div class="main">
   <div class="compose-box">
-    <h4><span class="material-icons">edit</span> What's on your mind?</h4>
+    <h4><span class="material-icons" style="font-size:14px;">edit</span> What's on your mind?</h4>
     <textarea id="text" placeholder="Share something..."></textarea>
-    <div class="actions">
-      <button id="postBtn" onclick="mPost()">Post</button>
-    </div>
+    <button id="postBtn" onclick="mPost()">Post</button>
   </div>
   <div id="loading" style="text-align:center;padding:20px;color:#888;font-style:italic;">Loading...</div>
   <div id="posts"></div>
@@ -57,8 +103,6 @@ function onModeChange(){
   const mode = document.getElementById("searchMode").value;
   const inp = document.getElementById("searchInput");
   inp.placeholder = mode === "users" ? "Search users..." : "Search posts...";
-  document.getElementById("posts").innerHTML = "";
-  document.getElementById("pagination").innerHTML = "";
 }
 
 function doSearch(){
