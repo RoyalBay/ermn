@@ -9,157 +9,166 @@
 <style>
 :root {
   --accent: #3b5998;
-  --gold: #f57f17;
-  --bg: linear-gradient(180deg, #1a2a44 0%, #0d1521 100%);
-  --card-bg: #ffffff;
+  --accent2: #8b9dc3;
+  --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
+  --card-bg: #fff;
+  --topbar-bg: #3b5998;
   --text: #333;
+  --border: #b0b7c3;
+  --card-header: linear-gradient(180deg,#e8edf7,#d8e0f0);
+  --input-bg: #fafafa;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: Tahoma, Verdana, sans-serif;
-  background: var(--bg);
-  color: white;
-  min-height: 100vh;
-  padding-bottom: 40px;
-}
-.topbar { background:#3b5998; height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.3); }
-.topbar-logo { font-size:22px; font-weight:bold; color:white; letter-spacing:-1px; font-style:italic; }
+body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); color: var(--text); min-height: 100vh; font-size: 13px; }
 
-.container { max-width: 500px; margin: 30px auto; padding: 0 15px; }
+.topbar { background:var(--topbar-bg); height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.3); border-bottom:2px solid rgba(0,0,0,0.2); }
+.topbar-logo { font-size:22px; font-weight:bold; color:white; letter-spacing:-1px; font-style:italic; text-shadow:1px 1px 2px rgba(0,0,0,0.3); }
+.topbar-nav { display:flex; gap:4px; margin-left:10px; }
+.topbar-nav a { color:rgba(255,255,255,0.85); font-size:12px; text-decoration:none; padding:4px 8px; border-radius:2px; }
+.topbar-nav a:hover { background:rgba(255,255,255,0.15); color:white; }
+.topbar-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
+.topbar-right button { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; }
+.topbar-right button:hover { background:rgba(255,255,255,0.35); }
 
-.bank-card {
-  background: white;
-  color: #333;
-  border-radius: 4px;
-  overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-  margin-bottom: 20px;
-}
+.container { display:flex; max-width:1050px; margin:16px auto; gap:12px; padding:0 10px; }
+.feed-col { flex:1; min-width:0; }
+
+.card { background: var(--card-bg); border: 1px solid var(--border); margin-bottom: 12px; }
+.card-title { background: var(--card-header); border-bottom: 1px solid var(--border); padding: 6px 12px; font-size: 13px; font-weight: bold; color: var(--accent); display: flex; align-items: center; gap: 6px; }
+.card-body { padding: 14px; }
+
 .bank-header {
   background: linear-gradient(135deg, #3b5998 0%, #1e2f50 100%);
   color: white;
   padding: 30px;
   text-align: center;
+  border-bottom: 1px solid var(--border);
 }
-.bank-header h1 { font-size: 20px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 15px; opacity: 0.9; }
-.balance-display { font-size: 42px; font-weight: bold; font-family: 'Courier New', Courier, monospace; margin: 10px 0; }
-.balance-label { font-size: 11px; text-transform: uppercase; opacity: 0.7; letter-spacing: 1px; }
+.balance-display { font-size: 36px; font-weight: bold; font-family: 'Courier New', Courier, monospace; margin: 5px 0; }
+.balance-label { font-size: 11px; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px; }
 
-.bank-body { padding: 25px; }
-.wallet-summary {
-  display: flex;
-  justify-content: space-between;
-  background: #f8f9fa;
-  padding: 15px;
-  border: 1px solid #eee;
-  margin-bottom: 25px;
-}
+.wallet-summary { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px; border: 1px solid #eee; margin-bottom: 15px; }
 .wallet-item { text-align: center; flex: 1; }
 .wallet-item:first-child { border-right: 1px solid #ddd; }
-.wallet-val { font-size: 18px; font-weight: bold; color: var(--accent); }
-.wallet-lbl { font-size: 10px; text-transform: uppercase; color: #888; }
+.wallet-val { font-size: 16px; font-weight: bold; color: var(--accent); }
+.wallet-lbl { font-size: 9px; text-transform: uppercase; color: #888; }
 
-.form-group { margin-bottom: 20px; }
-label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #555; }
-input {
-  width: 100%;
-  padding: 12px;
-  font-size: 18px;
-  border: 2px solid #eee;
-  border-radius: 4px;
-  font-family: inherit;
-  text-align: center;
-}
-input:focus { outline: none; border-color: var(--accent); }
+input { width: 100%; padding: 10px; font-size: 16px; border: 1px solid var(--border); background: var(--input-bg); font-family: inherit; margin-bottom: 12px; }
+input:focus { outline: none; border-color: var(--accent); background: white; }
 
-.actions { display: flex; gap: 10px; }
-.btn {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 4px;
-  font-weight: bold;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 14px;
-  transition: transform 0.1s;
-}
-.btn:active { transform: scale(0.98); }
-.btn-deposit { background: var(--accent); color: white; }
-.btn-withdraw { background: #eee; color: #333; border: 1px solid #ddd; }
+.actions { display: flex; gap: 8px; }
+.btn { flex: 1; padding: 10px; border: 1px solid #2a4070; background: linear-gradient(180deg,#5274b3,#3b5998); color: white; font-weight: bold; cursor: pointer; font-family: inherit; font-size: 13px; }
+.btn:hover { background: linear-gradient(180deg,#6080bf,#4a6aaa); }
+.btn-alt { background: #eee; color: #333; border: 1px solid #ccc; }
+.btn-alt:hover { background: #e5e5e5; }
 
-.msg { margin-top: 15px; padding: 10px; border-radius: 4px; font-size: 13px; display: none; text-align: center; }
-.msg.error { background: #fee; color: #c00; display: block; }
-.msg.success { background: #efe; color: #080; display: block; }
+.msg { margin-top: 10px; padding: 8px; font-size: 12px; display: none; text-align: center; border: 1px solid transparent; }
+.msg.error { background: #fee; color: #c00; border-color: #fcc; display: block; }
+.msg.success { background: #efe; color: #080; border-color: #cfc; display: block; }
 
-.back-link { display: block; text-align: center; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 13px; margin-top: 20px; }
-.back-link:hover { color: white; }
+.sidebar { width:215px; flex-shrink:0; }
+.sidebar-card { background:var(--card-bg); border:1px solid var(--border); margin-bottom:10px; overflow:hidden; }
+.sidebar-card .card-title { background:var(--card-header); border-bottom:1px solid var(--border); padding:5px 10px; font-size:12px; font-weight:bold; color:var(--accent); }
+.sidebar-card .card-body { padding:10px; }
+.sidebar-avatar { width:60px; height:60px; object-fit:cover; border:2px solid var(--border); display:block; margin-bottom:6px; }
+
+.sidebar-links a { display:block; color:var(--accent); font-size:12px; text-decoration:none; padding:4px 10px; border-bottom: 1px solid #f0f0f0; }
+.sidebar-links a:last-child { border-bottom: none; }
+.sidebar-links a:hover { background: #f8f9fb; text-decoration:underline; }
+.material-icons { font-size: 18px; vertical-align: middle; }
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <span class="topbar-logo">ermn.</span>
+  <nav class="topbar-nav">
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="algo_feed.html"><span class="material-icons">explore</span> Feed</a>
+    <a href="bank.html" class="active"><span class="material-icons">account_balance</span> Bank</a>
+    <a href="profile.html"><span class="material-icons">person</span> Profile</a>
+  </nav>
 </div>
 
 <div class="container">
-  <div class="bank-card">
-    <div class="bank-header">
-      <h1>ERN Private Banking</h1>
-      <div class="balance-label">Vault Balance</div>
-      <div class="balance-display" id="bankBalance">0.00</div>
-      <div style="font-size: 12px; opacity: 0.8;">ERN</div>
-    </div>
-    
-    <div class="bank-body">
-      <div class="wallet-summary">
-        <div class="wallet-item">
-          <div class="wallet-val" id="walletBalance">0.00</div>
-          <div class="wallet-lbl">Liquid Balance</div>
-        </div>
-        <div class="wallet-item">
-          <div class="wallet-val" id="totalAssets">0.00</div>
-          <div class="wallet-lbl">Total Assets</div>
-        </div>
+  <div class="feed-col">
+    <div class="card">
+      <div class="bank-header">
+        <div class="balance-label">Vault Savings</div>
+        <div class="balance-display" id="bankBalance">0.00</div>
+        <div style="font-size: 11px; opacity: 0.8;">ERN Currency</div>
       </div>
+      
+      <div class="card-body">
+        <div class="wallet-summary">
+          <div class="wallet-item">
+            <div class="wallet-val" id="walletBalance">0.00</div>
+            <div class="wallet-lbl">Liquid Cash</div>
+          </div>
+          <div class="wallet-item">
+            <div class="wallet-val" id="totalAssets">0.00</div>
+            <div class="wallet-lbl">Net Worth</div>
+          </div>
+        </div>
 
-      <div class="form-group">
-        <label>Transaction Amount (ERN)</label>
+        <div style="margin-bottom: 8px; font-weight: bold; font-size: 12px; color: #555;">Transaction Amount</div>
         <input type="number" id="amount" placeholder="0.00" min="0" step="0.01">
-      </div>
 
-      <div class="actions">
-        <button class="btn btn-withdraw" onclick="transact('withdraw')">Withdraw</button>
-        <button class="btn btn-deposit" onclick="transact('deposit')">Deposit</button>
-      </div>
+        <div class="actions">
+          <button class="btn btn-alt" onclick="transact('withdraw')">Withdraw to Wallet</button>
+          <button class="btn" onclick="transact('deposit')">Deposit to Vault</button>
+        </div>
 
-      <div id="msg" class="msg"></div>
+        <div id="msg" class="msg"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="material-icons">history</span> Recent Activity</div>
+      <div class="card-body" style="color: #888; font-style: italic; font-size: 12px; text-align: center; padding: 20px;">
+        Banking history is coming soon.
+      </div>
     </div>
   </div>
 
-  <a href="feed.html" class="back-link">Return to Home</a>
+  <div class="sidebar">
+    <div class="sidebar-card">
+      <div class="card-title"><span class="material-icons">person</span> My Account</div>
+      <div class="card-body">
+        <img id="rightPic" class="sidebar-avatar" src="empty.jpg" onerror="this.src='empty.jpg'">
+        <div id="rightName" style="font-weight:bold; margin-bottom:4px;"></div>
+        <div id="rightFollowers" style="font-size:11px; color:#666;"></div>
+      </div>
+    </div>
+
+    <div class="sidebar-card">
+      <div class="card-title"><span class="material-icons">link</span> Navigation</div>
+      <div class="sidebar-links">
+        <a href="ermnium.html" style="color:#f57f17;font-weight:bold;"><span class="material-icons">toll</span> Ermnium Exchange</a>
+        <a href="bank.html" style="color:#2ecc71;font-weight:bold;"><span class="material-icons">account_balance</span> Bank Account</a>
+        <a href="profile.html"><span class="material-icons">person</span> My Profile</a>
+        <a href="settings.html"><span class="material-icons">settings</span> Settings</a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
 <script>
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const me = localStorage.getItem("currentUser");
-
-if (!me) { location.href = "index.html"; }
-
-async function loadBalances() {
+async function loadBankData() {
   const { data, error } = await sb.from("ermnium_wallets")
     .select("balance, bank_balance")
-    .ilike("username", me)
+    .ilike("username", currentUser)
     .maybeSingle();
 
   if (data) {
     const bal = parseFloat(data.balance || 0);
     const bank = parseFloat(data.bank_balance || 0);
-    document.getElementById("walletBalance").innerText = bal.toFixed(2);
-    document.getElementById("bankBalance").innerText = bank.toFixed(2);
-    document.getElementById("totalAssets").innerText = (bal + bank).toFixed(2);
+    document.getElementById("walletBalance").innerText = bal.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById("bankBalance").innerText = bank.toLocaleString(undefined, {minimumFractionDigits: 2});
+    document.getElementById("totalAssets").innerText = (bal + bank).toLocaleString(undefined, {minimumFractionDigits: 2});
   }
 }
 
@@ -173,23 +182,23 @@ async function transact(type) {
   }
 
   msgEl.className = "msg";
-  msgEl.innerText = type === 'deposit' ? "Depositing..." : "Withdrawing...";
+  msgEl.innerText = "Processing...";
   msgEl.style.display = "block";
 
   const { data, error } = await sb.rpc('ermn_bank_transaction', {
-    p_username: me,
+    p_username: currentUser,
     p_amount: amt,
     p_type: type
   });
 
   if (error) {
-    showMsg("Database Error: " + error.message, true);
-  } else if (!data.success) {
-    showMsg(data.message, true);
+    showMsg("Error: " + error.message, true);
+  } else if (!data || !data.success) {
+    showMsg(data ? data.message : "Transaction failed", true);
   } else {
-    showMsg(`Successfully ${type}ed ${amt} ERN!`, false);
+    showMsg(`Success! Your funds have been moved.`, false);
     document.getElementById("amount").value = "";
-    await loadBalances();
+    await loadBankData();
   }
 }
 
@@ -199,7 +208,9 @@ function showMsg(txt, isErr) {
   msgEl.className = "msg " + (isErr ? "error" : "success");
 }
 
-loadBalances();
+document.addEventListener("sessionReady", () => {
+  loadBankData();
+});
 </script>
 </body>
 </html>

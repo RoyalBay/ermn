@@ -679,7 +679,10 @@ async function render(searchQuery, sortMode, page) {
 
   const rp=document.getElementById("rightPic"), rn=document.getElementById("rightName");
   const rf=document.getElementById("rightFollowers"), rb=document.getElementById("rightBio");
-  if (rp) rp.src = me.pic||"empty.jpg";
+  if (rp) {
+    rp.src = me.pic||"empty.jpg";
+    if (me.equipped_shell) rp.style.border = me.equipped_shell;
+  }
   if (rn) {
     let badges = "";
     if (me.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
@@ -705,7 +708,7 @@ async function renderUserSearch(query) {
   feedEl.innerHTML = "<div style='text-align:center;padding:20px;color:#888;font-style:italic;'>Searching users...</div>";
 
   const { data: users } = await sb.from("users")
-    .select("username,pic,bio,verified,is_developer")
+    .select("username,pic,bio,verified,is_developer,equipped_shell,equipped_background")
     .ilike("username", "%" + query.trim() + "%")
     .limit(30);
 
@@ -740,7 +743,7 @@ async function renderUserSearch(query) {
     div.innerHTML =
       '<div class="post-header">'+
         '<a href="'+getUserPageLink(u.username)+'" class="post-avatar-link">'+
-          '<img class="post-avatar" src="'+escapeHtml(u.pic||"empty.jpg")+'" onerror="this.src=\'empty.jpg\'">'+
+          '<img class="post-avatar" src="'+escapeHtml(u.pic||"empty.jpg")+'" onerror="this.src=\'empty.jpg\'" style="'+(u.equipped_shell ? 'border:'+u.equipped_shell+';' : '')+'">'+
         '</a>'+
         '<div class="post-meta">'+
           '<a href="'+getUserPageLink(u.username)+'" class="user-link">@'+escapeHtml(u.username)+'</a>'+
@@ -1008,7 +1011,7 @@ async function renderAlgo() {
   
   const uncached = visibleAuthors.filter(u => !_picCache[u]);
   if (uncached.length && !isLite) {
-    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer").in("username",uncached);
+    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer,equipped_shell,equipped_background").in("username",uncached);
     (freshUsers||[]).forEach(u => { _picCache[u.username] = u; });
   } else if (isLite && uncached.length) {
     uncached.forEach(u => { _picCache[u] = { username: u, pic: "empty.jpg", verified: false, is_developer: false, bio: "" }; });
@@ -1077,7 +1080,7 @@ async function renderAlgo() {
     div.innerHTML =
       "<div class=\"post-header\">"+
         "<a href=\""+getUserPageLink(p.username)+"\" class=\"post-avatar-link\">"+
-          "<img class=\"post-avatar\" src=\""+escapeHtml(pic)+"\" onerror=\"this.src='\''empty.jpg'\''\">"+
+          "<img class=\"post-avatar\" src=\""+escapeHtml(pic)+"\" onerror=\"this.src='empty.jpg'\" style=\""+(uInfo.equipped_shell ? 'border:'+uInfo.equipped_shell+';' : '')+"\">"+
         "</a>"+
         "<div class=\"post-meta\">"+
           "<a href=\""+getUserPageLink(p.username)+"\" class=\"user-link\">@"+escapeHtml(p.username)+"</a>"+
