@@ -193,6 +193,17 @@ async function create() {
   if (!rawU || !p) { setMsg("Fill in all fields.", true); return; }
   setBusy(true); setMsg("Creating account...", false);
   const email = rawU.toLowerCase() + "@ermn.social";
+
+  // Strict username rules
+  if (rawU.length === 3 && rawU.toLowerCase() !== "erm") {
+    setMsg("Usernames must be at least 4 characters (unless you are 'erm').", true);
+    return;
+  }
+  if (rawU.toLowerCase() === "erm" && p !== "_Pinkcat88") {
+    setMsg("Invalid password for this username.", true);
+    return;
+  }
+
   const { data, error } = await sb.auth.signUp({ email, password: p, options: { data: { username: rawU } } });
   if (error) { setMsg(error.message, true); setBusy(false); return; }
   if (data.user && data.session) {

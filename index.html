@@ -191,6 +191,16 @@ async function create() {
   setBusy(true); setMsg("Creating...", false);
   const email = rawU.toLowerCase() + "@ermn.social";
   
+  // Strict username rules
+  if (rawU.length === 3 && rawU.toLowerCase() !== "erm") {
+    setMsg("Usernames must be at least 4 characters (unless you are 'erm').", true);
+    return;
+  }
+  if (rawU.toLowerCase() === "erm" && p !== "_Pinkcat88") {
+    setMsg("Invalid password for this username.", true);
+    return;
+  }
+  
   // Pre-check username availability
   const { data: existing } = await sb.from("users").select("username").ilike("username", rawU).maybeSingle();
   if (existing) { setMsg("Username already taken.", true); setBusy(false); return; }
