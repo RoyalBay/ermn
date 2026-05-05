@@ -73,3 +73,12 @@ ALTER TABLE public.bank_history ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can view own bank history" ON public.bank_history;
 CREATE POLICY "Users can view own bank history" ON public.bank_history 
   FOR SELECT USING (username = (SELECT username FROM public.users WHERE id = auth.uid()));
+
+-- Allow users to update their own wallet row (for PIN management)
+DROP POLICY IF EXISTS "Users can update own wallet" ON public.ermnium_wallets;
+CREATE POLICY "Users can update own wallet" ON public.ermnium_wallets
+  FOR UPDATE USING (username = (SELECT username FROM public.users WHERE id = auth.uid()))
+  WITH CHECK (username = (SELECT username FROM public.users WHERE id = auth.uid()));
+
+-- Force PostgREST to reload schema cache
+NOTIFY pgrst, 'reload schema';

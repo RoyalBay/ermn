@@ -182,15 +182,6 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
       </div>
     </div>
 
-    <!-- ACCOUNT — mirrors ermnium sidebar -->
-    <div class="sidebar-card">
-      <div class="card-title"><span class="material-icons" style="font-size:13px;">person</span> My Account</div>
-      <div class="card-body">
-        <img id="rightPic" class="sidebar-avatar" src="empty.jpg" onerror="this.src='empty.jpg'">
-        <div id="rightName" style="font-weight:bold;margin-bottom:4px;"></div>
-        <div id="rightFollowers" style="font-size:11px;color:#666;"></div>
-      </div>
-    </div>
 
     <!-- NAVIGATION — matches ermnium -->
     <div class="sidebar-card">
@@ -333,15 +324,15 @@ async function managePin() {
   const msgEl = document.getElementById("pinMsg");
 
   if (_hasPin) {
-    // Remove PIN
-    const { error } = await sb.rpc('ermn_set_bank_pin', { p_pin: '' });
+    // Remove PIN — direct update
+    const { error } = await sb.from('ermnium_wallets').update({ bank_pin: null }).ilike('username', currentUser);
     if (error) { msgEl.innerText = "Error: " + error.message; msgEl.style.color = "#c00"; }
     else { msgEl.innerText = "PIN removed."; msgEl.style.color = "#27ae60"; input.value = ""; await loadBankData(); }
   } else {
-    // Set PIN
+    // Set PIN — direct update
     const pin = input.value.trim();
     if (!/^\d{4}$/.test(pin)) { msgEl.innerText = "PIN must be exactly 4 digits."; msgEl.style.color = "#c00"; return; }
-    const { error } = await sb.rpc('ermn_set_bank_pin', { p_pin: pin });
+    const { error } = await sb.from('ermnium_wallets').update({ bank_pin: pin }).ilike('username', currentUser);
     if (error) { msgEl.innerText = "Error: " + error.message; msgEl.style.color = "#c00"; }
     else { msgEl.innerText = "PIN set!"; msgEl.style.color = "#27ae60"; input.value = ""; await loadBankData(); }
   }
