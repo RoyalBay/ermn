@@ -1,459 +1,201 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ermn. · login</title>
-<link rel="icon" href="wicon.png">  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
-  <style>
-    .username {
-      font-weight: bold;
-      font-family: Tahoma, Arial, sans-serif;
-    }
+<link rel="icon" href="wicon.png">
+<style>
+:root{--accent:#3b5998;--accent2:#8b9dc3;--bg1:#dfe7f3;--bg2:#f5f6f7;--border:#b0b7c3;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Tahoma,Verdana,sans-serif;background:linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);min-height:100vh;}
 
-    .dev-badge {
-      width: 14px;
-      height: 14px;
-      margin-left: 4px;
-      vertical-align: middle;
-      opacity: 0.9;
-      filter: drop-shadow(0 0 1px #000);
-    }
+.topbar{background:var(--accent);height:42px;display:flex;align-items:center;padding:0 12px;border-bottom:2px solid #2a4070;box-shadow:0 2px 4px rgba(0,0,0,0.3);}
+.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;text-shadow:1px 1px 2px rgba(0,0,0,0.4);}
+.topbar-links{margin-left:auto;display:flex;gap:12px;font-size:12px;}
+.topbar-links a{color:#ccd5e8;text-decoration:none;}
+.topbar-links a:hover{color:white;text-decoration:underline;}
 
-    :root {
-      --accent: #3b5998;
-      --accent2: #8b9dc3;
-      --bg1: #dfe7f3;
-      --bg2: #f5f6f7;
-    }
+.hero{text-align:center;padding:32px 16px 10px;}
+.hero-title{font-size:48px;font-weight:bold;color:var(--accent);letter-spacing:-3px;font-style:italic;text-shadow:2px 2px 0px rgba(59,89,152,0.2);}
+.hero-tagline{font-size:14px;color:#667;margin-top:4px;}
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+.container{max-width:940px;margin:20px auto;display:flex;gap:20px;padding:0 16px;}
+.main-col{flex:1;}
+.side-col{width:320px;}
 
-    body {
-      font-family: Tahoma, Verdana, sans-serif;
-      background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
-      min-height: 100vh;
-    }
+.card{background:white;border:1px solid var(--border);border-radius:2px;margin-bottom:20px;}
+.card-title{background:linear-gradient(180deg,#e8edf7,#d8e0f0);padding:6px 12px;font-size:13px;font-weight:bold;color:var(--accent);border-bottom:1px solid var(--border);}
+.card-body{padding:14px;}
 
-    /* TOP BAR */
-    .topbar {
-      background: var(--accent);
-      height: 42px;
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
-      border-bottom: 2px solid #2a4070;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    }
+label{display:block;font-size:12px;margin-bottom:4px;font-weight:bold;color:#333;}
+input{width:100%;padding:8px;margin-bottom:12px;border:1px solid #aaa;font-family:inherit;font-size:14px;}
+input:focus{outline:none;border-color:var(--accent);}
 
-    .topbar-logo {
-      font-size: 22px;
-      font-weight: bold;
-      color: white;
-      letter-spacing: -1px;
-      font-style: italic;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
-    }
+.btn-blue{background:linear-gradient(180deg,#5274b3,var(--accent));color:white;border:1px solid #2a4070;padding:8px 16px;font-weight:bold;cursor:pointer;font-family:inherit;width:100%;}
+.btn-green{background:linear-gradient(180deg,#5cb85c,#4a9e4a);color:white;border:1px solid #3a7e3a;padding:8px 16px;font-weight:bold;cursor:pointer;font-family:inherit;width:100%;margin-top:10px;}
 
-    .topbar-links {
-      margin-left: auto;
-      display: flex;
-      gap: 12px;
-      font-size: 12px;
-      color: #ccd5e8;
-    }
+.divider{border:none;border-top:1px solid #eee;margin:14px 0;}
+#msg{margin-top:10px;font-size:13px;min-height:18px;text-align:center;}
+.err{color:#c00;} .ok{color:#080;}
 
-    .topbar-links a {
-      color: #ccd5e8;
-      text-decoration: none;
-    }
+.footer{text-align:center;padding:30px;font-size:11px;color:#888;}
+.footer a{color:#888;text-decoration:none;margin:0 4px;}
 
-    .topbar-links a:hover {
-      color: white;
-      text-decoration: underline;
-    }
-
-    /* HERO */
-    .hero {
-      text-align: center;
-      padding: 32px 16px 10px;
-    }
-
-    .hero-title {
-      font-size: 48px;
-      font-weight: bold;
-      color: var(--accent);
-      letter-spacing: -3px;
-      font-style: italic;
-      text-shadow: 2px 2px 0px rgba(59, 89, 152, 0.2);
-    }
-
-    .hero-tagline {
-      font-size: 14px;
-      color: #667;
-      margin-top: 4px;
-    }
-
-    /* MAIN CONTAINER */
-    .container {
-      max-width: 900px;
-      margin: 20px auto;
-      display: grid;
-      grid-template-columns: 1fr 340px;
-      gap: 20px;
-      padding: 0 16px;
-    }
-
-    .card {
-      background: white;
-      border: 1px solid #b0b7c3;
-      border-radius: 4px;
-      overflow: hidden;
-      margin-bottom: 20px;
-    }
-
-    .card-title {
-      background: linear-gradient(180deg, #e8edf7, #d8e0f0);
-      padding: 8px 12px;
-      font-size: 13px;
-      font-weight: bold;
-      color: var(--accent);
-      border-bottom: 1px solid #b0b7c3;
-    }
-
-    .card-body {
-      padding: 16px;
-    }
-
-    /* LOGIN BOX */
-    .login-box label {
-      display: block;
-      font-size: 12px;
-      margin-bottom: 4px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .login-box input {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 12px;
-      border: 1px solid #aaa;
-      font-family: inherit;
-      font-size: 14px;
-    }
-
-    .login-box input:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-
-    .btn-blue {
-      background: linear-gradient(180deg, #5274b3, var(--accent));
-      color: white;
-      border: 1px solid #2a4070;
-      padding: 8px 16px;
-      font-weight: bold;
-      cursor: pointer;
-      font-family: inherit;
-      width: 100%;
-    }
-
-    .btn-green {
-      background: linear-gradient(180deg, #5cb85c, #4a9e4a);
-      color: white;
-      border: 1px solid #3a7e3a;
-      padding: 8px 16px;
-      font-weight: bold;
-      cursor: pointer;
-      font-family: inherit;
-      width: 100%;
-      margin-top: 10px;
-    }
-
-    .divider {
-      border: none;
-      border-top: 1px solid #eee;
-      margin: 14px 0;
-    }
-
-    #msg {
-      margin-top: 10px;
-      font-size: 13px;
-      min-height: 18px;
-      text-align: center;
-    }
-
-    .err {
-      color: #c00;
-    }
-
-    .ok {
-      color: #080;
-    }
-
-    /* FEED PREVIEW */
-    .preview-post {
-      border-bottom: 1px solid #eee;
-      padding: 10px 0;
-      display: flex;
-      gap: 10px;
-    }
-
-    .preview-post:last-child {
-      border-bottom: none;
-    }
-
-    .p-avatar {
-      width: 32px;
-      height: 32px;
-      background: #eee;
-      border: 1px solid #ddd;
-    }
-
-    .p-content {
-      flex: 1;
-    }
-
-    .p-user {
-      font-weight: bold;
-      color: var(--accent);
-      font-size: 13px;
-    }
-
-    .p-text {
-      font-size: 13px;
-      margin-top: 2px;
-      color: #444;
-    }
-
-    .footer {
-      text-align: center;
-      padding: 30px;
-      font-size: 12px;
-      color: #888;
-    }
-
-    .footer a {
-      color: #888;
-      text-decoration: none;
-      margin: 0 6px;
-    }
-
-    @media (max-width: 700px) {
-      .container {
-        grid-template-columns: 1fr;
-      }
-
-      .hero-title {
-        font-size: 40px;
-      }
-    }
-  </style>
+@media(max-width:768px){.container{flex-direction:column;}.side-col{width:100%;}}
+</style>
 </head>
-
 <body>
-  <div class="topbar">
-    <div class="topbar-logo">ermn.</div>
-    <div class="topbar-links">
-      <a href="about.html">About</a>
-      <a href="help.html">Help</a>
-    </div>
-  </div>
-
-  <div class="hero">
-    <div class="hero-title">ermn.</div>
-    <div class="hero-tagline">whenever. wherever. whoever.</div>
-  </div>
-
-  <div class="container">
-    <div class="left-col">
-      <div class="card">
-        <div class="card-title">What's happening?</div>
-        <div class="card-body">
-          <div id="feedPreview">
-            <div style="color:#888; font-style:italic; font-size:12px; text-align:center; padding:20px;">
-              Sign in to see what's happening on ermn.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Discovery</div>
-        <div class="card-body" style="font-size:13px; color:#555; line-height:1.5;">
-          Join thousands of users sharing their thoughts, music, and ideas. 
-          Connect with friends and discover new creators in an environment designed for expression.
-        </div>
-      </div>
-    </div>
-
-    <div class="right-col">
-      <div class="card login-box">
-        <div class="card-title">Login</div>
-        <div class="card-body" id="loginStep">
-          <label>Username or Email</label>
-          <input type="text" id="username" placeholder="Username" autocomplete="username">
-          <label>Password</label>
-          <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-          <button class="btn-blue" id="loginBtn" onclick="login()">Login</button>
-          <div class="divider"></div>
-          <button class="btn-green" id="createBtn" onclick="create()">Create New Account</button>
-          <div id="msg"></div>
-        </div>
-        <div class="card-body" id="twoFAStep" style="display:none;">
-          <div style="text-align:center; margin-bottom:15px;">
-            <span class="material-icons" style="font-size:48px; color:var(--accent);">security</span>
-            <p style="font-weight:bold; margin-top:5px;">2FA Required</p>
-            <p style="font-size:12px; color:#666;">Enter your 6-digit authenticator code.</p>
-          </div>
-          <input type="text" id="totpCode" placeholder="000000" style="text-align:center; font-size:20px; letter-spacing:4px;">
-          <button class="btn-blue" id="totpBtn" onclick="submitTotp()">Verify</button>
-          <button onclick="cancelTwoFA()" style="width:100%; margin-top:8px; border:1px solid #ccc; background:#eee; padding:8px; font-family:inherit; cursor:pointer;">Cancel</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Mobile Access</div>
-        <div class="card-body" style="font-size:12px; color:#666; text-align:center;">
-          Take ermn. with you. Scan the QR or visit on your phone for the mobile experience.
-          <br><br>
-          <a href="mobile.html" style="color:var(--accent); font-weight:bold;">Go to Mobile Version</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">
-    &copy; 2026 ermn. · 
-    <a href="about.html">About</a> · 
-    <a href="help.html">Help</a> · 
-    <a href="privacy.html">Privacy</a> · 
+<div class="topbar">
+  <div class="topbar-logo">ermn.</div>
+  <div class="topbar-links">
+    <a href="about.html">About</a>
+    <a href="help.html">Help</a>
+    <a href="privacy.html">Privacy</a>
     <a href="terms.html">Terms</a>
   </div>
+</div>
 
-  <script src="config.js"></script>
-  <script src="theme.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = window.ERMN_URL;
-    const SUPABASE_KEY = window.ERMN_KEY;
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<div class="hero">
+  <div class="hero-title">ermn.</div>
+  <div class="hero-tagline">whenever. wherever. whoever.</div>
+</div>
 
-    let _mfaChallengeId = null, _mfaFactorId = null;
+<div class="container">
+  <div class="main-col">
+    <div class="card">
+      <div class="card-title">What's happening?</div>
+      <div class="card-body">
+        <div style="color:#888; font-style:italic; font-size:12px; text-align:center; padding:40px;">
+          Connect with friends and stay updated. Sign in to join the conversation.
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Global Discovery</div>
+      <div class="card-body" style="font-size:12px; color:#555; line-height:1.5;">
+        Discovery feed is now live. Explore trending posts and new voices across the platform.
+      </div>
+    </div>
+  </div>
 
-    async function checkMaintenance() {
-      const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
-      if (config && config.value === true) {
-        const cu = localStorage.getItem("currentUser");
-        if (cu) {
-          const { data: me } = await sb.from("users").select("is_admin, is_developer").ilike("username", cu).maybeSingle();
-          if (me && (me.is_admin || me.is_developer)) return;
-        }
-        location.href = "maintenance.html";
-      }
+  <div class="side-col">
+    <div class="card">
+      <div class="card-title">Login</div>
+      <div class="card-body" id="loginStep">
+        <label>Username or Email</label>
+        <input type="text" id="username" placeholder="Username" autocomplete="username">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+        <button class="btn-blue" id="loginBtn" onclick="login()">Login</button>
+        <div class="divider"></div>
+        <button class="btn-green" onclick="create()">Create Account</button>
+        <div id="msg"></div>
+      </div>
+      <div class="card-body" id="twoFAStep" style="display:none; text-align:center;">
+        <span class="material-icons" style="font-size:40px; color:var(--accent);">security</span>
+        <p style="font-weight:bold; margin-top:8px;">2FA Verification</p>
+        <input type="text" id="totpCode" placeholder="000000" style="text-align:center; font-size:20px; letter-spacing:4px; margin-top:12px;">
+        <button class="btn-blue" onclick="submitTotp()">Verify Code</button>
+        <button onclick="cancelTwoFA()" style="width:100%; margin-top:8px; border:1px solid #ccc; background:#eee; padding:6px; font-family:inherit; cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Mobile</div>
+      <div class="card-body" style="text-align:center; font-size:12px;">
+        <a href="mobile.html" style="color:var(--accent); font-weight:bold;">Access Mobile Version</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  &copy; 2026 ermn. &middot; <a href="about.html">About</a> &middot; <a href="help.html">Help</a> &middot; <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a>
+</div>
+
+<script src="config.js"></script>
+<script src="theme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = window.ERMN_URL;
+const SUPABASE_KEY = window.ERMN_KEY;
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let _mfaChallengeId = null, _mfaFactorId = null;
+
+async function checkMaintenance() {
+  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
+  if (config && config.value === true) {
+    const cu = localStorage.getItem("currentUser");
+    if (cu) {
+      const { data: me } = await sb.from("users").select("is_admin, is_developer").ilike("username", cu).maybeSingle();
+      if (me && (me.is_admin || me.is_developer)) return;
     }
-    checkMaintenance();
-    applyTheme();
+    location.href = "maintenance.html";
+  }
+}
+checkMaintenance();
+applyTheme();
 
-    (function () {
-      const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 600;
-      if (isMobile && !location.href.includes('mobile.html') && !location.search.includes('skipMobile')) {
-        location.replace('mobile.html');
-      }
-    })();
+function setMsg(t, e) { const el=document.getElementById("msg"); el.innerText=t; el.className=e?"err":"ok"; }
+function setBusy(b) { document.getElementById("loginBtn").disabled=b; }
 
-    function setMsg(text, isError) {
-      const el = document.getElementById("msg");
-      el.innerText = text; el.className = isError ? "err" : "ok";
+async function login() {
+  const rawU = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  if (!p || !rawU) { setMsg("Fill in all fields.", true); return; }
+  setBusy(true); setMsg("Logging in...", false);
+  const email = rawU.includes("@") ? rawU : (rawU.toLowerCase() + "@ermn.social");
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
+  if (error) { setMsg(error.message, true); setBusy(false); return; }
+  const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", data.user.id).maybeSingle();
+  if (profile) {
+    localStorage.setItem("currentUser", profile.username);
+    if (profile.is_admin) {
+      const s = await uiPrompt("Admin secret:");
+      const { data: ok } = await sb.rpc('verify_admin_secret', { provided_secret: s });
+      if (!ok) { await uiAlert("Invalid secret."); await sb.auth.signOut(); setBusy(false); return; }
+      sessionStorage.setItem("adminSecret", s);
     }
-    function setBusy(b) {
-      document.getElementById("loginBtn").disabled = b;
-      document.getElementById("createBtn").disabled = b;
-      if (document.getElementById("totpBtn")) document.getElementById("totpBtn").disabled = b;
-    }
+  } else { localStorage.setItem("currentUser", data.user.user_metadata.username || rawU); }
+  const { data: factorsData } = await sb.auth.mfa.listFactors();
+  const totpFactor = factorsData?.totp?.find(f => f.status === 'verified');
+  if (totpFactor) {
+    const { data: ch } = await sb.auth.mfa.challenge({ factorId: totpFactor.id });
+    _mfaFactorId = totpFactor.id; _mfaChallengeId = ch.id;
+    document.getElementById("loginStep").style.display = "none";
+    document.getElementById("twoFAStep").style.display = "block";
+    setBusy(false); return;
+  }
+  location.href = "feed.html";
+}
 
-    async function login() {
-      const rawU = document.getElementById("username").value.trim();
-      const p = document.getElementById("password").value;
-      if (!p || !rawU) { setMsg("Please fill in fields.", true); return; }
-      setBusy(true); setMsg("Logging in...", false);
-      const email = rawU.includes("@") ? rawU : (rawU.toLowerCase() + "@ermn.social");
-      const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
-      if (error) {
-        let errMsg = error.message;
-        if (errMsg === "Invalid login credentials" && !rawU.includes("@")) errMsg = "Returning user? Try your original email.";
-        setMsg(errMsg, true); setBusy(false); return;
-      }
-      const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", data.user.id).maybeSingle();
-      if (profile) {
-        localStorage.setItem("currentUser", profile.username);
-        if (profile.is_admin) {
-          const secret = await uiPrompt("Admin account detected.\nEnter the Admin Secret Key:");
-          const { data: isCorrect, error: rpcErr } = await sb.rpc('verify_admin_secret', { provided_secret: secret });
-          if (rpcErr || !isCorrect) {
-            await uiAlert("Invalid Admin Secret Key.");
-            await sb.auth.signOut(); localStorage.removeItem("currentUser");
-            setBusy(false); setMsg("Invalid admin secret.", true); return;
-          }
-          sessionStorage.setItem("adminSecret", secret);
-        }
-      } else {
-        localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);
-      }
-      const { data: factorsData } = await sb.auth.mfa.listFactors();
-      const totpFactor = factorsData?.totp?.find(f => f.status === 'verified');
-      if (totpFactor) {
-        const { data: ch, error: chErr } = await sb.auth.mfa.challenge({ factorId: totpFactor.id });
-        if (chErr) { setMsg("2FA error: " + chErr.message, true); setBusy(false); return; }
-        _mfaFactorId = totpFactor.id; _mfaChallengeId = ch.id;
-        document.getElementById("loginStep").style.display = "none";
-        document.getElementById("twoFAStep").style.display = "block";
-        setMsg("", false); setBusy(false);
-        setTimeout(() => document.getElementById("totpCode").focus(), 100); return;
-      }
-      location.href = "feed.html";
-    }
+function cancelTwoFA() {
+  document.getElementById("twoFAStep").style.display = "none";
+  document.getElementById("loginStep").style.display = "block";
+  sb.auth.signOut(); localStorage.removeItem("currentUser");
+}
 
-    function cancelTwoFA() {
-      document.getElementById("twoFAStep").style.display = "none";
-      document.getElementById("loginStep").style.display = "block";
-      document.getElementById("totpCode").value = "";
-      sb.auth.signOut(); localStorage.removeItem("currentUser");
-    }
+async function submitTotp() {
+  const code = document.getElementById("totpCode").value.replace(/\D/g, "");
+  if (code.length !== 6) return;
+  const { error } = await sb.auth.mfa.verify({ factorId: _mfaFactorId, challengeId: _mfaChallengeId, code });
+  if (error) { setMsg("Invalid code.", true); return; }
+  location.href = "feed.html";
+}
 
-    async function submitTotp() {
-      const code = document.getElementById("totpCode").value.replace(/\D/g, "");
-      if (code.length !== 6) { setMsg("Enter a 6-digit code.", true); return; }
-      setBusy(true); const { error } = await sb.auth.mfa.verify({ factorId: _mfaFactorId, challengeId: _mfaChallengeId, code });
-      if (error) { setMsg("Invalid code.", true); setBusy(false); return; }
-      location.href = "feed.html";
-    }
-
-    async function create() {
-      const rawU = document.getElementById("username").value.trim();
-      const p = document.getElementById("password").value;
-      if (!rawU || !p) { setMsg("Please fill in all fields.", true); return; }
-      if (rawU.length < 3) { setMsg("Username too short.", true); return; }
-      setBusy(true); setMsg("Creating account...", false);
-      const { data: existing } = await sb.from("users").select("username").ilike("username", rawU).maybeSingle();
-      if (existing) { setMsg("Username taken.", true); setBusy(false); return; }
-      const email = rawU.toLowerCase() + "@ermn.social";
-      const { data, error } = await sb.auth.signUp({ email, password: p, options: { data: { username: rawU } } });
-      if (error) { setMsg(error.message, true); setBusy(false); return; }
-      if (data.user && data.session) {
-        localStorage.setItem("currentUser", rawU);
-        location.href = "feed.html";
-      } else {
-        setMsg("Account created! You can now log in.", false); setBusy(false);
-      }
-    }
-  </script>
+async function create() {
+  const rawU = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  if (!rawU || !p) { setMsg("Fill in all fields.", true); return; }
+  setBusy(true); setMsg("Creating...", false);
+  const email = rawU.toLowerCase() + "@ermn.social";
+  const { data, error } = await sb.auth.signUp({ email, password: p, options: { data: { username: rawU } } });
+  if (error) { setMsg(error.message, true); setBusy(false); return; }
+  if (data.user && data.session) { localStorage.setItem("currentUser", rawU); location.href = "feed.html"; }
+  else { setMsg("Created! Log in now.", false); setBusy(false); }
+}
+</script>
 </body>
 </html>
