@@ -3,260 +3,87 @@
 <head>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ermn. · Settings</title>
 <link rel="icon" href="wicon.png">
+<link rel="stylesheet" href="mobile_modern.css">
 <style>
-:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:100vh;font-size:14px;padding-bottom:70px;}
-
-.topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
-.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
-
-.main{padding:12px;}
-
-.card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:12px;overflow:hidden;}
-.card-title{background:var(--card-header);border-bottom:1px solid var(--border);padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
-.card-body{padding:14px;}
-
-/* Themes */
-.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.theme-swatch{border:2px solid transparent;cursor:pointer;padding:0;background:none;font-family:inherit;text-align:center;-webkit-tap-highlight-color:transparent;}
-.theme-swatch.active .swatch-preview{border-color:#333;box-shadow:0 0 0 2px var(--accent);}
-.swatch-preview{width:100%;height:36px;border:2px solid #ccc;display:block;margin-bottom:3px;}
-.swatch-label{font-size:11px;color:#444;}
-
-label{display:block;font-size:12px;font-weight:bold;color:#444;margin:10px 0 3px;}
-input[type=password]{width:100%;border:1px solid var(--border);padding:10px;font-family:inherit;font-size:14px;background:var(--input-bg);color:var(--text);-webkit-appearance:none;border-radius:2px;}
-input:focus{outline:none;border-color:var(--accent);background:var(--card-bg);}
-
-.btn{background:var(--accent);color:white;border:none;padding:12px 20px;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:2px;margin-top:8px;width:100%;-webkit-tap-highlight-color:transparent;}
-.btn:active{opacity:0.85;}
-.msg{font-size:12px;margin-top:6px;min-height:16px;}
-.ok{color:#080;} .err{color:#c00;}
-
-.info-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dotted #eee;font-size:13px;}
-.info-row:last-child{border-bottom:none;}
-.info-row span:first-child{color:#888;}
-.info-row span:last-child{font-weight:bold;color:#333;}
-
-/* Bottom nav */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:50;}
-.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;-webkit-tap-highlight-color:transparent;}
-.bottom-nav a:active{background:rgba(255,255,255,0.1);}
-.bottom-nav a .icon{font-size:20px;}
-.bottom-nav a:active{background:rgba(255,255,255,0.1);}
-.bottom-nav a .icon{font-size:20px;}
-  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
-  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
-.card-title  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
-  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
-.bottom-nav a  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
-  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+  .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+  .info-row:last-child { border-bottom: none; }
 </style>
 </head>
 <body>
-
-<div class="topbar"><span class="topbar-logo">ermn.</span></div>
+<div class="topbar">
+  <span class="topbar-logo">ermn.</span>
+</div>
 
 <div class="main">
-
-  <!-- Site Experience -->
   <div class="card">
-    <div class="card-title"><span class="material-icons">auto_awesome</span> Site Experience</div>
-    <div class="card-body">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <strong style="display:block;font-size:14px;color:var(--accent);">Modernize UI</strong>
-          <span style="font-size:11px;color:#666;">Overhauls the retro aesthetic with modern rounded corners and spacing.</span>
-        </div>
-        <button id="modernizeBtn" onclick="toggleModernize()" style="padding:8px 16px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;border-radius:4px;min-width:100px;">...</button>
-      </div>
+    <div class="compose-box" style="margin-bottom:0; border:none; border-radius:0;">
+      <h4 style="background:var(--accent); color:white; border:none;"><span class="material-icons">palette</span> Theme & Look</h4>
     </div>
-  </div>
-
-  <!-- Theme -->
-  <div class="card">
-    <div class="card-title"><span class="material-icons">palette</span> Theme</div>
-    <div class="card-body">
-      <p style="font-size:12px;color:#666;margin-bottom:10px;">Choose your look. Changes apply everywhere.</p>
-      <div class="theme-grid">
-        <button class="theme-swatch" id="sw-classic" onclick="setTheme('classic')">
-          <div class="swatch-preview" style="background:linear-gradient(180deg,#dfe7f3,#f5f6f7);border-top:6px solid #3b5998;"></div>
-          <div class="swatch-label">Classic</div>
+    <div class="card-body" style="padding:15px;">
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
+        <button onclick="setTheme('classic')" style="border:none; background:none; text-align:center;">
+          <div style="height:30px; background:#3b5998; border-radius:4px; margin-bottom:4px;"></div>
+          <span style="font-size:10px; font-weight:bold;">Classic</span>
         </button>
-        <button class="theme-swatch" id="sw-cherry" onclick="setTheme('cherry')">
-          <div class="swatch-preview" style="background:linear-gradient(180deg,#fff5f7,#fde2e4);border-top:6px solid #ffb7c5;"></div>
-          <div class="swatch-label">Cherry Blossom</div>
+        <button onclick="setTheme('midnight')" style="border:none; background:none; text-align:center;">
+          <div style="height:30px; background:#12122a; border-radius:4px; margin-bottom:4px;"></div>
+          <span style="font-size:10px; font-weight:bold;">Midnight</span>
         </button>
-        <button class="theme-swatch" id="sw-midnight" onclick="setTheme('midnight')">
-          <div class="swatch-preview" style="background:linear-gradient(180deg,#0a0a1a,#1a1a2e);border-top:6px solid #7b68ee;"></div>
-          <div class="swatch-label">Midnight</div>
-        </button>
-        <button class="theme-swatch" id="sw-y2k" onclick="setTheme('y2k')">
-          <div class="swatch-preview" style="background:linear-gradient(180deg,#c0e8ff,#e8f4ff);border-top:6px solid #0055cc;"></div>
-          <div class="swatch-label">Y2K Ice</div>
-        </button>
-        <button class="theme-swatch" id="sw-limeade" onclick="setTheme('limeade')">
-          <div class="swatch-preview" style="background:linear-gradient(180deg,#e8fce8,#f5fff5);border-top:6px solid #2d7a2d;"></div>
-          <div class="swatch-label">Limeade</div>
-        </button>
-        <button class="theme-swatch" id="sw-cyberpunk" onclick="setTheme('cyberpunk')">
-          <div class="swatch-preview" style="background:linear-gradient(180deg,#0d0221,#0f084b);border-top:6px solid #ff00ff;"></div>
-          <div class="swatch-label">Cyberpunk</div>
+        <button onclick="setTheme('cyberpunk')" style="border:none; background:none; text-align:center;">
+          <div style="height:30px; background:#ff00ff; border-radius:4px; margin-bottom:4px;"></div>
+          <span style="font-size:10px; font-weight:bold;">Cyber</span>
         </button>
       </div>
-      <div class="msg ok" id="themeMsg"></div>
     </div>
   </div>
 
-  <!-- Account Security -->
   <div class="card">
-    <div class="card-title"><span class="material-icons">security</span> Account Security</div>
-    <div class="card-body">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <strong style="display:block;font-size:14px;color:var(--accent);">Two-Factor Auth (2FA)</strong>
-          <span id="twoFAStatus" style="font-size:11px;color:#666;">Checking status...</span>
-        </div>
-        <button id="twoFAToggleBtn" onclick="toggle2FA()" style="padding:4px 8px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;font-size:11px;">...</button>
-      </div>
-      <div class="msg" id="securityMsg"></div>
+    <div class="compose-box" style="margin-bottom:0; border:none; border-radius:0;">
+      <h4 style="background:#555; color:white; border:none;"><span class="material-icons">swap_horiz</span> Data Portability</h4>
     </div>
-  </div>
-
-  <!-- 2FA Setup Modal -->
-  <div id="twoFAModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:16px;">
-    <div style="background:white;width:100%;max-width:340px;border-radius:8px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
-      <div style="background:var(--topbar-bg);color:white;padding:12px 16px;font-weight:bold;font-size:14px;display:flex;justify-content:space-between;align-items:center;">
-        <span><span class="material-icons" style="font-size:16px;vertical-align:middle;margin-right:4px;">security</span> Set Up 2FA</span>
-        <span onclick="closeTwoFAModal()" style="cursor:pointer;opacity:0.8;">&#x2715;</span>
-      </div>
-      <div style="padding:16px;">
-        <p style="font-size:13px;color:#444;margin-bottom:12px;">Scan this QR code with an authenticator app like Google Authenticator or Authy, then enter the 6-digit code to verify.</p>
-        <div style="text-align:center;margin-bottom:12px;">
-          <img id="twoFAQR" src="" style="width:160px;height:160px;border:1px solid #ddd;border-radius:4px;">
-        </div>
-        <p style="font-size:11px;color:#888;text-align:center;margin-bottom:12px;">Manual code: <strong id="twoFASecret" style="font-family:monospace;color:#333;"></strong></p>
-        <input type="text" id="twoFACode" placeholder="6-digit code" maxlength="6" inputmode="numeric" style="width:100%;padding:12px;font-size:20px;text-align:center;letter-spacing:8px;border:1px solid #ccc;font-family:monospace;margin-bottom:10px;-webkit-appearance:none;">
-        <button class="btn" onclick="verifyAndEnable2FA()" style="width:100%;">Verify &amp; Enable 2FA</button>
-        <div class="msg" id="twoFAModalMsg" style="margin-top:8px;text-align:center;"></div>
+    <div class="card-body" style="padding:15px;">
+      <p style="font-size:12px; color:#666; margin-bottom:12px;">Export or restore your posts, likes, and balances.</p>
+      <button class="btn" onclick="exportData()" style="width:100%; margin-bottom:10px;">Export My Data (.ermn)</button>
+      <label for="importFile" class="btn" style="width:100%; display:block; text-align:center; background:#eee; color:#333; border:1px solid #ccc;">Import Backup</label>
+      <input type="file" id="importFile" accept=".ermn" style="display:none;" onchange="previewImport(event)">
+      <div id="importMsg" class="msg"></div>
+      <div id="importPreview" style="display:none; margin-top:10px; background:#f9f9f9; padding:10px; border:1px solid #ddd; border-radius:6px;">
+        <div id="importPreviewBody" style="font-size:12px; margin-bottom:10px;"></div>
+        <button class="btn" onclick="importData()" style="width:100%;">Restore Content</button>
       </div>
     </div>
   </div>
 
-  <!-- Change Password -->
+  <div class="card" id="devCard" style="display:none;">
+    <div class="compose-box" style="margin-bottom:0; border:none; border-radius:0;">
+      <h4 style="background:#c00; color:white; border:none;"><span class="material-icons">code</span> Developer Tools</h4>
+    </div>
+    <div class="card-body" style="padding:15px;">
+      <button id="maintenanceToggle" class="btn" style="width:100%; background:#c00;" onclick="toggleMaintenanceMode()">SITE MAINTENANCE: OFF</button>
+      <p style="font-size:10px; color:#888; margin-top:6px; text-align:center;">Nuclear switch: Shuts down site for non-staff.</p>
+    </div>
+  </div>
+
   <div class="card">
-    <div class="card-title"><span class="material-icons">lock</span> Change Password</div>
-    <div class="card-body">
-      <label>Current Password</label>
-      <input type="password" id="currentPass" placeholder="Current password">
-      <label>New Password</label>
-      <input type="password" id="newPass" placeholder="New password (min 4 chars)">
-      <label>Confirm New Password</label>
-      <input type="password" id="confirmPass" placeholder="Repeat new password">
-      <button class="btn" onclick="changePassword()">Change Password</button>
-      <div class="msg" id="passMsg"></div>
+    <div class="compose-box" style="margin-bottom:0; border:none; border-radius:0;">
+      <h4 style="background:#3b5998; color:white; border:none;"><span class="material-icons">info</span> Account Info</h4>
+    </div>
+    <div class="card-body" style="padding:15px;">
+      <div class="info-row"><span>Username</span><span id="infoUser">@...</span></div>
+      <div class="info-row"><span>Member Since</span><span id="infoJoined">...</span></div>
+      <button class="btn" onclick="logout()" style="width:100%; background:#f5f6f7; color:#c00; border:1px solid #ddd; margin-top:15px;">Logout</button>
     </div>
   </div>
-
-  <!-- Privacy & Follow Requests -->
-  <div class="card">
-    <div class="card-title"><span class="material-icons">privacy_tip</span> Privacy & Follow Requests</div>
-    <div class="card-body">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #eee;">
-        <div>
-          <strong style="display:block;font-size:14px;color:var(--accent);">Private Account</strong>
-          <span style="font-size:11px;color:#666;">New followers must request to follow you.</span>
-        </div>
-        <button id="privateToggleBtn" onclick="togglePrivate()" style="padding:4px 8px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;font-size:11px;white-space:nowrap;">...</button>
-      </div>
-      <div>
-        <strong style="display:block;font-size:13px;color:#444;margin-bottom:8px;">Follow Requests</strong>
-        <div id="requestsList" style="font-size:13px;color:#888;">Loading requests...</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Blocked Users -->
-  <div class="card">
-    <div class="card-title"><span class="material-icons">block</span> Blocked Users</div>
-    <div class="card-body">
-      <div id="blockedList" style="font-size:13px;color:#888;">Loading blocked users...</div>
-    </div>
-  </div>
-
-  <div class="card" id="adminToggleCard" style="display:none;">
-    <div class="card-title"><span class="material-icons">security</span> Admin Toggle</div>
-    <div class="card-body">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
-        <div>
-          <strong style="display:block;font-size:13px;color:var(--accent);">Hide Admin Controls</strong>
-          <span style="font-size:10px;color:#666;">Hides ban/delete buttons from the feed.</span>
-        </div>
-        <button id="adminToggleBtn" onclick="toggleAdminControls()" style="padding:4px 8px;background:#eee;border:1px solid #ccc;cursor:pointer;font-weight:bold;font-family:inherit;font-size:11px;white-space:nowrap;">...</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Data Portability -->
-  <div class="card" id="dataPortabilityCard">
-    <div class="card-title"><span class="material-icons">swap_horiz</span> Data Portability</div>
-    <div class="card-body">
-      <p style="margin:0 0 10px;font-size:12px;color:var(--text);opacity:0.8;line-height:1.5;">
-        Export your posts as a backup. If the database is wiped, re-import to restore your content.
-      </p>
-      <div style="margin-bottom:12px;">
-        <div style="font-weight:600;font-size:13px;margin-bottom:5px;"><span class="material-icons" style="font-size:16px;vertical-align:middle;margin-right:4px;margin-top:-2px;">file_download</span> Export My Data</div>
-        <div style="font-size:11px;color:var(--text);opacity:0.7;margin-bottom:7px;">Downloads a <code>.ermn</code> file with your posts, like counts, and timestamps.</div>
-        <button class="btn" id="exportBtn" onclick="exportData()" style="margin:0;width:100%;">Export Data</button>
-        <div class="msg" id="exportMsg" style="margin-top:5px;"></div>
-      </div>
-      <hr style="border:none;border-top:1px solid var(--border);margin:10px 0;">
-      <div>
-        <div style="font-weight:600;font-size:13px;margin-bottom:5px;"><span class="material-icons" style="font-size:16px;vertical-align:middle;margin-right:4px;margin-top:-2px;">file_upload</span> Import Backup</div>
-        <div style="font-size:11px;color:var(--text);opacity:0.7;margin-bottom:7px;">Select a <code>.ermn</code> file to restore your posts.</div>
-        <label for="importFile" class="btn" style="margin:0;display:block;text-align:center;cursor:pointer;width:100%;box-sizing:border-box;">Choose .ermn File</label>
-        <input type="file" id="importFile" accept=".ermn,.json" style="display:none;" onchange="previewImport(event)">
-        <div id="importPreview" style="display:none;margin-top:8px;background:rgba(0,0,0,0.04);border:1px solid var(--border);border-radius:6px;padding:8px;">
-          <div style="font-weight:600;font-size:12px;margin-bottom:5px;" id="importPreviewTitle">Preview</div>
-          <div id="importPreviewBody" style="font-size:11px;color:var(--text);opacity:0.85;"></div>
-          <div style="margin-top:8px;display:flex;gap:6px;">
-            <button class="btn" onclick="importData()" id="importConfirmBtn" style="margin:0;padding:5px 12px;font-size:12px;flex:1;">Restore Posts</button>
-            <button onclick="cancelImport()" style="padding:5px 10px;font-size:12px;background:transparent;border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text);font-family:inherit;">Cancel</button>
-          </div>
-        </div>
-        <div class="msg" id="importMsg" style="margin-top:5px;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Account Info -->
-  <div class="card">
-    <div class="card-title"><span class="material-icons">info</span> Account Info</div>
-    <div class="card-body">
-      <div class="info-row"><span>Username</span><span id="infoUser">—</span></div>
-      <div class="info-row"><span>Member since</span><span id="infoJoined">—</span></div>
-    </div>
-  </div>
-
-  <!-- Logout -->
-  <div class="card">
-    <div class="card-body">
-      <button onclick="logout()" style="width:100%;padding:12px;background:#c00;color:white;border:none;font-family:inherit;font-size:14px;font-weight:bold;cursor:pointer;border-radius:2px;display:flex;align-items:center;justify-content:center;gap:6px;-webkit-tap-highlight-color:transparent;">
-        <span class="material-icons" style="font-size:18px;">logout</span> Log Out
-      </button>
-    </div>
-  </div>
-
 </div>
 
 <nav class="bottom-nav">
   <a href="mobile_feed.html"><span class="material-icons">home</span><span>Home</span></a>
   <a href="mobile_algo_feed.html"><span class="material-icons">explore</span><span>Feed</span></a>
   <a href="mobile_profile.html"><span class="material-icons">person</span><span>Profile</span></a>
-  <a href="mobile_settings.html"><span class="material-icons">settings</span><span>Settings</span></a>
+  <a href="mobile_settings.html" class="active"><span class="material-icons">settings</span><span>Settings</span></a>
 </nav>
 
 <script src="config.js"></script>
@@ -265,375 +92,88 @@ input:focus{outline:none;border-color:var(--accent);background:var(--card-bg);}
 <script src="app.js"></script>
 <script>
 const me = localStorage.getItem("currentUser");
-if (!me) location.href = "mobile.html";
 
-const themeKeys = ["classic","cherry","midnight","y2k","limeade","cyberpunk"];
-const themeColors = {
-    classic:   { body:"linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%)",card:"#fff",topbar:"#3b5998",text:"#333",border:"#b0b7c3",accent:"#3b5998" },
-    cherry:    { body:"linear-gradient(180deg,#fff5f7 0%,#fde2e4 100%)",card:"#fff",topbar:"#ffb7c5",text:"#5f4b4b",border:"#ffcad4",accent:"#ff8fa3" },
-    midnight:  { body:"linear-gradient(180deg,#0a0a1a 0%,#12122a 100%)",card:"#1a1a2e",topbar:"#0d0d1f",text:"#c8d0e8",border:"#2a2a4a",accent:"#7b68ee" },
-    y2k:       { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)",card:"#fff",topbar:"#0055cc",text:"#002266",border:"#99bbff",accent:"#0055cc" },
-    limeade:   { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)",card:"#f9fff9",topbar:"#2d7a2d",text:"#1a3d1a",border:"#a3d9a3",accent:"#2d7a2d" },
-    cyberpunk: { body:"linear-gradient(180deg,#0d0221 0%,#0f084b 100%)",card:"#1a1a3a",topbar:"#26084d",text:"#00f2ff",border:"#ff00ff",accent:"#ff00ff" },
-};
-
-function setTheme(t) {
-  localStorage.setItem("theme", t);
-  if (typeof applyTheme === "function") applyTheme();
-  themeKeys.forEach(k => document.getElementById("sw-"+k).classList.remove("active"));
-  document.getElementById("sw-"+t).classList.add("active");
-  document.getElementById("themeMsg").innerText = "Theme applied!";
-  setTimeout(() => { document.getElementById("themeMsg").innerText = ""; }, 2000);
-}
-
-async function changePassword() {
-  const cur = document.getElementById("currentPass").value;
-  const nw  = document.getElementById("newPass").value;
-  const cf  = document.getElementById("confirmPass").value;
-  const msgEl = document.getElementById("passMsg");
-  msgEl.className = "msg";
-  if (!cur || !nw || !cf) { msgEl.innerText = "Please fill all fields."; msgEl.className = "msg err"; return; }
-  if (nw !== cf)           { msgEl.innerText = "New passwords don't match."; msgEl.className = "msg err"; return; }
-  if (nw.length < 4)       { msgEl.innerText = "Password must be at least 4 characters."; msgEl.className = "msg err"; return; }
-  const { data } = await sb.from("users").select("password").eq("username", me).maybeSingle();
-  if (!data || data.password !== cur) { msgEl.innerText = "Incorrect current password."; msgEl.className = "msg err"; return; }
-  const { error } = await sb.from("users").update({ password: nw }).eq("username", me);
-  if (error) { msgEl.innerText = "Error: " + error.message; msgEl.className = "msg err"; return; }
-  msgEl.innerText = "Password changed!";
-  msgEl.className = "msg ok";
-  document.getElementById("currentPass").value = "";
-  document.getElementById("newPass").value = "";
-  document.getElementById("confirmPass").value = "";
-}
-
-// Init — apply saved theme
-if (typeof applyTheme === "function") applyTheme();
-const cur = localStorage.getItem("theme") || "classic";
-document.getElementById("sw-"+cur).classList.add("active");
-document.getElementById("infoUser").innerText = "@" + me;
-
-async function loadInfo() {
-  const { data: user } = await sb.from("users").select("created_at, is_private, is_admin").eq("username", me).maybeSingle();
+async function loadSettings() {
+  document.getElementById("infoUser").innerText = "@" + me;
+  const { data: user } = await sb.from("users").select("created_at, is_admin, is_developer").ilike("username", me).maybeSingle();
   if (user) {
-    if (user.created_at) document.getElementById("infoJoined").innerText = new Date(user.created_at).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
-    const btn = document.getElementById("privateToggleBtn");
-    btn.innerText = user.is_private ? "Enabled (Off)" : "Disabled (On)";
-    btn.style.background = user.is_private ? "#e8fce8" : "#eee";
-    btn.style.borderColor = user.is_private ? "#2d7a2d" : "#ccc";
-
-    if (user.is_admin) {
-      document.getElementById("adminToggleCard").style.display = "block";
-      updateAdminToggleBtn();
+    document.getElementById("infoJoined").innerText = new Date(user.created_at).toLocaleDateString();
+    if (user.is_admin || user.is_developer) {
+      document.getElementById("devCard").style.display = "block";
+      initMaintenanceStatus();
     }
-    
-    await load2FAStatus();
-  }
-  loadRequests();
-}
-
-function updateAdminToggleBtn() {
-  const hide = localStorage.getItem("hideAdminControls") === "true";
-  const btn = document.getElementById("adminToggleBtn");
-  btn.innerText = hide ? "Hidden" : "Visible";
-  btn.style.background = hide ? "#fce8e8" : "#e8fce8";
-  btn.style.color = hide ? "#c00" : "#2d7a2d";
-  btn.style.borderColor = hide ? "#c00" : "#2d7a2d";
-}
-
-function toggleAdminControls() {
-  const hide = localStorage.getItem("hideAdminControls") === "true";
-  localStorage.setItem("hideAdminControls", !hide);
-  updateAdminToggleBtn();
-}
-
-async function toggle2FA() {
-  const { data: factors } = await sb.auth.mfa.listFactors();
-  const totp = factors?.totp?.find(f => f.status === 'verified');
-  if (totp) {
-    if (!await uiConfirm("Disable Two-Factor Authentication? Your account will be less secure.")) return;
-    const { error } = await sb.auth.mfa.unenroll({ factorId: totp.id });
-    const msg = document.getElementById("securityMsg");
-    if (error) {
-      msg.innerText = "Error: " + error.message; msg.className = "msg err";
-    } else {
-      msg.innerText = "2FA has been disabled."; msg.className = "msg ok";
-      load2FAStatus();
-    }
-    setTimeout(() => msg.innerText = "", 4000);
-  } else {
-    const { data, error } = await sb.auth.mfa.enroll({ factorType: 'totp', friendlyName: 'ermn-authenticator' });
-    if (error) {
-      const msg = document.getElementById("securityMsg");
-      msg.innerText = "Error: " + error.message; msg.className = "msg err";
-      setTimeout(() => msg.innerText = "", 4000);
-      return;
-    }
-    window._pending2FAFactorId = data.id;
-    document.getElementById("twoFAQR").src = data.totp.qr_code;
-    document.getElementById("twoFASecret").innerText = data.totp.secret;
-    document.getElementById("twoFACode").value = "";
-    document.getElementById("twoFAModalMsg").innerText = "";
-    document.getElementById("twoFAModal").style.display = "flex";
   }
 }
 
-function closeTwoFAModal() {
-  document.getElementById("twoFAModal").style.display = "none";
+/* Reusing functions from desktop settings.html */
+/* I'll inject the necessary export/import logic here or ensure app.js has it */
+
+async function initMaintenanceStatus() {
+  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
+  const active = config && config.value === true;
+  const btn = document.getElementById("maintenanceToggle");
+  if (!btn) return;
+  btn.innerText = "SITE MAINTENANCE: " + (active ? "ON" : "OFF");
+  btn.style.background = active ? "#27ae60" : "#c00";
 }
 
-async function verifyAndEnable2FA() {
-  const code = document.getElementById("twoFACode").value.replace(/\D/g, "");
-  const msgEl = document.getElementById("twoFAModalMsg");
-  if (code.length !== 6) { msgEl.innerText = "Enter a 6-digit code."; msgEl.className = "msg err"; return; }
-  const factorId = window._pending2FAFactorId;
-  const { data: challengeData, error: challengeErr } = await sb.auth.mfa.challenge({ factorId });
-  if (challengeErr) { msgEl.innerText = challengeErr.message; msgEl.className = "msg err"; return; }
-  const { error: verifyErr } = await sb.auth.mfa.verify({ factorId, challengeId: challengeData.id, code });
-  if (verifyErr) { msgEl.innerText = "Invalid code. Try again."; msgEl.className = "msg err"; return; }
-  msgEl.innerText = "2FA enabled!";
-  msgEl.className = "msg ok";
-  setTimeout(() => { closeTwoFAModal(); load2FAStatus(); }, 1200);
+async function toggleMaintenanceMode() {
+  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
+  const cur = config && config.value === true;
+  const target = !cur;
+  if (target === true && !confirm("SHUT DOWN SITE FOR ALL USERS?")) return;
+  await sb.from("site_config").upsert({ key: "maintenance_mode", value: target });
+  initMaintenanceStatus();
 }
 
-async function load2FAStatus() {
-  const { data: factors } = await sb.auth.mfa.listFactors();
-  const totp = factors?.totp?.find(f => f.status === 'verified');
-  const btn = document.getElementById("twoFAToggleBtn");
-  const statusEl = document.getElementById("twoFAStatus");
-  if (totp) {
-    btn.innerText = "Enabled";
-    btn.style.background = "#e8fce8"; btn.style.color = "#2d7a2d"; btn.style.borderColor = "#2d7a2d";
-    if (statusEl) statusEl.innerText = "Your account is protected with 2FA.";
-  } else {
-    btn.innerText = "Disabled";
-    btn.style.background = "#fce8e8"; btn.style.color = "#c00"; btn.style.borderColor = "#c00";
-    if (statusEl) statusEl.innerText = "2FA is not enabled. Add an extra layer of security.";
-  }
+// Data Portability functions (simplified for mobile)
+async function exportData() {
+  const { data: posts } = await sb.from("posts").select("*").ilike("username", me).order("created_at", {ascending:true});
+  const { data: wallet } = await sb.from("ermnium_wallets").select("*").ilike("username", me).maybeSingle();
+  const payload = { _ermn_export:true, version:1.1, exported_at:new Date().toISOString(), username:me, wallet, posts };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `ermn-mobile-backup-${me}.ermn`;
+  a.click();
 }
-
-async function togglePrivate() {
-  const { data: user } = await sb.from("users").select("is_private").eq("username", me).single();
-  const newState = !user.is_private;
-  await sb.from("users").update({ is_private: newState }).eq("username", me);
-  loadInfo();
-}
-
-async function loadRequests() {
-  const list = document.getElementById("requestsList");
-  const { data: requests } = await sb.from("follow_requests").select("requester").eq("target", me);
-  if (!requests || !requests.length) {
-    list.innerHTML = "No pending requests.";
-    return;
-  }
-  list.innerHTML = "";
-  for (const r of requests) {
-    const div = document.createElement("div");
-    div.style.display = "flex";
-    div.style.justifyContent = "space-between";
-    div.style.alignItems = "center";
-    div.style.padding = "6px 0";
-    div.style.borderBottom = "1px solid #f0f0f0";
-    div.innerHTML = '<span><a href="'+getUserPageLink(r.requester)+'" style="color:var(--accent);text-decoration:none;font-weight:bold;">@'+escapeHtml(r.requester)+'</a></span>' +
-      '<div>' +
-        '<button onclick="approveRequest(\''+r.requester+'\')" style="background:#5cb85c;color:white;border:1px solid #4cae4c;padding:3px 8px;margin-right:4px;cursor:pointer;">Approve</button>' +
-        '<button onclick="denyRequest(\''+r.requester+'\')" style="background:#d9534f;color:white;border:1px solid #d43f3a;padding:3px 8px;cursor:pointer;">Deny</button>' +
-      '</div>';
-    list.appendChild(div);
-  }
-}
-
-async function approveRequest(requester) {
-  await sb.from("follows").insert({ follower: requester, following: me });
-  await sb.from("follow_requests").delete().eq("requester", requester).eq("target", me);
-  loadRequests();
-}
-
-async function denyRequest(requester) {
-  await sb.from("follow_requests").delete().eq("requester", requester).eq("target", me);
-  loadRequests();
-}
-
-function escapeHtml(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-
-async function loadBlockedUsers() {
-  const list = document.getElementById("blockedList");
-  const { data: blocked } = await sb.from("blocked_users").select("blocked").eq("blocker", me);
-  if (!blocked || !blocked.length) {
-    list.innerHTML = "No blocked users.";
-    return;
-  }
-  list.innerHTML = "";
-  for (const b of blocked) {
-    const div = document.createElement("div");
-    div.className = "info-row";
-    div.innerHTML = '<span><a href="mobile_userpage.html?user='+encodeURIComponent(b.blocked)+'" style="color:var(--accent);text-decoration:none;font-weight:bold;">@'+escapeHtml(b.blocked)+'</a></span>' +
-      '<span><button onclick="unblockUser(\''+b.blocked+'\')" style="background:#e55;color:white;border:none;padding:4px 8px;border-radius:2px;font-size:11px;cursor:pointer;">Unblock</button></span>';
-    list.appendChild(div);
-  }
-}
-
-async function unblockUser(target) {
-  if (!(await uiConfirm("Unblock @"+target+"?"))) return;
-  await sb.from("blocked_users").delete().eq("blocker", me).eq("blocked", target);
-  loadBlockedUsers();
-}
-
-// =====================================================
-// DATA PORTABILITY — Export & Import
-// =====================================================
 
 let _importPayload = null;
-
-async function exportData() {
-  const btn = document.getElementById("exportBtn");
-  const msg = document.getElementById("exportMsg");
-  btn.disabled = true;
-  btn.innerText = "Exporting…";
-  msg.className = "msg"; msg.innerText = "";
-
-  try {
-    const { data: posts, error: postsErr } = await sb
-      .from("posts").select("id, text, repost_of, edited_at, created_at")
-      .eq("username", me).order("created_at", { ascending: true });
-    if (postsErr) throw postsErr;
-
-    const postIds = posts.map(p => p.id);
-    let likeCounts = {};
-    if (postIds.length > 0) {
-      const { data: likes } = await sb.from("likes").select("post_id").in("post_id", postIds);
-      if (likes) likes.forEach(l => { likeCounts[l.post_id] = (likeCounts[l.post_id] || 0) + 1; });
-    }
-
-    const payload = {
-      _ermn_export: true, version: 1,
-      exported_at: new Date().toISOString(), username: me,
-      posts: posts.map(p => ({
-        id: p.id, text: p.text, repost_of: p.repost_of,
-        edited_at: p.edited_at, created_at: p.created_at,
-        like_count: likeCounts[p.id] || 0,
-      }))
-    };
-
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `ermn-backup-${me}-${new Date().toISOString().slice(0,10)}.ermn`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    msg.innerHTML = `<span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:2px;margin-top:-2px;">check_circle</span> Exported ${posts.length} post${posts.length !== 1 ? "s" : ""}.`;
-    msg.className = "msg ok";
-  } catch (e) {
-    msg.innerText = "Export failed: " + e.message;
-    msg.className = "msg err";
-  }
-  btn.disabled = false; btn.innerText = "Export Data";
-}
-
-function previewImport(event) {
-  const file = event.target.files[0];
-  const msg = document.getElementById("importMsg");
-  const preview = document.getElementById("importPreview");
-  msg.innerText = ""; _importPayload = null; preview.style.display = "none";
+function previewImport(e) {
+  const file = e.target.files[0];
   if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
+  const r = new FileReader();
+  r.onload = (ev) => {
     try {
-      const data = JSON.parse(e.target.result);
-      if (!data._ermn_export || !Array.isArray(data.posts)) {
-        msg.innerText = "Invalid backup file."; msg.className = "msg err"; return;
-      }
-      if (data.username !== me) {
-        msg.innerHTML = `<span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:2px;margin-top:-2px;">warning</span> Backup belongs to @${data.username}. Posts will be credited to @${me}.`;
-        msg.className = "msg err";
-      }
+      const data = JSON.parse(ev.target.result);
+      if (!data._ermn_export) return;
       _importPayload = data;
-      const exported = new Date(data.exported_at).toLocaleDateString();
-      document.getElementById("importPreviewTitle").innerText = "Backup Preview";
-      document.getElementById("importPreviewBody").innerHTML =
-        `<b>Original user:</b> @${escapeHtml(data.username)}<br>` +
-        `<b>Exported:</b> ${exported}<br>` +
-        `<b>Posts:</b> ${data.posts.length}<br>` +
-        `<b>Total likes:</b> ${data.posts.reduce((s,p)=>s+p.like_count,0)}<br><br>` +
-        `<span style="color:#c00;font-size:10px;"><span class="material-icons" style="font-size:12px;vertical-align:middle;margin-right:2px;margin-top:-2px;">warning</span> Existing posts will be duplicated.</span>`;
-      preview.style.display = "block";
-    } catch(err) { msg.innerText = "Could not read file: " + err.message; msg.className = "msg err"; }
+      document.getElementById("importPreviewBody").innerHTML = `<b>Posts:</b> ${data.posts.length}<br><b>ERN:</b> ${data.wallet?.balance || 0}`;
+      document.getElementById("importPreview").style.display = "block";
+    } catch(err) { alert("Invalid file"); }
   };
-  reader.readAsText(file);
-}
-
-function cancelImport() {
-  _importPayload = null;
-  document.getElementById("importPreview").style.display = "none";
-  document.getElementById("importFile").value = "";
-  document.getElementById("importMsg").innerText = "";
+  r.readAsText(file);
 }
 
 async function importData() {
-  if (!_importPayload) return;
-  const confirmed = await uiConfirm(`Restore ${_importPayload.posts.length} post(s) from this backup?\n\nPosts will be re-created under @${me} with original timestamps. Like counts will be noted in post text.\n\nProceed?`);
-  if (!confirmed) return;
-  const btn = document.getElementById("importConfirmBtn");
-  const msg = document.getElementById("importMsg");
-  btn.disabled = true; btn.innerText = "Restoring…";
-  msg.className = "msg"; msg.innerText = "";
-  let success = 0, failed = 0;
-  for (const post of _importPayload.posts) {
-    const restoredText = post.like_count > 0
-      ? `${post.text}\n\n[Restored · ${post.like_count} like${post.like_count !== 1 ? "s" : ""} before archive]`
-      : post.text;
-    const { error } = await sb.from("posts").insert({
-      username: me, text: restoredText,
-      created_at: post.created_at, edited_at: post.edited_at || null, repost_of: null,
-    });
-    if (error) { failed++; } else { success++; }
+  if (!_importPayload || !confirm("Restore data?")) return;
+  const posts = _importPayload.posts;
+  for (const p of posts) {
+    await sb.from("posts").insert({ username:me, text:p.text, created_at:p.created_at });
   }
-  msg.innerHTML = failed === 0
-    ? `<span class="material-icons" style="font-size:14px;vertical-align:middle;margin-right:2px;margin-top:-2px;">check_circle</span> Restored ${success} post${success!==1?"s":""}!`
-    : `Restored ${success}; ${failed} failed.`;
-  msg.className = failed === 0 ? "msg ok" : "msg err";
-  btn.disabled = false; btn.innerText = "Restore Posts";
-  document.getElementById("importPreview").style.display = "none";
-  document.getElementById("importFile").value = "";
-  _importPayload = null;
-}
-
-// =====================================================
-
-// Modernize UI Toggle
-function updateModernizeBtn() {
-  const isMod = localStorage.getItem("modernize_ui") === "true";
-  const btn = document.getElementById("modernizeBtn");
-  if (!btn) return;
-  btn.innerText = isMod ? "Modern ON" : "Classic OFF";
-  
-  if (isMod) {
-    btn.style.background = "#e8fce8";
-    btn.style.color = "#2d7a2d";
-    btn.style.borderColor = "#2d7a2d";
-    btn.style.borderRadius = "4px";
-    btn.style.boxShadow = "none";
-  } else {
-    // Old ermn UI style
-    btn.style.background = "var(--accent)";
-    btn.style.color = "white";
-    btn.style.borderColor = "transparent";
-    btn.style.borderRadius = "0px";
-    btn.style.boxShadow = "none";
+  if (_importPayload.wallet && localStorage.getItem("isDeveloper") === "true") {
+    await sb.from("ermnium_wallets").update({
+      balance: _importPayload.wallet.balance,
+      bank_balance: _importPayload.wallet.bank_balance,
+      points_balance: _importPayload.wallet.points_balance
+    }).ilike("username", me);
   }
+  alert("Restored!");
+  location.reload();
 }
 
-function toggleModernize() {
-  const isMod = localStorage.getItem("modernize_ui") === "true";
-  localStorage.setItem("modernize_ui", isMod ? "false" : "true");
-  if (typeof checkModernize === "function") checkModernize();
-  updateModernizeBtn();
-}
-
-loadInfo();
-updateModernizeBtn();
-loadBlockedUsers();
+document.addEventListener("sessionReady", loadSettings);
 </script>
 </body>
 </html>

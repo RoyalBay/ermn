@@ -3,135 +3,47 @@
 <head>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>ermn. · Profile</title>
 <link rel="icon" href="wicon.png">
+<link rel="stylesheet" href="mobile_modern.css">
 <style>
-:root{--accent:#3b5998;--body-bg:linear-gradient(180deg,#dfe7f3,#f0f2f5);--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:100vh;font-size:14px;padding-bottom:60px;color:var(--text);}
-.topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;box-shadow:0 2px 6px rgba(0,0,0,0.3);}
-.topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
-.main{padding:12px;}
-.card{background:var(--card-bg);border:1px solid var(--border);border-radius:4px;margin-bottom:12px;overflow:hidden;}
-.card-title{background:var(--card-header);border-bottom:1px solid var(--border);padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);}
-.card-body{padding:14px;}
-.profile-header{display:flex;gap:14px;align-items:flex-start;}
-#userPic{width:80px;height:80px;object-fit:cover;border:3px solid var(--border);border-radius:2px;}
-.profile-info h2{font-size:18px;color:var(--accent);}
-.stats{display:flex;gap:16px;margin-top:8px;font-size:13px;color:#555;}
-.stats span{cursor:pointer;}
-.stats strong{color:var(--accent);}
-.post{border-bottom:1px solid #eee;padding:10px 0;}
-.post:last-child{border-bottom:none;}
-.post-text{line-height:1.5;margin-bottom:4px;}
-.post-time{font-size:11px;color:#888;}
-.btn{background:var(--accent);color:white;border:none;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:bold;cursor:pointer;border-radius:2px;margin-top:10px;}
-.btn.following{background:#d0f0d0;color:#2a6e2a;border:1px solid #8ec88e;}
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:50;}
-.bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;}
-.bottom-nav a .icon{font-size:20px;}
-/* Modal */
-.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;align-items:center;justify-content:center;}
-.modal-backdrop.open{display:flex;}
-.modal{background:white;width:90%;max-width:300px;max-height:80vh;border-radius:8px;display:flex;flex-direction:column;overflow:hidden;}
-.modal-title{padding:12px;background:#f0f2f5;font-weight:bold;border-bottom:1px solid #ddd;display:flex;justify-content:space-between;}
-.modal-list{flex:1;overflow-y:auto;padding:10px;}
-.modal-user{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee;}
-.modal-user img{width:32px;height:32px;object-fit:cover;border-radius:2px;}
-.modal-user a{text-decoration:none;color:var(--accent);font-weight:bold;font-size:14px;}
-.badge-icon {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  background-color: var(--accent);
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  vertical-align: middle;
-  margin-left: 3px;
-  filter: var(--badge-glow);
-}
-.badge-verified {
-  -webkit-mask-image: url('verifiedbadge.png');
-  mask-image: url('verifiedbadge.png');
-}
-.badge-developer {
-  -webkit-mask-image: url('devbadge.png');
-  mask-image: url('devbadge.png');
-}
-  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
-  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
-.card-title  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
-  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
-.bottom-nav a  .material-icons { font-family: "Material Icons"; font-size: 1.2em; vertical-align: middle; line-height: 1; position: relative; top: -1px; margin-right: 2px; }
-  .topbar-nav .material-icons { font-size: 1.3em; margin-right: 3px; }
+  .profile-header { text-align: center; padding: 30px 20px; background: white; border-bottom: 1px solid #ddd; position: relative; }
+  .profile-avatar { width: 100px; height: 100px; border-radius: 12px; margin-bottom: 12px; object-fit: cover; border: 4px solid #eee; }
+  .profile-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+  .profile-bio { font-size: 14px; color: #666; margin-bottom: 15px; }
+  .stats { display: flex; justify-content: center; gap: 20px; margin-bottom: 15px; }
+  .stat-item { text-align: center; }
+  .stat-val { font-weight: 800; font-size: 16px; display: block; }
+  .stat-lbl { font-size: 10px; color: #888; text-transform: uppercase; }
+  .profile-actions { display: flex; justify-content: center; gap: 10px; }
 </style>
 </head>
 <body>
-<div class="topbar"><span class="topbar-logo">ermn.</span></div>
-<div class="main">
-  <div class="card">
-    <div id="userBanner" style="height:100px;background:#ddd;background-size:cover;background-position:center;border-bottom:1px solid var(--border);display:none;"></div>
-    <div class="card-body">
-      <div class="profile-header">
-        <img id="userPic" src="empty.jpg" onerror="this.src='empty.jpg'">
-        <div class="profile-info">
-          <h2 id="userName">@loading</h2>
-          <div id="userBio" style="font-style:italic;color:#555;font-size:13px;margin-top:4px;"></div>
-          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 8px;">
-            <div class="stats" style="margin-top: 0;">
-              <span onclick="openModal('followers')"><strong id="statFollowers">0</strong> followers</span>
-              <span onclick="openModal('following')"><strong id="statFollowing">0</strong> following</span>
-            </div>
+<div class="topbar">
+  <span class="topbar-logo">ermn.</span>
+</div>
 
-            <style>
-              .music-banner {
-                margin: 0;
-                background: var(--card-header);
-                border: 1px solid var(--border);
-                border-radius: 0px;
-                padding: 4px 8px 4px 4px;
-                box-shadow: 1px 1px 0px rgba(255,255,255,0.1) inset;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                width: fit-content;
-                max-width: 100%;
-              }
-              .music-art { width: 32px; height: 32px; border-radius: 0; object-fit: cover; border: 1px solid #777; }
-              .music-info { display: flex; flex-direction: column; overflow: hidden; max-width: 150px; }
-              .music-title { font-size: 11px; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
-              .music-artist { font-size: 9px; color: #666; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-              .music-controls { color: var(--accent); font-size: 13px; margin-left: 2px; }
-            </style>
-
-            <div id="musicBanner" class="music-banner" style="display:none;" onclick="toggleMusic()">
-              <img id="musicArt" src="" class="music-art">
-              <div class="music-info">
-                <div id="musicTitle" class="music-title"></div>
-                <div id="musicArtist" class="music-artist"></div>
-              </div>
-              <div class="music-controls" id="musicStatus"><span class="material-icons">play_arrow</span></div>
-            </div>
-          </div>
-          <div id="actions" style="margin-top:10px;">
-             <button id="followBtn" class="btn" onclick="toggleFollow()" style="display:none">Follow</button>
-             <button id="blockBtn" class="btn" onclick="blockUser()" style="display:none;background:#e55;margin-left:5px;">Block</button>
-             <div id="itsYou" style="display:none;font-size:12px;color:#888;">This is you · <a href="mobile_profile.html" style="color:var(--accent)">Edit</a></div>
-          </div>
-        </div>
-      </div>
+<div id="profileContent" style="display:none;">
+  <div class="profile-header" id="profileBg">
+    <img id="pfp" class="profile-avatar" src="empty.jpg">
+    <div id="pName" class="profile-name">@...</div>
+    <div id="pBio" class="profile-bio">...</div>
+    <div class="stats">
+      <div class="stat-item"><span class="stat-val" id="countFollowers">0</span><span class="stat-lbl">Followers</span></div>
+      <div class="stat-item"><span class="stat-val" id="countFollowing">0</span><span class="stat-lbl">Following</span></div>
+    </div>
+    <div class="profile-actions" id="pActions">
+      <button class="btn" id="followBtn" style="display:none;">Follow</button>
     </div>
   </div>
-  <div class="card">
-    <div class="card-title" id="postsTitle"><span class="material-icons">description</span> Posts</div>
-    <div class="card-body" id="userPosts"><div style="color:#888;font-style:italic;">Loading...</div></div>
+
+  <div class="main">
+    <div id="pPosts"></div>
   </div>
 </div>
+
+<div id="pLoading" style="text-align:center; padding:50px; color:#888; font-style:italic;">Loading profile...</div>
 
 <nav class="bottom-nav">
   <a href="mobile_feed.html"><span class="material-icons">home</span><span>Home</span></a>
@@ -140,223 +52,40 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);min-height:
   <a href="mobile_settings.html"><span class="material-icons">settings</span><span>Settings</span></a>
 </nav>
 
-<div class="modal-backdrop" id="modalBackdrop" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-title"><span id="modalTitle">Users</span><span onclick="closeModal()" style="cursor:pointer">✕</span></div>
-    <div class="modal-list" id="modalList"></div>
-  </div>
-</div>
-
 <script src="config.js"></script>
 <script src="theme.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
-const me = localStorage.getItem("currentUser");
-const params = new URLSearchParams(location.search);
-const viewUser = params.get("user") || me;
-let isFollowing = false, isBlocked = false;
-let userMusicData = null;
+const targetUser = new URLSearchParams(location.search).get("user");
+if (!targetUser) location.href = "mobile_feed.html";
 
-applyTheme();
-
-function toggleMusic() {
-  if (!userMusicData) return;
-  ProfileMusicPlayer.toggle(userMusicData);
-}
-
-ProfileMusicPlayer.onStateChange = (playing) => {
-  const art = document.getElementById("musicArt");
-  const status = document.getElementById("musicStatus");
-  if (ProfileMusicPlayer.currentTrackId === userMusicData?.trackId) {
-    if (playing) { status.innerHTML = '<span class="material-icons">pause</span>'; }
-    else { status.innerHTML = '<span class="material-icons">play_arrow</span>'; }
-  } else {
-    status.innerHTML = '<span class="material-icons">play_arrow</span>';
-  }
-};
-
-async function toggleFollow() {
-  if (!me) return;
-  const btn = document.getElementById("followBtn");
-  if (isFollowing) {
-    await sb.from("follows").delete().eq("follower", me).ilike("following", viewUser);
-    isFollowing = false;
-    btn.innerText = "Follow"; btn.classList.remove("following");
-    const fc = parseInt(document.getElementById("statFollowers").innerText);
-    if (!isNaN(fc)) document.getElementById("statFollowers").innerText = Math.max(0, fc - 1);
-  } else {
-    const { data: targetData } = await sb.from("users").select("is_private").ilike("username", viewUser).maybeSingle();
-    if (targetData && targetData.is_private) {
-      const { data: existingReq } = await sb.from("follow_requests").select("requester").eq("requester", me).ilike("target", viewUser).maybeSingle();
-      if (existingReq) {
-        await sb.from("follow_requests").delete().eq("requester", me).ilike("target", viewUser);
-        btn.innerText = "Follow";
-      } else {
-        await sb.from("follow_requests").insert({ requester: me, target: viewUser });
-        btn.innerHTML = '<span class="material-icons" style="font-size:14px;">hourglass_empty</span> Requested';
-      }
-    } else {
-      await sb.from("follows").insert({ follower: me, following: viewUser });
-      isFollowing = true;
-      btn.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following'; btn.classList.add("following");
-      const fc = parseInt(document.getElementById("statFollowers").innerText);
-      if (!isNaN(fc)) document.getElementById("statFollowers").innerText = fc + 1;
-    }
-  }
-}
-
-async function blockUser() {
-  if (!me || me === viewUser) return;
-  if (isBlocked) await unblockUser(viewUser); else await blockUserFromFeed(viewUser);
-}
-
-async function openModal(type) {
-  const bg = document.getElementById("modalBackdrop");
-  bg.classList.add("open");
-  document.getElementById("modalTitle").innerText = type==="followers"?"Followers":"Following";
-  const list = document.getElementById("modalList");
-  list.innerHTML = "<div style='color:#888'>Loading...</div>";
-  let usernames = [];
-  if (type === "followers") {
-    const { data } = await sb.from("follows").select("follower").ilike("following", viewUser);
-    usernames = (data || []).map(r => r.follower);
-  } else {
-    const { data } = await sb.from("follows").select("following").ilike("follower", viewUser);
-    usernames = (data || []).map(r => r.following);
-  }
-  if (!usernames.length) { list.innerHTML = "<div style='color:#888;font-style:italic;'>Nobody here yet.</div>"; return; }
-  const { data: users } = await sb.from("users").select("username, pic").in("username", usernames);
-  const uMap = {}; (users || []).forEach(u => { uMap[u.username] = u; });
-  list.innerHTML = "";
-  for (const u of usernames) {
-    const info = uMap[u] || {};
-    const d = document.createElement("div"); d.className = "modal-user";
-    d.innerHTML = '<img src="' + (info.pic || "empty.jpg") + '" onerror="this.src=\'empty.jpg\'">' +
-      '<a href="' + getUserPageLink(u) + '">@' + escapeHtml(u) + '</a>';
-    list.appendChild(d);
-  }
-}
-function closeModal(){ document.getElementById("modalBackdrop").classList.remove("open"); }
-
-async function load() {
-  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, is_banned, spotify_data").ilike("username", viewUser).maybeSingle();
-
-  // Banned user screen
-  if (user && user.is_banned) {
-    document.getElementById("userName").innerHTML = '<span class="material-icons" style="font-size:18px;color:#c00;vertical-align:middle;">block</span> Banned User';
-    document.getElementById("userBio").innerText = "This account has been suspended.";
-    document.getElementById("userPic").src = "empty.jpg";
-    document.getElementById("statFollowers").innerText = "-";
-    document.getElementById("statFollowing").innerText = "-";
-    document.getElementById("postsTitle").innerHTML = '<span class="material-icons" style="vertical-align:middle;margin-right:4px;">description</span> Posts';
-    document.getElementById("userPosts").innerHTML = "<div style='color:#888;font-style:italic;padding:20px;text-align:center;'><span class='material-icons' style='display:block;font-size:40px;margin-bottom:10px;color:#c00;'>block</span>This account has been suspended for violating community guidelines.</div>";
-    return;
-  }
-
-  // User not found
+async function loadProfile() {
+  const { data: user } = await sb.from("users").select("*").ilike("username", targetUser).maybeSingle();
   if (!user) {
-    document.getElementById("userName").innerText = "@" + viewUser;
-    document.getElementById("userPosts").innerHTML = "<div style='color:#888;font-style:italic;'>User not found.</div>";
+    document.getElementById("pLoading").innerText = "User not found.";
     return;
   }
 
-  const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("following", viewUser);
-  const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("follower", viewUser);
-  const { data: posts } = await sb.from("posts").select("id, text, created_at").ilike("username", viewUser).order("created_at", { ascending: false });
+  document.title = `ermn. · @${user.username}`;
+  document.getElementById("pName").innerText = "@" + user.username;
+  document.getElementById("pBio").innerText = user.bio || "No bio yet.";
+  document.getElementById("pfp").src = user.pic || "empty.jpg";
+  if (user.equipped_shell) document.getElementById("pfp").style.border = user.equipped_shell;
+  if (user.equipped_background) document.getElementById("profileBg").style.background = user.equipped_background;
 
-  if (user && user.spotify_data) {
-    userMusicData = user.spotify_data;
-    document.getElementById("musicBanner").style.display = "flex";
-    document.getElementById("musicArt").src = userMusicData.albumArt;
-    document.getElementById("musicTitle").innerText = userMusicData.trackName;
-    document.getElementById("musicArtist").innerText = userMusicData.artistName;
-    if (ProfileMusicPlayer.isPlaying && ProfileMusicPlayer.currentTrackId === userMusicData.trackId) {
-      document.getElementById("musicStatus").innerHTML = '<span class="material-icons">pause</span>';
-    }
-  }
+  const { count: followers } = await sb.from("follows").select("*", {count:'exact', head:true}).eq("following", user.username);
+  const { count: following } = await sb.from("follows").select("*", {count:'exact', head:true}).eq("follower", user.username);
+  document.getElementById("countFollowers").innerText = followers || 0;
+  document.getElementById("countFollowing").innerText = following || 0;
 
-  let badges = '';
-  if (user && user.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
-  if (user && user.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
-  document.getElementById("userName").innerHTML = "@" + escapeHtml(viewUser) + badges;
-  document.getElementById("userBio").innerText = (user && user.bio) || "";
-  document.getElementById("userPic").src = (user && user.pic) || "empty.jpg";
-  if (user && user.banner) {
-    document.getElementById("userBanner").style.backgroundImage = "url('" + user.banner + "')";
-    document.getElementById("userBanner").style.display = "block";
-  }
-  document.getElementById("statFollowers").innerText = fc || 0;
-  document.getElementById("statFollowing").innerText = fgc || 0;
-  document.getElementById("postsTitle").innerHTML = '<span class="material-icons" style="vertical-align:middle;margin-right:4px;">description</span> Posts by @' + escapeHtml(viewUser);
+  document.getElementById("pLoading").style.display = "none";
+  document.getElementById("profileContent").style.display = "block";
 
-  if (me && viewUser !== me) {
-    document.getElementById("followBtn").style.display = "inline-block";
-    document.getElementById("blockBtn").style.display = "inline-block";
-    const { data: blockCheck } = await sb.from("blocked_users").select("blocked").eq("blocker", me).ilike("blocked", viewUser).maybeSingle();
-    isBlocked = !!blockCheck;
-    if (isBlocked) document.getElementById("blockBtn").innerText = "Unblock";
-    const { data: fcheck } = await sb.from("follows").select("follower").eq("follower", me).ilike("following", viewUser).maybeSingle();
-    isFollowing = !!fcheck;
-    const btn = document.getElementById("followBtn");
-    if (isFollowing) { btn.innerHTML = '<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following'; btn.classList.add("following"); }
-    else {
-      const { data: reqCheck } = await sb.from("follow_requests").select("requester").eq("requester", me).ilike("target", viewUser).maybeSingle();
-      if (reqCheck) btn.innerHTML = '<span class="material-icons" style="font-size:14px;">hourglass_empty</span> Requested'; else btn.innerText = "Follow";
-    }
-  } else if (viewUser === me) {
-    document.getElementById("itsYou").style.display = "block";
-  }
-
-  if (user && user.is_private && me !== viewUser && !isFollowing) {
-    document.getElementById("userPosts").innerHTML = "<div style='color:#888;font-style:italic;padding:20px;text-align:center;'><span class='material-icons' style='display:block;font-size:32px;margin-bottom:10px;'>lock</span> This account is private.</div>";
-    document.getElementById("statFollowers").innerText = "-";
-    document.getElementById("statFollowing").innerText = "-";
-    return;
-  }
-
-  const postIds = (posts || []).map(p => p.id);
-  const [{ data: polls }, { data: pollVotes }] = await Promise.all([
-    postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({ data: [] }),
-    postIds.length && me ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", me) : Promise.resolve({ data: [] })
-  ]);
-
-  const pollMap = {};
-  (polls || []).forEach(pl => { pollMap[pl.post_id] = pl.options; });
-  const myVoteMap = {};
-  (pollVotes || []).forEach(pv => { myVoteMap[pv.post_id] = pv.option_index; });
-
-  const postsEl = document.getElementById("userPosts");
-  if (!posts || !posts.length) { postsEl.innerHTML = "<div style='color:#888;font-style:italic;'>No posts yet.</div>"; return; }
-  postsEl.innerHTML = "";
-  for (const p of posts) {
-    let pollHtml = '';
-    if (pollMap[p.id]) {
-      const options = pollMap[p.id];
-      const myVote = myVoteMap[p.id];
-      const totalVotes = options.reduce((sum, opt) => sum + (opt.votes||0), 0);
-      pollHtml = '<div class="poll-container" style="margin:10px 0;background:var(--card-header);border:1px solid var(--border);border-radius:4px;padding:10px;">';
-      options.forEach((opt, idx) => {
-        const pct = totalVotes > 0 ? Math.round(((opt.votes||0) / totalVotes) * 100) : 0;
-        const isMyVote = myVote === idx;
-        pollHtml += '<div class="poll-option" style="margin-bottom:6px;position:relative;cursor:pointer;" onclick="votePoll('+p.id+', '+idx+')">'+
-                      '<div class="poll-bar" style="position:absolute;left:0;top:0;bottom:0;background:'+(isMyVote?'var(--accent)':'rgba(255,255,255,0.1)')+';opacity:'+(isMyVote?'0.3':'0.1')+';width:'+pct+'%;border-radius:2px;z-index:1;"></div>'+
-                      '<div style="position:relative;z-index:2;display:flex;justify-content:space-between;padding:4px 8px;font-size:13px;font-weight:'+(isMyVote?'bold':'normal')+';">'+
-                        '<span>'+escapeHtml(opt.text)+' '+(isMyVote?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span>':'')+'</span><span>'+pct+'%</span>'+
-                      '</div>'+
-                    '</div>';
-      });
-      pollHtml += '<div style="font-size:11px;color:#888;text-align:right;">'+totalVotes+' vote'+(totalVotes!==1?'s':'')+'</div></div>';
-    }
-
-    const d = document.createElement("div"); d.className = "post";
-    d.innerHTML = '<div class="post-text">' + escapeHtml(p.text) + '</div>' +
-      pollHtml +
-      '<div class="post-time">' + timeAgo(p.created_at) + '</div>';
-    postsEl.appendChild(d);
-  }
+  render(null, "newest", 0, user.username, "pPosts");
 }
-load();
+
+document.addEventListener("sessionReady", loadProfile);
 </script>
 </body>
 </html>

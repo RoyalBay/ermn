@@ -1,0 +1,167 @@
+/* Mobile Modern UI Overhaul for ermn. */
+:root {
+  --accent: #3b5998;
+  --accent-soft: rgba(59, 89, 152, 0.1);
+  --body-bg: #f0f2f5;
+  --card-bg: #ffffff;
+  --text: #1c1e21;
+  --text-muted: #65676b;
+  --border: #dddfe2;
+  --radius: 12px;
+  --nav-height: 60px;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--body-bg);
+  color: var(--text);
+  line-height: 1.4;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Container */
+.main { padding: 12px; max-width: 600px; margin: 0 auto; }
+
+/* Cards & Posts */
+.card, .post, .compose-box {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.post { padding: 12px; border-radius: 8px; }
+
+/* Topbar */
+.topbar {
+  background: var(--accent);
+  color: white;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.topbar-logo { font-size: 20px; font-weight: 800; font-style: italic; letter-spacing: -0.5px; }
+
+/* Avatars & Shells */
+.post-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border: 2px solid #eee;
+}
+
+/* Post Header */
+.post-header { display: flex; gap: 10px; margin-bottom: 8px; }
+.user-link { font-weight: 700; color: var(--text); text-decoration: none; font-size: 15px; }
+.post-time { font-size: 12px; color: var(--text-muted); }
+
+/* Compose Box */
+.compose-box h4 {
+  background: #f0f2f5;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.compose-box textarea {
+  border: none;
+  padding: 12px;
+  font-size: 15px;
+  min-height: 80px;
+  background: white;
+}
+.compose-box .actions {
+  padding: 8px 12px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Buttons */
+.btn, .page-btn, #postBtn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.btn:active { opacity: 0.8; transform: scale(0.98); }
+
+/* Bottom Nav */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  height: var(--nav-height);
+  display: flex;
+  border-top: 1px solid var(--border);
+  padding-bottom: env(safe-area-inset-bottom);
+  z-index: 1000;
+}
+.bottom-nav a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 600;
+  gap: 2px;
+}
+.bottom-nav a.active { color: var(--accent); }
+.bottom-nav a .material-icons { font-size: 24px; }
+
+/* Settings / Forms */
+.form-group { margin-bottom: 16px; }
+label { display: block; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; }
+input[type=text], input[type=password], textarea, select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #f5f6f7;
+  font-size: 15px;
+  color: var(--text);
+  -webkit-appearance: none;
+}
+input:focus, textarea:focus { border-color: var(--accent); background: white; outline: none; }
+
+/* Likes / Actions */
+.post-actions {
+  display: flex;
+  gap: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #f0f2f5;
+  margin-top: 10px;
+}
+.action-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.heart.liked { color: #e74c3c; }
+
+/* Pagination */
+.page-controls { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 20px 0; }
