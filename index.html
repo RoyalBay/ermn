@@ -107,6 +107,18 @@ input:focus{outline:none;border-color:var(--accent);}
         <a href="mobile.html" style="color:var(--accent); font-weight:bold;">Access Mobile Version</a>
       </div>
     </div>
+    
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title" style="color:var(--accent);"><span class="material-icons" style="font-size:16px;vertical-align:middle;">explore</span> What's on ermn?</div>
+      <div class="card-body" style="padding:10px 15px;">
+        <ul style="list-style:none; font-size:13px; color:#555;">
+          <li style="margin-bottom:8px; display:flex; align-items:center; gap:8px;"><span class="material-icons" style="color:var(--accent); font-size:18px;">edit</span> Post what's on your mind</li>
+          <li style="margin-bottom:8px; display:flex; align-items:center; gap:8px;"><span class="material-icons" style="color:var(--accent); font-size:18px;">people</span> Follow friends & like posts</li>
+          <li style="margin-bottom:8px; display:flex; align-items:center; gap:8px;"><span class="material-icons" style="color:var(--accent); font-size:18px;">comment</span> Comment on anything</li>
+          <li style="display:flex; align-items:center; gap:8px;"><span class="material-icons" style="color:var(--accent); font-size:18px;">person</span> Customize your profile</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -191,8 +203,20 @@ async function create() {
   if (!rawU || !p) { setMsg("Fill in all fields.", true); return; }
   setBusy(true); setMsg("Creating...", false);
   const email = rawU.toLowerCase() + "@ermn.social";
+  
+  // Pre-check username availability
+  const { data: existing } = await sb.from("users").select("username").ilike("username", rawU).maybeSingle();
+  if (existing) { setMsg("Username already taken.", true); setBusy(false); return; }
+
   const { data, error } = await sb.auth.signUp({ email, password: p, options: { data: { username: rawU } } });
-  if (error) { setMsg(error.message, true); setBusy(false); return; }
+  if (error) { 
+    if (error.message.includes("Database error")) {
+      setMsg("This username is reserved or taken.", true);
+    } else {
+      setMsg(error.message, true); 
+    }
+    setBusy(false); return; 
+  }
   if (data.user && data.session) { localStorage.setItem("currentUser", rawU); location.href = "feed.html"; }
   else { setMsg("Created! Log in now.", false); setBusy(false); }
 }
