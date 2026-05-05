@@ -26,12 +26,14 @@ async function initSession() {
     if (profile) {
       currentUser = profile.username;
       _isAdmin = profile.is_admin;
+      _isDeveloper = profile.is_developer;
       localStorage.setItem("currentUser", currentUser);
-      localStorage.setItem("isDeveloper", profile.is_developer || false);
+      localStorage.setItem("isDeveloper", _isDeveloper || false);
     } else {
       currentUser = session.user.user_metadata.username;
       localStorage.setItem("currentUser", currentUser);
     }
+    
     // Check if user ID or username is banned
     const userId = session.user.id;
     const { data: idBanned } = await sb.from("banned_users").select("username").eq("username", "id:"+userId).maybeSingle();
@@ -39,7 +41,6 @@ async function initSession() {
       ? await sb.from("banned_users").select("username").eq("username", currentUser.toLowerCase()).maybeSingle()
       : { data: null };
 
-    // Also check the is_banned flag directly on their profile
     const profileBanned = profile && profile.is_banned;
 
     if (idBanned || userBanned || profileBanned) {
@@ -51,15 +52,16 @@ async function initSession() {
     }
   } else {
     currentUser = localStorage.getItem("currentUser");
+    _isDeveloper = localStorage.getItem("isDeveloper") === "true";
   }
 
-  // Global Maintenance Check
-  if (window.location.pathname.indexOf("maintenance.html") === -1) {
+  // Global Maintenance Check - Simplified & Optimized
+  const isMaintenancePage = window.location.href.includes("maintenance.html");
+  if (!isMaintenancePage) {
     const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
     if (config && config.value === true) {
-      // Check if user is admin/dev
-      const { data: me } = await sb.from("users").select("is_admin, is_developer").ilike("username", currentUser).maybeSingle();
-      if (!me || (!me.is_admin && !me.is_developer)) {
+      // Re-verify admin status if needed, but we already have _isAdmin and _isDeveloper
+      if (!_isAdmin && !_isDeveloper) {
         location.href = "maintenance.html";
         return;
       }
@@ -1104,13 +1106,13 @@ async function renderAlgo() {
         "<a href=\""+getUserPageLink(p.username)+"\" class=\"post-avatar-link\">"+
           "<img class=\"post-avatar\" src=\""+escapeHtml(pic)+"\" onerror=\"this.src='empty.jpg'\" style=\""+(uInfo.equipped_shell ? 'border:'+uInfo.equipped_shell+';' : '')+"\">"+
         "</a>"+
-        "<div class=\"post-meta\">"+
+        "<div class=\"post-meta\" style=\"flex:1; min-width:0; display:flex; align-items:center; flex-wrap:wrap; gap:4px;\">"+
           "<a href=\""+getUserPageLink(p.username)+"\" class=\"user-link\" style=\""+userStyle+"\">@"+escapeHtml(p.username)+"</a>"+
           badges +
           (p.username!==currentUser
-            ? " <button class=\"follow-btn "+(isFollowing?"following":"")+"\" onclick=\"follow('\''"+p.username+"'\'')\">"+(isFollowing?"Following":"+ Follow")+"</button>"
+            ? " <button class=\"follow-btn "+(isFollowing?"following":"")+"\" onclick=\"follow('"+p.username+"')\">"+(isFollowing?"<span class=\"material-icons\" style=\"font-size:14px;vertical-align:middle;\">check</span> Following":"+ Follow")+"</button>"
             : " <span class=\"you-tag\">you</span>")+
-          "<div class=\"post-time\">"+timeAgo(p.created_at)+editedLabel+"</div>"+
+          "<div class=\"post-time\" style=\"width:100%; margin-top:2px;\">"+timeAgo(p.created_at)+editedLabel+"</div>"+
         "</div>"+
         (isOwn ? "<span class=\"delete\" onclick=\"del("+p.id+")\"><span class=\"material-icons\" style=\"font-size:16px;\">close</span></span>" : "")+
       "</div>"+
@@ -1120,8 +1122,8 @@ async function renderAlgo() {
       "<div class=\"post-actions\">"+
         "<span id=\"likes-"+p.id+"\" class=\"like-wrap\"><span class=\"heart"+(liked?" liked":"")+"\" onclick=\"like("+p.id+")\"><span class=\"material-icons\" style=\"font-size:18px;\">favorite</span></span> "+likeCount+" likes</span>"+
         "<span class=\"comment-toggle\" onclick=\"toggleComments("+p.id+")\"><span class=\"material-icons\" style=\"font-size:18px;\">mode_comment</span> "+commentCount+" comments</span>"+
-        (currentUser ? " <span class=\"repost-btn\" onclick=\"repost("+p.id+",'\''"+p.username.replace(/'/g,"\\'")+"'\'')\" style=\"cursor:pointer;color:#555;\"><span class=\"material-icons\" style=\"font-size:18px;\">sync</span> Share</span>" : "")+
-        (!isOwn ? "<span class=\"report-btn\" onclick=\"reportPost("+p.id+",'\''"+p.username.replace(/'/g,"\\'")+"'\'')\" style=\"margin-left:auto;\"><span class=\"material-icons\" style=\"font-size:16px;\">flag</span> Report</span>" : "")+
+        (currentUser ? " <span class=\"repost-btn\" onclick=\"repost("+p.id+",'"+p.username.replace(/'/g,"\\'")+"')\" style=\"cursor:pointer;color:#555;\"><span class=\"material-icons\" style=\"font-size:18px;\">sync</span> Share</span>" : "")+
+        (!isOwn ? "<span class=\"report-btn\" onclick=\"reportPost("+p.id+",'"+p.username.replace(/'/g,"\\'")+"')\" style=\"margin-left:auto;\"><span class=\"material-icons\" style=\"font-size:16px;\">flag</span> Report</span>" : "")+
       "</div>"+
       "<div id=\"comments-"+p.id+"\" class=\"comment-box\" data-postid=\""+p.id+"\" style=\"display:none\">"+
         "<div class=\"comment-list\"></div>"+

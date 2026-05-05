@@ -137,7 +137,7 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
 
     <!-- SHOP -->
     <div class="card">
-      <div class="card-title" style="background:linear-gradient(90deg, #3b5998, #8b9dc3); color:white;"><span class="material-icons">diamond</span> ermn.+ Premium</div>
+      <div class="card-title" style="background:linear-gradient(90deg, #3b5998, #8b9dc3); color:white;"><span class="material-icons">diamond</span> ermn.+</div>
       <div class="card-body">
         <div style="background:linear-gradient(135deg, #f8f9fb 0%, #e8edf7 100%); border:1px solid #3b5998; padding:15px; border-radius:4px; display:flex; align-items:center; gap:15px; box-shadow: 0 4px 15px rgba(59,89,152,0.1);">
           <div style="flex:1;">
@@ -309,7 +309,7 @@ async function buyPlus() {
   
   if (error) { await uiAlert("Error: " + error.message); return; }
   if (data.success) {
-    await uiAlert("★ Welcome to ermn.+! Enjoy your premium perks.");
+    await uiAlert("★ Welcome to ermn.+! Enjoy your perks.");
     loadErmnium();
   } else {
     await uiAlert(data.reason);

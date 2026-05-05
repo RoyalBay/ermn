@@ -148,26 +148,35 @@ function setBusy(b) {
 
 let _mfaChallengeId = null, _mfaFactorId = null;
 
+async function checkMaintenance() {
+  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
+  if (config && config.value === true) {
+    const cu = localStorage.getItem("currentUser");
+    if (cu) {
+      const { data: me } = await sb.from("users").select("is_admin, is_developer").ilike("username", cu).maybeSingle();
+      if (me && (me.is_admin || me.is_developer)) return; // Allow admin/dev
+    }
+    location.href = "maintenance.html";
+  }
+}
+checkMaintenance();
+
+applyTheme();
+
 async function login() {
   const rawU = document.getElementById("username").value.trim();
   const p = document.getElementById("password").value;
   if (!p || !rawU) { setMsg("Please fill in fields.", true); return; }
   setBusy(true); setMsg("Logging in...", false);
-
   const email = rawU.includes("@") ? rawU : (rawU.toLowerCase() + "@ermn.social");
-
   const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
   if (error) {
     let errMsg = error.message;
     if (errMsg === "Invalid login credentials" && !rawU.includes("@")) {
       errMsg = "Returning user? Try your original email.";
     }
-    setMsg(errMsg, true);
-    setBusy(false);
-    return;
+    setMsg(errMsg, true); setBusy(false); return;
   }
-
-  // Check if profile exists
   const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", data.user.id).maybeSingle();
   if (profile) {
     localStorage.setItem("currentUser", profile.username);
@@ -178,42 +187,31 @@ async function login() {
         await uiAlert("Invalid Admin Secret Key. Access denied.");
         await sb.auth.signOut();
         localStorage.removeItem("currentUser");
-        setBusy(false);
-        setMsg("Invalid admin secret.", true);
-        return;
+        setBusy(false); setMsg("Invalid admin secret.", true); return;
       }
       sessionStorage.setItem("adminSecret", secret);
     }
   } else {
     localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);
   }
-
   const checkU = localStorage.getItem("currentUser").toLowerCase();
   const { data: banned } = await sb.from("banned_users").select("username").eq("username", checkU).maybeSingle();
   if (banned) {
     await sb.auth.signOut();
     localStorage.removeItem("currentUser");
-    setMsg("This account has been suspended.", true);
-    setBusy(false);
-    return;
+    setMsg("This account has been suspended.", true); setBusy(false); return;
   }
-
-  // Check for enrolled TOTP factors
   const { data: factorsData } = await sb.auth.mfa.listFactors();
   const totpFactor = factorsData?.totp?.find(f => f.status === 'verified');
   if (totpFactor) {
     const { data: ch, error: chErr } = await sb.auth.mfa.challenge({ factorId: totpFactor.id });
     if (chErr) { setMsg("2FA error: " + chErr.message, true); setBusy(false); return; }
-    _mfaFactorId = totpFactor.id;
-    _mfaChallengeId = ch.id;
+    _mfaFactorId = totpFactor.id; _mfaChallengeId = ch.id;
     document.getElementById("loginStep").style.display = "none";
     document.getElementById("twoFAStep").style.display = "block";
-    setMsg("", false);
-    setBusy(false);
-    setTimeout(() => document.getElementById("totpCode").focus(), 100);
-    return;
+    setMsg("", false); setBusy(false);
+    setTimeout(() => document.getElementById("totpCode").focus(), 100); return;
   }
-
   location.href = "mobile_feed.html";
 }
 
@@ -221,10 +219,8 @@ function cancelTwoFA() {
   document.getElementById("twoFAStep").style.display = "none";
   document.getElementById("loginStep").style.display = "block";
   document.getElementById("totpCode").value = "";
-  setMsg("", false);
-  _mfaChallengeId = null; _mfaFactorId = null;
-  sb.auth.signOut();
-  localStorage.removeItem("currentUser");
+  setMsg("", false); _mfaChallengeId = null; _mfaFactorId = null;
+  sb.auth.signOut(); localStorage.removeItem("currentUser");
 }
 
 async function submitTotp() {
@@ -248,7 +244,6 @@ async function create() {
   if (existing) { setMsg("That username is taken.", true); setBusy(false); return; }
   const { data: prohibited } = await sb.from("banned_users").select("username").eq("username", rawU.toLowerCase()).maybeSingle();
   if (prohibited) { setMsg("That username is prohibited.", true); setBusy(false); return; }
-  
   const email = rawU.toLowerCase() + "@ermn.social";
   const { data, error } = await sb.auth.signUp({
     email: email, password: p, options: { data: { username: rawU } }

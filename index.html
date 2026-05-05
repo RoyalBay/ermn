@@ -379,83 +379,118 @@
       if (tb) tb.disabled = b;
     }
 
-    async function login() {
-      const rawU = document.getElementById("username").value.trim();
-      const p = document.getElementById("password").value;
-      if (!p || !rawU) { setMsg("Please fill in fields.", true); return; }
-      setBusy(true); setMsg("Logging in...", false);
+async function checkMaintenance() {
+  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
+  if (config && config.value === true) {
+    const cu = localStorage.getItem("currentUser");
+    if (cu) {
+      const { data: me } = await sb.from("users").select("is_admin, is_developer").ilike("username", cu).maybeSingle();
+      if (me && (me.is_admin || me.is_developer)) return; // Allow admin/dev
+    }
+    location.href = "maintenance.html";
+  }
+}
+checkMaintenance();
 
-      const email = rawU.includes("@") ? rawU : (rawU.toLowerCase() + "@ermn.social");
+applyTheme();
 
-      const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
-      
-      if (error) {
-        let errMsg = error.message;
-        if (errMsg === "Invalid login credentials" && !rawU.includes("@")) {
-          errMsg = "Invalid login. Returning user? Try using your original email.";
-        }
-        setMsg(errMsg, true);
-        setBusy(false);
-        return;
-      }
-
-      // Check if profile exists (sync might be in progress)
-      const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", data.user.id).maybeSingle();
-      if (profile) {
-        localStorage.setItem("currentUser", profile.username);
-        if (profile.is_admin) {
-          const secret = await uiPrompt("Admin account detected.\nPlease enter the Admin Secret Key:");
-          const { data: isCorrect, error: rpcErr } = await sb.rpc('verify_admin_secret', { provided_secret: secret });
-          if (rpcErr || !isCorrect) {
-            await uiAlert("Invalid Admin Secret Key. Access denied.");
-            await sb.auth.signOut();
-            localStorage.removeItem("currentUser");
-            setBusy(false);
-            setMsg("Access denied: Invalid admin secret.", true);
-            return;
-          }
-          sessionStorage.setItem("adminSecret", secret);
-        }
-      } else {
-        // Fallback to metadata if profile not yet synced
-        localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);
-      }
-      
-      const checkU = localStorage.getItem("currentUser").toLowerCase();
-      const { data: banned } = await sb.from("banned_users").select("username").eq("username", checkU).maybeSingle();
-      if (banned) {
+async function login() {
+  const rawU = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  if (!p || !rawU) { setMsg("Please fill in fields.", true); return; }
+  setBusy(true); setMsg("Logging in...", false);
+  const email = rawU.includes("@") ? rawU : (rawU.toLowerCase() + "@ermn.social");
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
+  if (error) {
+    let errMsg = error.message;
+    if (errMsg === "Invalid login credentials" && !rawU.includes("@")) {
+      errMsg = "Returning user? Try your original email.";
+    }
+    setMsg(errMsg, true); setBusy(false); return;
+  }
+  const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", data.user.id).maybeSingle();
+  if (profile) {
+    localStorage.setItem("currentUser", profile.username);
+    if (profile.is_admin) {
+      const secret = await uiPrompt("Admin account detected.\nEnter the Admin Secret Key:");
+      const { data: isCorrect, error: rpcErr } = await sb.rpc('verify_admin_secret', { provided_secret: secret });
+      if (rpcErr || !isCorrect) {
+        await uiAlert("Invalid Admin Secret Key. Access denied.");
         await sb.auth.signOut();
         localStorage.removeItem("currentUser");
-        localStorage.removeItem("isDeveloper");
-        setMsg("This account has been suspended for violating terms.", true);
-        setBusy(false);
-        return;
+        setBusy(false); setMsg("Invalid admin secret.", true); return;
       }
-
-      // Check for enrolled MFA factors
-      const { data: factorsData } = await sb.auth.mfa.listFactors();
-      const totpFactor = factorsData?.totp?.find(f => f.status === 'verified');
-      if (totpFactor) {
-        const { data: ch, error: chErr } = await sb.auth.mfa.challenge({ factorId: totpFactor.id });
-        if (chErr) { setMsg("2FA error: " + chErr.message, true); setBusy(false); return; }
-        _mfaFactorId = totpFactor.id;
-        _mfaChallengeId = ch.id;
-        document.getElementById("loginStep").style.display = "none";
-        document.getElementById("twoFAStep").style.display = "block";
-        setMsg("", false);
-        setBusy(false);
-        setTimeout(() => document.getElementById("totpCode").focus(), 100);
-        return;
-      }
-
-      location.href = "feed.html";
+      sessionStorage.setItem("adminSecret", secret);
     }
+  } else {
+    localStorage.setItem("currentUser", data.user.user_metadata.username || rawU);
+  }
+  const checkU = localStorage.getItem("currentUser").toLowerCase();
+  const { data: banned } = await sb.from("banned_users").select("username").eq("username", checkU).maybeSingle();
+  if (banned) {
+    await sb.auth.signOut();
+    localStorage.removeItem("currentUser");
+    setMsg("This account has been suspended.", true); setBusy(false); return;
+  }
+  const { data: factorsData } = await sb.auth.mfa.listFactors();
+  const totpFactor = factorsData?.totp?.find(f => f.status === 'verified');
+  if (totpFactor) {
+    const { data: ch, error: chErr } = await sb.auth.mfa.challenge({ factorId: totpFactor.id });
+    if (chErr) { setMsg("2FA error: " + chErr.message, true); setBusy(false); return; }
+    _mfaFactorId = totpFactor.id; _mfaChallengeId = ch.id;
+    document.getElementById("loginStep").style.display = "none";
+    document.getElementById("twoFAStep").style.display = "block";
+    setMsg("", false); setBusy(false);
+    setTimeout(() => document.getElementById("totpCode").focus(), 100); return;
+  }
+  location.href = "feed.html";
+}
+
+function cancelTwoFA() {
+  document.getElementById("twoFAStep").style.display = "none";
+  document.getElementById("loginStep").style.display = "block";
+  document.getElementById("totpCode").value = "";
+  setMsg("", false); _mfaChallengeId = null; _mfaFactorId = null;
+  sb.auth.signOut(); localStorage.removeItem("currentUser");
+}
+
+async function submitTotp() {
+  const code = document.getElementById("totpCode").value.replace(/\D/g, "");
+  if (code.length !== 6) { setMsg("Enter a 6-digit code.", true); return; }
+  setBusy(true); setMsg("Verifying...", false);
+  const { error } = await sb.auth.mfa.verify({ factorId: _mfaFactorId, challengeId: _mfaChallengeId, code });
+  if (error) { setMsg("Invalid code. Try again.", true); setBusy(false); return; }
+  location.href = "feed.html";
+}
+
+async function create() {
+  const rawU = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value;
+  if (!rawU || !p) { setMsg("Please fill in all fields.", true); return; }
+  if (rawU.length < 3) { setMsg("Username must be at least 3 characters.", true); return; }
+  if (p.length < 4) { setMsg("Password must be at least 4 characters.", true); return; }
+  if (!/^[a-zA-Z0-9_]+$/.test(rawU)) { setMsg("Only letters, numbers, underscores.", true); return; }
+  setBusy(true); setMsg("Creating account...", false);
+  const { data: existing } = await sb.from("users").select("username").ilike("username", rawU).maybeSingle();
+  if (existing) { setMsg("That username is taken.", true); setBusy(false); return; }
+  const { data: prohibited } = await sb.from("banned_users").select("username").eq("username", rawU.toLowerCase()).maybeSingle();
+  if (prohibited) { setMsg("That username is prohibited.", true); setBusy(false); return; }
+  const email = rawU.toLowerCase() + "@ermn.social";
+  const { data, error } = await sb.auth.signUp({
+    email: email, password: p, options: { data: { username: rawU } }
+  });
+  if (error) { setMsg("Error: " + error.message, true); setBusy(false); return; }
+  if (data.user && data.session) {
+    localStorage.setItem("currentUser", rawU);
+    location.href = "feed.html";
+  } else {
+    setMsg("Account created! You can now log in.", false);
+    setBusy(false);
+  }
+}
 
     let _mfaChallengeId = null, _mfaFactorId = null;
 
-    function cancelTwoFA() {
-      document.getElementById("twoFAStep").style.display = "none";
-      document.getElementById("loginStep").style.display = "block";
       document.getElementById("totpCode").value = "";
       setMsg("", false);
       _mfaChallengeId = null; _mfaFactorId = null;
