@@ -735,11 +735,17 @@ async function exportData() {
 
     if (postsErr) throw postsErr;
 
+    // Fetch wallet data (Banking & Points)
+    const { data: wallet } = await sb
+      .from("ermnium_wallets")
+      .select("balance, bank_balance, points_balance")
+      .ilike("username", me)
+      .maybeSingle();
+
     // Fetch like counts for each post
     const postIds = posts.map(p => p.id);
     let likeCounts = {};
     if (postIds.length > 0) {
-      // Supabase doesn't support GROUP BY via client; fetch raw likes
       const { data: likes, error: likesErr } = await sb
         .from("likes")
         .select("post_id")
@@ -754,9 +760,10 @@ async function exportData() {
     // Build export payload
     const payload = {
       _ermn_export: true,
-      version: 1,
+      version: 1.1,
       exported_at: new Date().toISOString(),
       username: me,
+      wallet: wallet || null,
       posts: posts.map(p => ({
         id: p.id,
         text: p.text,
@@ -810,14 +817,24 @@ function previewImport(event) {
         msg.className = "msg err";
       }
       _importPayload = data;
-      const exported = new Date(data.exported_at).toLocaleDateString();
+      let walletHtml = "";
+      if (data.wallet) {
+        walletHtml = `<div style="margin-top:10px;padding:8px;background:rgba(46,204,113,0.1);border:1px solid #2ecc71;border-radius:4px;">
+          <b style="color:#27ae60;">Financial Data Detected:</b><br>
+          • Liquid ERN: ${data.wallet.balance || 0}<br>
+          • Bank ERN: ${data.wallet.bank_balance || 0}<br>
+          • Points: ${data.wallet.points_balance || 0}
+        </div>`;
+      }
+      
       document.getElementById("importPreviewTitle").innerText = `Backup Preview`;
       document.getElementById("importPreviewBody").innerHTML =
         `<b>Original username:</b> @${escapeHtml(data.username)}<br>` +
         `<b>Exported:</b> ${exported}<br>` +
         `<b>Posts to restore:</b> ${data.posts.length}<br>` +
-        `<b>Total likes (stored as metadata):</b> ${data.posts.reduce((s,p)=>s+p.like_count,0)}<br><br>` +
-        `<span style="color:#c00;font-size:11px;"><span class="material-icons" style="font-size:12px;vertical-align:middle;margin-right:2px;margin-top:-2px;">warning</span> Posts will be inserted with original timestamps. Existing posts with the same content will still be duplicated — review before importing.</span>`;
+        `<b>Total likes (stored as metadata):</b> ${data.posts.reduce((s,p)=>s+p.like_count,0)}<br>` +
+        walletHtml + `<br>` +
+        `<span style="color:#c00;font-size:11px;"><span class="material-icons" style="font-size:12px;vertical-align:middle;margin-right:2px;margin-top:-2px;">warning</span> Posts will be inserted with original timestamps. Financial data restoration requires Developer privileges.</span>`;
       preview.style.display = "block";
     } catch(err) {
       msg.innerText = "Could not read file: " + err.message;
@@ -847,6 +864,20 @@ async function importData() {
   btn.innerText = "Restoring…";
   msg.className = "msg";
   msg.innerText = "";
+
+  // Restore Financial Data if present and user is dev
+  if (_importPayload.wallet) {
+    const isDev = localStorage.getItem("isDeveloper") === "true";
+    if (isDev) {
+      const { error: walletErr } = await sb.from("ermnium_wallets").update({
+        balance: _importPayload.wallet.balance,
+        bank_balance: _importPayload.wallet.bank_balance,
+        points_balance: _importPayload.wallet.points_balance
+      }).ilike("username", me);
+      if (walletErr) console.error("Wallet restore failed", walletErr);
+      else msg.innerHTML += `<div style="color:#080;font-weight:bold;margin-bottom:10px;">✓ Financial data restored!</div>`;
+    }
+  }
 
   let success = 0, failed = 0;
   const posts = _importPayload.posts;
