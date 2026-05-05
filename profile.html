@@ -458,7 +458,7 @@ async function load() {
       displaySelectedMusic(user.spotify_data);
     }
     if (user.equipped_shell) {
-      document.getElementById("picDisplay").style.border = user.equipped_shell;
+      document.getElementById("picDisplay").style.cssText += "border:" + user.equipped_shell + ";";
     }
     
     let badges = '';

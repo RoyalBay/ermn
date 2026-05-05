@@ -151,7 +151,7 @@ async function loadProfile() {
   document.getElementById("pName").innerText = "@" + user.username;
   document.getElementById("pBio").innerText = user.bio || "No bio yet.";
   document.getElementById("pfp").src = user.pic || "empty.jpg";
-  if (user.equipped_shell) document.getElementById("pfp").style.border = user.equipped_shell;
+  if (user.equipped_shell) document.getElementById("pfp").style.cssText += "border:" + user.equipped_shell + ";";
   if (user.equipped_background) document.getElementById("profileBg").style.background = user.equipped_background;
 
   const { count: followers } = await sb.from("follows").select("*", {count:'exact', head:true}).eq("following", user.username);

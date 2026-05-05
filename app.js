@@ -717,7 +717,7 @@ async function render(searchQuery, sortMode, page) {
   const rf=document.getElementById("rightFollowers"), rb=document.getElementById("rightBio");
   if (rp) {
     rp.src = me.pic||"empty.jpg";
-    if (me.equipped_shell) rp.style.border = me.equipped_shell;
+    if (me.equipped_shell) rp.style.cssText += "border:" + me.equipped_shell + ";";
   }
   if (rn) {
     let badges = "";
