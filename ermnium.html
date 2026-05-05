@@ -137,6 +137,31 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
 
     <!-- SHOP -->
     <div class="card">
+      <div class="card-title" style="background:linear-gradient(90deg, #3b5998, #8b9dc3); color:white;"><span class="material-icons">diamond</span> ermn.+ Premium</div>
+      <div class="card-body">
+        <div style="background:linear-gradient(135deg, #f8f9fb 0%, #e8edf7 100%); border:1px solid #3b5998; padding:15px; border-radius:4px; display:flex; align-items:center; gap:15px; box-shadow: 0 4px 15px rgba(59,89,152,0.1);">
+          <div style="flex:1;">
+            <h3 style="color:#3b5998; font-size:20px; font-style:italic; margin-bottom:5px;">ermn.+ <span style="font-size:12px; font-weight:normal; color:#666;">(30 Days)</span></h3>
+            <ul style="font-size:11px; color:#555; list-style:none; padding:0;">
+              <li>◈ <b>Gold Username</b> & Exclusive Plus Badge</li>
+              <li>◈ <b>1,000 ERN</b> Monthly Stipend (Automated)</li>
+              <li>◈ <b>Infinite Shells</b>: Access all shop cosmetics free</li>
+              <li>◈ <b>Ermn Platinum</b>: The ultimate elite theme</li>
+            </ul>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:24px; font-weight:bold; color:#3b5998; margin-bottom:5px;">5,000 ERN</div>
+            <button class="shop-btn" id="plusBtn" onclick="buyPlus()" style="padding:8px 20px; font-size:14px; background:#3b5998; border-radius:4px;">Subscribe Now</button>
+          </div>
+        </div>
+        <div id="plusStatus" style="font-size:11px; color:#27ae60; margin-top:8px; font-weight:bold; display:none; text-align:center;">
+          ★ Active Subscription! Expires: <span id="plusExpiry">...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGULAR SHOP -->
+    <div class="card">
       <div class="card-title"><span class="material-icons">storefront</span> Ermnium Shop</div>
       <div class="card-body">
         <div class="shop-grid" id="shopGrid"><div style="color:#888;font-style:italic;">Loading shop...</div></div>
@@ -234,6 +259,14 @@ async function loadErmnium() {
     drawChart();
   }
 
+  // Plus Status
+  const { data: userPlus } = await sb.from("users").select("is_plus, plus_expires_at").ilike("username", currentUser || localStorage.getItem("currentUser")).maybeSingle();
+  if (userPlus && userPlus.is_plus) {
+    document.getElementById("plusStatus").style.display = "block";
+    document.getElementById("plusExpiry").innerText = new Date(userPlus.plus_expires_at).toLocaleDateString();
+    document.getElementById("plusBtn").innerText = "Extend Subscription";
+  }
+
   // Wallet
   if (walletRes.data) {
     myBalance = parseFloat(walletRes.data.balance);
@@ -265,6 +298,22 @@ async function loadErmnium() {
   if (shopRes.data) renderShop(shopRes.data);
 
   updateTradeSummary();
+}
+
+async function buyPlus() {
+  if (!(await uiConfirm("Subscribe to ermn.+ for 5,000 ERN? (30 Days)"))) return;
+  const btn = document.getElementById("plusBtn");
+  btn.disabled = true;
+  const { data, error } = await sb.rpc("purchase_plus", { target_username: currentUser || localStorage.getItem("currentUser"), cost_ern: 5000 });
+  btn.disabled = false;
+  
+  if (error) { await uiAlert("Error: " + error.message); return; }
+  if (data.success) {
+    await uiAlert("★ Welcome to ermn.+! Enjoy your premium perks.");
+    loadErmnium();
+  } else {
+    await uiAlert(data.reason);
+  }
 }
 
 function setTimeframe(hours) {

@@ -534,7 +534,7 @@ async function render(searchQuery, sortMode, page) {
   // ── 3. Pic cache: only fetch users whose pic isn't cached yet ──
   const uncached = visibleAuthors.filter(u => !_picCache[u]);
   if (uncached.length && !isLite) {
-    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer,equipped_shell,equipped_background").in("username",uncached);
+    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer,is_plus,equipped_shell,equipped_background").in("username",uncached);
     (freshUsers||[]).forEach(u => { _picCache[u.username] = u; });
   } else if (isLite && uncached.length) {
     uncached.forEach(u => { _picCache[u] = { username: u, pic: "empty.jpg", verified: false, is_developer: false, bio: "" }; });
@@ -591,12 +591,16 @@ async function render(searchQuery, sortMode, page) {
 
     const isVerified = uInfo.verified || false;
     const isDeveloper = uInfo.is_developer || false;
+    const isPlus = uInfo.is_plus || false;
     const editedLabel = p.edited_at ? ' <span class="edited-label" style="font-size:10px;color:#999;font-style:italic;" title="Edited at '+new Date(p.edited_at).toLocaleString()+'">(edited)</span>' : '';
     
     let badges = '';
     if (isVerified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
     if (isDeveloper) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
+    if (isPlus) badges += ' <span class="material-icons" style="font-size:14px;vertical-align:middle;color:#d4af37;margin-left:2px;" title="ermn.+ Subscriber">diamond</span>';
     
+    const userStyle = isPlus ? 'color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);' : '';
+
     let repostHtml = '';
     if (p.repost_of && repostMap[p.repost_of]) {
       const rp = repostMap[p.repost_of];
@@ -635,7 +639,7 @@ async function render(searchQuery, sortMode, page) {
           '<img class="post-avatar" src="'+escapeHtml(pic)+'" onerror="this.src=\'empty.jpg\'" style="'+(uInfo.equipped_shell ? 'border:'+uInfo.equipped_shell+';' : '')+'">'+
         '</a>'+
         '<div class="post-meta">'+
-          '<a href="'+getUserPageLink(p.username)+'" class="user-link">@'+escapeHtml(p.username)+'</a>'+
+          '<a href="'+getUserPageLink(p.username)+'" class="user-link" style="'+userStyle+'">@'+escapeHtml(p.username)+'</a>'+
           badges +
           (p.username!==currentUser
             ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')">'+(isFollowing?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following':'+ Follow')+'</button>'
@@ -1025,7 +1029,7 @@ async function renderAlgo() {
   
   const uncached = visibleAuthors.filter(u => !_picCache[u]);
   if (uncached.length && !isLite) {
-    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer,equipped_shell,equipped_background").in("username",uncached);
+    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer,is_plus,equipped_shell,equipped_background").in("username",uncached);
     (freshUsers||[]).forEach(u => { _picCache[u.username] = u; });
   } else if (isLite && uncached.length) {
     uncached.forEach(u => { _picCache[u] = { username: u, pic: "empty.jpg", verified: false, is_developer: false, bio: "" }; });
@@ -1056,11 +1060,15 @@ async function renderAlgo() {
 
     const isVerified = uInfo.verified || false;
     const isDeveloper = uInfo.is_developer || false;
+    const isPlus = uInfo.is_plus || false;
     const editedLabel = p.edited_at ? " <span class=\"edited-label\" style=\"font-size:10px;color:#999;font-style:italic;\">(edited)</span>" : "";
     
     let badges = "";
     if (isVerified) badges += " <span class=\"badge-icon badge-verified\" data-title=\"Verified User\">&nbsp;</span>";
     if (isDeveloper) badges += " <span class=\"badge-icon badge-developer\" data-title=\"Developer\">&nbsp;</span>";
+    if (isPlus) badges += " <span class=\"material-icons\" style=\"font-size:14px;vertical-align:middle;color:#d4af37;margin-left:2px;\" title=\"ermn.+ Subscriber\">diamond</span>";
+    
+    const userStyle = isPlus ? "color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);" : "";
     
     let repostHtml = "";
     if (p.repost_of && repostMap[p.repost_of]) {
@@ -1097,7 +1105,7 @@ async function renderAlgo() {
           "<img class=\"post-avatar\" src=\""+escapeHtml(pic)+"\" onerror=\"this.src='empty.jpg'\" style=\""+(uInfo.equipped_shell ? 'border:'+uInfo.equipped_shell+';' : '')+"\">"+
         "</a>"+
         "<div class=\"post-meta\">"+
-          "<a href=\""+getUserPageLink(p.username)+"\" class=\"user-link\">@"+escapeHtml(p.username)+"</a>"+
+          "<a href=\""+getUserPageLink(p.username)+"\" class=\"user-link\" style=\""+userStyle+"\">@"+escapeHtml(p.username)+"</a>"+
           badges +
           (p.username!==currentUser
             ? " <button class=\"follow-btn "+(isFollowing?"following":"")+"\" onclick=\"follow('\''"+p.username+"'\'')\">"+(isFollowing?"Following":"+ Follow")+"</button>"

@@ -40,6 +40,52 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
 .bottom-nav a .material-icons { font-size: 20px; }
 
 .badge-icon { width:14px; height:14px; vertical-align: middle; margin-left:2px; }
+
+/* Modal */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  width: 100%;
+  max-width: 320px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  border-radius: 2px;
+}
+.modal-title {
+  background: var(--card-header);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 12px;
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--accent);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-list { overflow-y: auto; flex: 1; padding: 10px; }
+.modal-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.modal-user img { width: 36px; height: 36px; object-fit: cover; border: 1px solid var(--border); }
+.modal-user a { color: var(--accent); text-decoration: none; font-weight: bold; font-size: 14px; }
+.stat-item { cursor: pointer; }
+.stat-item:active { opacity: 0.7; }
 </style>
 </head>
 <body>
@@ -57,8 +103,8 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
           <div id="pName" class="profile-name">@...</div>
           <div id="pBio" class="profile-bio">...</div>
           <div class="stats-row">
-            <span class="stat-item"><b id="countFollowers">0</b> followers</span>
-            <span class="stat-item"><b id="countFollowing">0</b> following</span>
+            <span class="stat-item" onclick="openModal('followers')"><b id="countFollowers">0</b> followers</span>
+            <span class="stat-item" onclick="openModal('following')"><b id="countFollowing">0</b> following</span>
           </div>
           <div id="pActions" style="margin-top:12px;">
             <button id="followBtn" class="btn" style="display:none; width:auto; padding:6px 16px;"></button>
@@ -67,6 +113,16 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
       </div>
     </div>
     <div id="pPosts"></div>
+  </div>
+</div>
+
+<div id="modalBackdrop" class="modal-backdrop" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">
+      <span id="modalTitle">Users</span>
+      <span class="material-icons" onclick="closeModal()" style="cursor:pointer; font-size:18px;">close</span>
+    </div>
+    <div id="modalList" class="modal-list"></div>
   </div>
 </div>
 
@@ -133,6 +189,48 @@ async function mFollow(target) {
     await sb.from("follows").insert({ follower: currentUser, following: target });
   }
   loadProfile();
+}
+
+function closeModal() {
+  document.getElementById("modalBackdrop").classList.remove("open");
+}
+
+async function openModal(type) {
+  const backdrop = document.getElementById("modalBackdrop");
+  const title = document.getElementById("modalTitle");
+  const list = document.getElementById("modalList");
+
+  title.innerText = type === "followers" ? "Followers" : "Following";
+  list.innerHTML = "<div style='text-align:center;padding:20px;color:#888;font-style:italic;'>Loading...</div>";
+  backdrop.classList.add("open");
+
+  let query;
+  if (type === "followers") {
+    query = sb.from("follows").select("follower").eq("following", targetUser);
+  } else {
+    query = sb.from("follows").select("following").eq("follower", targetUser);
+  }
+
+  const { data: results } = await query;
+  if (!results || !results.length) {
+    list.innerHTML = "<div style='text-align:center;padding:20px;color:#888;'>No users found.</div>";
+    return;
+  }
+
+  const usersList = results.map(r => type === "followers" ? r.follower : r.following);
+  const { data: userDetails } = await sb.from("users").select("username, pic, equipped_shell").in("username", usersList);
+
+  list.innerHTML = "";
+  (userDetails || []).forEach(u => {
+    const div = document.createElement("div");
+    div.className = "modal-user";
+    div.innerHTML = `
+      <img src="${u.pic || 'empty.jpg'}" style="${u.equipped_shell ? 'border:'+u.equipped_shell+';' : ''}">
+      <a href="${getUserPageLink(u.username)}">@${u.username}</a>
+    `;
+    div.onclick = () => { location.href = getUserPageLink(u.username); };
+    list.appendChild(div);
+  });
 }
 
 document.addEventListener("sessionReady", loadProfile);
