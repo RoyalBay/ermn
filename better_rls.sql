@@ -9,7 +9,7 @@ ALTER TABLE public.users ADD COLUMN IF NOT EXISTS equipped_shell text DEFAULT NU
 -- Enforce 3-letter username restrictions (only for NEW users)
 ALTER TABLE public.users DROP CONSTRAINT IF EXISTS check_username_restriction;
 ALTER TABLE public.users ADD CONSTRAINT check_username_restriction 
-CHECK (length(username) >= 4 OR lower(username) IN ('cnn', 'cbc', 'mtv', 'bbc'))
+CHECK (length(username) >= 4 OR lower(username) IN ('cnn', 'cbc', 'mtv', 'bbc', 'd_j'))
 NOT VALID;
 
 -- 1. HELPER FUNCTIONS
