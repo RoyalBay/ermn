@@ -132,6 +132,10 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
       </div>
       <div class="card-body">
         <canvas id="chartCanvas"></canvas>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+          <span style="font-size:10px;color:#aaa;font-style:italic;">Scroll to zoom · Drag to pan</span>
+          <button id="resetZoomBtn" onclick="resetZoom()" style="display:none;background:none;border:1px solid var(--border);color:var(--accent);padding:2px 8px;font-size:10px;cursor:pointer;font-family:inherit;">Reset Zoom</button>
+        </div>
       </div>
     </div>
 
@@ -318,6 +322,7 @@ async function buyPlus() {
 
 function setTimeframe(hours) {
   currentTimeframe = hours;
+  chartZoom = { start: 0, end: 1 }; // Reset zoom on timeframe change
   const buttons = document.querySelectorAll("#timeframeControls button");
   buttons.forEach(b => b.classList.remove("active"));
   if (hours === 1) document.getElementById("tf1h").classList.add("active");
@@ -336,7 +341,17 @@ function filterHistory(history, hours) {
   return history.filter(h => h.t >= cutoff);
 }
 
-// ── CHART ──
+// ── CHART STATE ──
+let chartZoom = { start: 0, end: 1 }; // 0–1 range of visible data
+let chartDrag = { active: false, startX: 0, startRange: null };
+let chartMouse = { x: -1, y: -1, active: false };
+
+function resetZoom() {
+  chartZoom = { start: 0, end: 1 };
+  drawChart();
+  document.getElementById("resetZoomBtn").style.display = "none";
+}
+
 function drawChart() {
   const canvas = document.getElementById("chartCanvas");
   const ctx = canvas.getContext("2d");
@@ -356,23 +371,47 @@ function drawChart() {
     return;
   }
 
-  const prices = filtered.map(p => p.p);
-  const minP = Math.min(...prices) * 0.99, maxP = Math.max(...prices) * 1.01;
+  // Apply zoom window
+  const totalLen = filtered.length;
+  const iStart = Math.floor(chartZoom.start * totalLen);
+  const iEnd = Math.max(iStart + 2, Math.ceil(chartZoom.end * totalLen));
+  const visible = filtered.slice(iStart, iEnd);
+
+  const prices = visible.map(p => p.p);
+  const times = visible.map(p => p.t);
+  const minP = Math.min(...prices) * 0.998, maxP = Math.max(...prices) * 1.002;
   const range = maxP - minP || 0.01;
-  const padL=45,padR=10,padT=15,padB=25;
+  const padL=50,padR=10,padT=15,padB=30;
   const cW=W-padL-padR, cH=H-padT-padB;
 
-  // Grid
-  ctx.strokeStyle="#e8e8e8"; ctx.lineWidth=1;
-  for(let i=0;i<=4;i++){const y=padT+cH*(i/4); ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
+  // Background
+  ctx.fillStyle = "var(--input-bg, #fafbfc)";
+  ctx.fillRect(0, 0, W, H);
+
+  // Grid lines + Y axis labels
+  ctx.strokeStyle="#e0e0e0"; ctx.lineWidth=1;
+  for(let i=0;i<=5;i++){
+    const y=padT+cH*(i/5);
+    ctx.beginPath();ctx.moveTo(padL,y);ctx.lineTo(W-padR,y);ctx.stroke();
     ctx.fillStyle="#999";ctx.font="10px Tahoma";ctx.textAlign="right";
-    ctx.fillText((maxP-range*(i/4)).toFixed(3),padL-4,y+3);
+    ctx.fillText((maxP-range*(i/5)).toFixed(4),padL-4,y+3);
   }
 
-  // Line + gradient fill
+  // X axis time labels
+  ctx.fillStyle="#999"; ctx.font="9px Tahoma"; ctx.textAlign="center";
+  const xLabels = Math.min(6, visible.length);
+  for(let i=0;i<xLabels;i++){
+    const idx = Math.floor(i * (visible.length - 1) / (xLabels - 1));
+    const x = padL + (idx / (visible.length - 1)) * cW;
+    const d = new Date(times[idx] * 1000);
+    const label = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+    ctx.fillText(label, x, H - 6);
+  }
+
+  // Gradient fill
   const gradient = ctx.createLinearGradient(0,padT,0,H-padB);
   const isUp = prices[prices.length-1] >= prices[0];
-  gradient.addColorStop(0, isUp?"rgba(39,174,96,0.3)":"rgba(231,76,60,0.3)");
+  gradient.addColorStop(0, isUp?"rgba(39,174,96,0.25)":"rgba(231,76,60,0.25)");
   gradient.addColorStop(1, "rgba(255,255,255,0)");
 
   ctx.beginPath();
@@ -386,6 +425,7 @@ function drawChart() {
   ctx.closePath();
   ctx.fillStyle=gradient; ctx.fill();
 
+  // Price line
   ctx.beginPath();
   for(let i=0;i<prices.length;i++){
     const x=padL+(i/(prices.length-1))*cW;
@@ -393,7 +433,158 @@ function drawChart() {
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
   }
   ctx.strokeStyle=isUp?"#27ae60":"#e74c3c"; ctx.lineWidth=2; ctx.stroke();
+
+  // Data point dots (if zoomed enough to see them)
+  if (prices.length <= 60) {
+    for(let i=0;i<prices.length;i++){
+      const x=padL+(i/(prices.length-1))*cW;
+      const y=padT+cH*(1-(prices[i]-minP)/range);
+      ctx.beginPath();
+      ctx.arc(x, y, 2.5, 0, Math.PI*2);
+      ctx.fillStyle=isUp?"#27ae60":"#e74c3c";
+      ctx.fill();
+    }
+  }
+
+  // Crosshair tooltip
+  if (chartMouse.active && chartMouse.x >= padL && chartMouse.x <= W-padR && chartMouse.y >= padT && chartMouse.y <= padT+cH) {
+    const mx = chartMouse.x;
+    const dataIdx = Math.round(((mx - padL) / cW) * (prices.length - 1));
+    if (dataIdx >= 0 && dataIdx < prices.length) {
+      const snapX = padL + (dataIdx / (prices.length - 1)) * cW;
+      const snapY = padT + cH * (1 - (prices[dataIdx] - minP) / range);
+
+      // Vertical line
+      ctx.strokeStyle="rgba(59,89,152,0.4)"; ctx.lineWidth=1;
+      ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(snapX, padT); ctx.lineTo(snapX, padT+cH); ctx.stroke();
+      // Horizontal line
+      ctx.beginPath(); ctx.moveTo(padL, snapY); ctx.lineTo(W-padR, snapY); ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Highlight dot
+      ctx.beginPath();
+      ctx.arc(snapX, snapY, 5, 0, Math.PI*2);
+      ctx.fillStyle=isUp?"#27ae60":"#e74c3c";
+      ctx.fill();
+      ctx.strokeStyle="white"; ctx.lineWidth=2; ctx.stroke();
+
+      // Tooltip box
+      const d = new Date(times[dataIdx] * 1000);
+      const timeStr = d.toLocaleDateString() + " " + d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+      const priceStr = prices[dataIdx].toFixed(4) + " Pts";
+      const tooltipText = priceStr + "  •  " + timeStr;
+
+      ctx.font="bold 11px Tahoma";
+      const tw = ctx.measureText(tooltipText).width + 16;
+      let tx = snapX - tw/2;
+      if (tx < padL) tx = padL;
+      if (tx + tw > W - padR) tx = W - padR - tw;
+      let ty = snapY - 30;
+      if (ty < padT) ty = snapY + 12;
+
+      ctx.fillStyle="rgba(30,47,80,0.92)";
+      ctx.fillRect(tx, ty, tw, 22);
+      ctx.fillStyle="white";
+      ctx.textAlign="center";
+      ctx.fillText(tooltipText, tx + tw/2, ty + 15);
+    }
+  }
+
+  // Show reset zoom button if zoomed
+  const btn = document.getElementById("resetZoomBtn");
+  if (btn) btn.style.display = (chartZoom.start > 0.001 || chartZoom.end < 0.999) ? "inline-block" : "none";
 }
+
+// ── CHART INTERACTIONS ──
+(function initChartInteractions() {
+  document.addEventListener("DOMContentLoaded", () => {
+    const canvas = document.getElementById("chartCanvas");
+    if (!canvas) return;
+
+    // Mouse wheel zoom
+    canvas.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const zoomFactor = 0.08;
+      const rect = canvas.getBoundingClientRect();
+      const mouseRatio = (e.clientX - rect.left - 50) / (rect.width - 60);
+      const clampedRatio = Math.max(0, Math.min(1, mouseRatio));
+
+      const currentRange = chartZoom.end - chartZoom.start;
+      let newRange;
+
+      if (e.deltaY < 0) {
+        // Zoom in
+        newRange = Math.max(0.02, currentRange * (1 - zoomFactor));
+      } else {
+        // Zoom out
+        newRange = Math.min(1, currentRange * (1 + zoomFactor));
+      }
+
+      const center = chartZoom.start + clampedRatio * currentRange;
+      let newStart = center - clampedRatio * newRange;
+      let newEnd = newStart + newRange;
+
+      if (newStart < 0) { newStart = 0; newEnd = newRange; }
+      if (newEnd > 1) { newEnd = 1; newStart = 1 - newRange; }
+
+      chartZoom.start = Math.max(0, newStart);
+      chartZoom.end = Math.min(1, newEnd);
+      drawChart();
+    }, { passive: false });
+
+    // Mouse drag pan
+    canvas.addEventListener("mousedown", (e) => {
+      chartDrag.active = true;
+      chartDrag.startX = e.clientX;
+      chartDrag.startRange = { ...chartZoom };
+      canvas.style.cursor = "grabbing";
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      const canvas = document.getElementById("chartCanvas");
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+
+      if (chartDrag.active) {
+        const dx = e.clientX - chartDrag.startX;
+        const pixelRange = rect.width - 60;
+        const dataShift = -(dx / pixelRange) * (chartDrag.startRange.end - chartDrag.startRange.start);
+
+        let newStart = chartDrag.startRange.start + dataShift;
+        let newEnd = chartDrag.startRange.end + dataShift;
+        const span = newEnd - newStart;
+
+        if (newStart < 0) { newStart = 0; newEnd = span; }
+        if (newEnd > 1) { newEnd = 1; newStart = 1 - span; }
+
+        chartZoom.start = Math.max(0, newStart);
+        chartZoom.end = Math.min(1, newEnd);
+        drawChart();
+      } else {
+        // Crosshair
+        chartMouse.x = e.clientX - rect.left;
+        chartMouse.y = e.clientY - rect.top;
+        chartMouse.active = (chartMouse.x >= 0 && chartMouse.x <= rect.width && chartMouse.y >= 0 && chartMouse.y <= rect.height);
+        drawChart();
+      }
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (chartDrag.active) {
+        chartDrag.active = false;
+        const canvas = document.getElementById("chartCanvas");
+        if (canvas) canvas.style.cursor = "crosshair";
+      }
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+      chartMouse.active = false;
+      drawChart();
+    });
+  });
+})();
+
 
 // ── TRADE ──
 function setTradeMode(mode) {
