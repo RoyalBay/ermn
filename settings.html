@@ -317,6 +317,7 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
           <button class="btn" id="fpsToggle" onclick="toggleDevSetting('dev_fps', 'fpsToggle')">FPS Meter: Off</button>
           <button class="btn" id="consoleToggle" onclick="toggleDevSetting('dev_console', 'consoleToggle')">Error Console: Off</button>
           <button class="btn" id="networkToggle" onclick="toggleDevSetting('dev_network', 'networkToggle')">Network Log: Off</button>
+          <button class="btn" id="maintenanceToggle" style="background:linear-gradient(180deg,#c00,#900);border-color:#700;" onclick="toggleMaintenanceMode()">SITE MAINTENANCE: OFF</button>
           <button class="btn" style="background:linear-gradient(180deg,#888,#666);border-color:#444;" onclick="clearSiteCache()">Clear Cache & Reset</button>
         </div>
       </div>
@@ -646,6 +647,7 @@ function initDevSettings() {
   updateDevBtn("dev_network", "networkToggle", "Network Log");
   updateDevBtn("dev_resources", "resourceToggle", "Resource Mon");
   updateDevBtn("dev_logins", "loginTrackerToggle", "Login Tracker");
+  initMaintenanceStatus();
   
   if (localStorage.getItem("dev_logins") === "true") {
     const logs = JSON.parse(localStorage.getItem("dev_login_history") || "[]");
@@ -696,6 +698,33 @@ function updateDevBtn(key, btnId, label) {
   btn.innerText = label + ": " + (active ? "On" : "Off");
   btn.style.background = active ? "linear-gradient(180deg,#5cb85c,#4cae4c)" : "linear-gradient(180deg,#888,#666)";
   btn.style.borderColor = active ? "#3a7e3a" : "#444";
+}
+
+async function initMaintenanceStatus() {
+  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
+  const active = config && config.value === true;
+  const btn = document.getElementById("maintenanceToggle");
+  if (!btn) return;
+  btn.innerText = "SITE MAINTENANCE: " + (active ? "ON (SHUTDOWN)" : "OFF (LIVE)");
+  btn.style.background = active ? "linear-gradient(180deg,#5cb85c,#4cae4c)" : "linear-gradient(180deg,#c00,#900)";
+  btn.style.borderColor = active ? "#3a7e3a" : "#700";
+}
+
+async function toggleMaintenanceMode() {
+  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
+  const cur = config && config.value === true;
+  const target = !cur;
+
+  if (target === true) {
+    if (!(await uiConfirm("NUCLEAR OPTION: This will shut down the site for ALL non-staff users and redirect them to the maintenance page. Proceed?"))) return;
+  }
+
+  const { error } = await sb.from("site_config").upsert({ key: "maintenance_mode", value: target });
+  if (error) {
+    alert("Error updating maintenance mode: " + error.message);
+  } else {
+    initMaintenanceStatus();
+  }
 }
 
 async function clearSiteCache() {

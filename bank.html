@@ -125,8 +125,10 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
 
     <div class="card">
       <div class="card-title"><span class="material-icons">history</span> Recent Activity</div>
-      <div class="card-body" style="color: #888; font-style: italic; font-size: 12px; text-align: center; padding: 20px;">
-        Banking history is coming soon.
+      <div class="card-body" id="historyList" style="padding: 0;">
+        <div style="color: #888; font-style: italic; font-size: 12px; text-align: center; padding: 20px;">
+          No recent transactions found.
+        </div>
       </div>
     </div>
   </div>
@@ -199,6 +201,7 @@ async function transact(type) {
     showMsg(`Success! Your funds have been moved.`, false);
     document.getElementById("amount").value = "";
     await loadBankData();
+    await loadHistory();
   }
 }
 
@@ -208,8 +211,35 @@ function showMsg(txt, isErr) {
   msgEl.className = "msg " + (isErr ? "error" : "success");
 }
 
+async function loadHistory() {
+  const { data, error } = await sb.from("bank_history")
+    .select("*")
+    .ilike("username", currentUser)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  const list = document.getElementById("historyList");
+  if (data && data.length > 0) {
+    list.innerHTML = "";
+    data.forEach(h => {
+      const div = document.createElement("div");
+      div.style.cssText = "padding: 10px 14px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;";
+      const isDeposit = h.type === 'deposit';
+      div.innerHTML = `
+        <div>
+          <div style="font-weight:bold; font-size:12px; color:${isDeposit ? '#27ae60' : '#c0392b'}">${isDeposit ? 'DEPOSIT' : 'WITHDRAWAL'}</div>
+          <div style="font-size:10px; color:#aaa;">${new Date(h.created_at).toLocaleString()}</div>
+        </div>
+        <div style="font-weight:bold; font-size:14px;">${isDeposit ? '+' : '-'}${parseFloat(h.amount).toFixed(2)} ERN</div>
+      `;
+      list.appendChild(div);
+    });
+  }
+}
+
 document.addEventListener("sessionReady", () => {
   loadBankData();
+  loadHistory();
 });
 </script>
 </body>

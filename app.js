@@ -52,6 +52,20 @@ async function initSession() {
   } else {
     currentUser = localStorage.getItem("currentUser");
   }
+
+  // Global Maintenance Check
+  if (window.location.pathname.indexOf("maintenance.html") === -1) {
+    const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
+    if (config && config.value === true) {
+      // Check if user is admin/dev
+      const { data: me } = await sb.from("users").select("is_admin, is_developer").ilike("username", currentUser).maybeSingle();
+      if (!me || (!me.is_admin && !me.is_developer)) {
+        location.href = "maintenance.html";
+        return;
+      }
+    }
+  }
+
   document.dispatchEvent(new Event("sessionReady"));
 }
 initSession();
