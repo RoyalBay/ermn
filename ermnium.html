@@ -453,7 +453,10 @@ async function claimBonus() {
 }
 
 // ── SHOP ──
-function renderShop(items) {
+async function renderShop(items) {
+  const { data: user } = await sb.from("users").select("is_plus").eq("username", currentUser).maybeSingle();
+  const isPlus = user && user.is_plus;
+
   const el = document.getElementById("shopGrid");
   el.innerHTML = "";
   items.forEach(item => {
@@ -465,7 +468,7 @@ function renderShop(items) {
       '<div class="shop-name">'+escapeHtml(item.name)+'</div>'+
       '<div class="shop-price">'+item.price_ern+' ERN · '+item.type+'</div>'+
       '<div class="shop-desc">'+escapeHtml(item.description)+'</div>'+
-      (owned
+      (owned || isPlus
         ? '<button class="shop-btn owned" onclick="equipItem('+item.id+')">Equip</button> <button class="shop-btn" style="background:#888;margin-top:4px;" onclick="unequipType(\''+item.type+'\')">Unequip</button>'
         : '<button class="shop-btn"'+(myBalance<item.price_ern?' disabled':'')+' onclick="buyItem('+item.id+')">Buy · '+item.price_ern+' ERN</button>');
     el.appendChild(d);

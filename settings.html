@@ -123,6 +123,34 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
 </div>
 
 <div class="container">
+  <!-- ermn.+ Dashboard -->
+  <div id="plusDashboard" class="card" style="display:none; border:2px solid #d4af37; box-shadow: 0 4px 15px rgba(212,175,55,0.2);">
+    <div class="card-title" style="background:linear-gradient(135deg, #d4af37, #f1c40f); color:white; border-bottom:1px solid #b8860b;">
+      <span class="material-icons">diamond</span> ermn.+ Dashboard
+    </div>
+    <div class="card-body">
+      <p style="font-size:11px; color:#888; margin-bottom:10px;">Customize your premium experience. Toggles are saved automatically.</p>
+      
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <div class="setting-toggle">
+          <label style="margin-top:0;">Gold Username</label>
+          <button id="toggleGold" class="btn" style="width:100%; margin-top:0;" onclick="togglePlusSetting('gold_name')">Loading...</button>
+        </div>
+        <div class="setting-toggle">
+          <label style="margin-top:0;">Diamond Badge</label>
+          <button id="toggleBadge" class="btn" style="width:100%; margin-top:0;" onclick="togglePlusSetting('show_badge')">Loading...</button>
+        </div>
+      </div>
+      
+      <div style="margin-top:15px; padding:10px; background:#fdf9e1; border:1px solid #d4af37; border-radius:4px; font-size:12px;">
+        <b style="color:#b8860b;"><span class="material-icons" style="font-size:14px;vertical-align:middle;">card_giftcard</span> Your Member Benefits:</b>
+        <ul style="margin-top:5px; padding-left:18px;">
+          <li>1,000 ERN Monthly Stipend (Auto-claimed)</li>
+          <li>Infinite Shells (All Shop items are FREE)</li>
+          <li>Exclusive Platinum Theme</li>
+        </ul>
+      </div>
+    </div>
   <!-- Site Experience -->
   <div class="card">
     <div class="card-title"><span class="material-icons">auto_awesome</span> Site Experience</div>
@@ -145,6 +173,10 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
         <button class="theme-swatch" id="sw-classic" onclick="setTheme('classic')">
           <div class="swatch-preview" style="background: linear-gradient(180deg,#dfe7f3,#f5f6f7); border-top: 6px solid #3b5998;"></div>
           <div class="swatch-label">Classic Blue</div>
+        </button>
+        <button class="theme-swatch" id="sw-platinum" onclick="setTheme('platinum')" style="display:none;">
+          <div class="swatch-preview" style="background: linear-gradient(135deg,#e5e4e2, #f5f5f5); border-top: 6px solid #d4af37; box-shadow: inset 0 0 10px rgba(212,175,55,0.2);"></div>
+          <div class="swatch-label" style="color:#b8860b;font-weight:bold;">Platinum</div>
         </button>
         <button class="theme-swatch" id="sw-cherry" onclick="setTheme('cherry')">
           <div class="swatch-preview" style="background: linear-gradient(180deg,#fff5f7,#fde2e4); border-top: 6px solid #ffb7c5;"></div>
@@ -465,6 +497,12 @@ async function loadInfo() {
       document.getElementById("adminToggleCard").style.display = "block";
       updateAdminToggleBtn();
     }
+    if (user.is_plus) {
+      document.getElementById("plusDashboard").style.display = "block";
+      document.getElementById("sw-platinum").style.display = "block";
+      updatePlusToggles(user.plus_settings);
+    }
+
     if (user.is_developer) {
       document.getElementById("devToggleCard").style.display = "block";
       initDevSettings();
@@ -473,6 +511,38 @@ async function loadInfo() {
     await load2FAStatus();
   }
   loadRequests();
+}
+
+let _plusSettings = { "gold_name": true, "show_badge": true };
+
+function updatePlusToggles(settings) {
+  if (settings) _plusSettings = settings;
+  const g = document.getElementById("toggleGold");
+  const b = document.getElementById("toggleBadge");
+  if (!g || !b) return;
+
+  g.innerText = _plusSettings.gold_name !== false ? "Gold ON" : "Gold OFF";
+  g.style.background = _plusSettings.gold_name !== false ? "#fdf9e1" : "#eee";
+  g.style.color = _plusSettings.gold_name !== false ? "#b8860b" : "#888";
+  g.style.borderColor = _plusSettings.gold_name !== false ? "#d4af37" : "#ccc";
+
+  b.innerText = _plusSettings.show_badge !== false ? "Badge ON" : "Badge OFF";
+  b.style.background = _plusSettings.show_badge !== false ? "#fdf9e1" : "#eee";
+  b.style.color = _plusSettings.show_badge !== false ? "#b8860b" : "#888";
+  b.style.borderColor = _plusSettings.show_badge !== false ? "#d4af37" : "#ccc";
+}
+
+async function togglePlusSetting(key) {
+  _plusSettings[key] = !(_plusSettings[key] !== false);
+  updatePlusToggles(_plusSettings);
+  
+  const { error } = await sb.from("users").update({ plus_settings: _plusSettings }).eq("username", me);
+  if (error) {
+    console.error("Failed to save plus settings", error);
+    const msg = document.getElementById("securityMsg");
+    msg.innerText = "Error saving Plus settings: " + error.message;
+    msg.className = "msg err";
+  }
 }
 
 async function updateEmail() {

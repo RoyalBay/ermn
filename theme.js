@@ -7,6 +7,7 @@ function applyTheme() {
     y2k:       { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)",card:"#fff",topbar:"#0055cc",text:"#002266",border:"#99bbff",accent:"#0055cc",cardHeader:"linear-gradient(180deg,#c0e8ff,#e8f4ff)",inputBg:"#f0f8ff",badgeGlow:"none",neonGlow:"none" },
     limeade:   { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)",card:"#f9fff9",topbar:"#2d7a2d",text:"#1a3d1a",border:"#a3d9a3",accent:"#2d7a2d",cardHeader:"linear-gradient(180deg,#e8fce8,#f5fff5)",inputBg:"#f5fff5",badgeGlow:"none",neonGlow:"none" },
     cyberpunk: { body:"linear-gradient(180deg,#0d0221 0%,#0f084b 100%)",card:"#1a1a3a",topbar:"#26084d",text:"#00f2ff",border:"#ff00ff",accent:"#ff00ff",cardHeader:"#26084d",inputBg:"#0d0221",badgeGlow:"drop-shadow(0 0 5px #ff00ff) drop-shadow(0 0 10px #00f2ff)",neonGlow:"0 0 5px #ff00ff, 0 0 10px #ff00ff" },
+    platinum:  { body:"linear-gradient(135deg,#e5e4e2 0%,#f5f5f5 100%)",card:"#fff",topbar:"linear-gradient(180deg, #d4af37, #b8860b)",text:"#4a4a4a",border:"#d4af37",accent:"#b8860b",cardHeader:"linear-gradient(180deg,#fdf9e1,#f5f0d0)",inputBg:"#fffdf5",badgeGlow:"drop-shadow(0 0 8px rgba(212,175,55,0.4))",neonGlow:"none" },
   };
   const th = themes[t] || themes.classic;
   document.documentElement.setAttribute("data-theme", t);

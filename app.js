@@ -22,13 +22,26 @@ window.logout = async function() {
 async function initSession() {
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
-    const { data: profile } = await sb.from("users").select("username, is_admin, is_developer, is_banned").eq("id", session.user.id).maybeSingle();
+    const { data: profile } = await sb.from("users").select("username, is_admin, is_developer, is_banned, is_plus, last_stipend_at, plus_settings").eq("id", session.user.id).maybeSingle();
     if (profile) {
       currentUser = profile.username;
       _isAdmin = profile.is_admin;
       _isDeveloper = profile.is_developer;
       localStorage.setItem("currentUser", currentUser);
       localStorage.setItem("isDeveloper", _isDeveloper || false);
+      localStorage.setItem("isPlus", profile.is_plus || false);
+
+      // Auto-claim Plus Stipend if needed
+      if (profile.is_plus) {
+        const lastStipend = profile.last_stipend_at ? new Date(profile.last_stipend_at) : new Date(0);
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        if (lastStipend < thirtyDaysAgo) {
+          console.log("Claiming ermn.+ stipend...");
+          await sb.rpc('claim_plus_stipend', { target_username: currentUser });
+        }
+      }
     } else {
       currentUser = session.user.user_metadata.username;
       localStorage.setItem("currentUser", currentUser);
@@ -536,7 +549,7 @@ async function render(searchQuery, sortMode, page) {
   // ── 3. Pic cache: only fetch users whose pic isn't cached yet ──
   const uncached = visibleAuthors.filter(u => !_picCache[u]);
   if (uncached.length && !isLite) {
-    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer,is_plus,equipped_shell,equipped_background").in("username",uncached);
+    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer,is_plus,plus_settings,equipped_shell,equipped_background").in("username",uncached);
     (freshUsers||[]).forEach(u => { _picCache[u.username] = u; });
   } else if (isLite && uncached.length) {
     uncached.forEach(u => { _picCache[u] = { username: u, pic: "empty.jpg", verified: false, is_developer: false, bio: "" }; });
@@ -599,9 +612,12 @@ async function render(searchQuery, sortMode, page) {
     let badges = '';
     if (isVerified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
     if (isDeveloper) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
-    if (isPlus) badges += ' <span class="material-icons" style="font-size:14px;vertical-align:middle;color:#d4af37;margin-left:2px;" title="ermn.+ Subscriber">diamond</span>';
+    const plusSettings = uInfo.plus_settings || { "gold_name": true, "show_badge": true };
+    if (isPlus && plusSettings.show_badge !== false) {
+        badges += ' <span class="material-icons" style="font-size:14px;vertical-align:middle;color:#d4af37;margin-left:2px;" title="ermn.+ Subscriber">diamond</span>';
+    }
     
-    const userStyle = isPlus ? 'color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);' : '';
+    const userStyle = (isPlus && plusSettings.gold_name !== false) ? 'color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);' : '';
 
     let repostHtml = '';
     if (p.repost_of && repostMap[p.repost_of]) {
@@ -1031,7 +1047,7 @@ async function renderAlgo() {
   
   const uncached = visibleAuthors.filter(u => !_picCache[u]);
   if (uncached.length && !isLite) {
-    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer,is_plus,equipped_shell,equipped_background").in("username",uncached);
+    const { data: freshUsers } = await sb.from("users").select("username,pic,bio,verified,is_developer,is_plus,plus_settings,equipped_shell,equipped_background").in("username",uncached);
     (freshUsers||[]).forEach(u => { _picCache[u.username] = u; });
   } else if (isLite && uncached.length) {
     uncached.forEach(u => { _picCache[u] = { username: u, pic: "empty.jpg", verified: false, is_developer: false, bio: "" }; });
@@ -1068,9 +1084,12 @@ async function renderAlgo() {
     let badges = "";
     if (isVerified) badges += " <span class=\"badge-icon badge-verified\" data-title=\"Verified User\">&nbsp;</span>";
     if (isDeveloper) badges += " <span class=\"badge-icon badge-developer\" data-title=\"Developer\">&nbsp;</span>";
-    if (isPlus) badges += " <span class=\"material-icons\" style=\"font-size:14px;vertical-align:middle;color:#d4af37;margin-left:2px;\" title=\"ermn.+ Subscriber\">diamond</span>";
+    const plusSettings = uInfo.plus_settings || { "gold_name": true, "show_badge": true };
+    if (isPlus && plusSettings.show_badge !== false) {
+        badges += ' <span class="material-icons" style="font-size:14px;vertical-align:middle;color:#d4af37;margin-left:2px;" title="ermn.+ Subscriber">diamond</span>';
+    }
     
-    const userStyle = isPlus ? "color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);" : "";
+    const userStyle = (isPlus && plusSettings.gold_name !== false) ? 'color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);' : '';
     
     let repostHtml = "";
     if (p.repost_of && repostMap[p.repost_of]) {
