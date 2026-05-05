@@ -7,32 +7,40 @@
 <title>ermn. · Settings</title>
 <link rel="icon" href="wicon.png">
 <style>
-:root{--accent:#3b5998;--card-bg:#fff;--topbar-bg:#3b5998;--text:#333;--border:#b0b7c3;--body-bg:linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%);--card-header:linear-gradient(180deg,#e8edf7,#d8e0f0);--input-bg:#fafafa;}
+:root{
+  /* Themes will inject variables here via theme.js */
+}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(--text);min-height:100vh;font-size:14px;padding-bottom:60px;}
 
 .topbar{background:var(--topbar-bg);height:48px;display:flex;align-items:center;padding:0 12px;position:sticky;top:0;z-index:50;}
 .topbar-logo{font-size:22px;font-weight:bold;color:white;letter-spacing:-1px;font-style:italic;}
 
-.main{padding:8px; width:100%; max-width:100%;}
+.main{padding:8px; width:100%; max-width:100%; box-sizing:border-box;}
 
-.card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;margin-bottom:10px; width:100%; overflow:hidden;}
-.card-title{background:var(--card-header);border-bottom:1px solid var(--border);padding:6px 12px;font-size:13px;font-weight:bold;color:var(--accent);display:flex;align-items:center;gap:6px;}
-.card-body{padding:12px;}
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;margin-bottom:10px; width:100%; overflow:hidden; box-sizing:border-box;}
+.card-title{background:var(--card-header);border-bottom:1px solid var(--border);padding:8px 12px;font-size:13px;font-weight:bold;color:var(--accent);display:flex;align-items:center;gap:6px;}
+.card-body{padding:12px; box-sizing:border-box;}
 
 label{display:block;font-size:12px;font-weight:bold;color:#444;margin:10px 0 3px;}
-input[type=text], input[type=password], select{width:100%;border:1px solid var(--border);padding:10px 8px;font-family:inherit;font-size:14px;background:var(--input-bg);color:var(--text);-webkit-appearance:none;}
-.btn{background:linear-gradient(180deg,#5274b3,#3b5998);color:white;border:1px solid #2a4070;padding:10px 16px;font-family:inherit;font-size:13px;font-weight:bold;cursor:pointer;margin-top:8px; width:100%; border-radius:2px;}
+input[type=text], input[type=password], select{width:100%;border:1px solid var(--border);padding:12px 8px;font-family:inherit;font-size:14px;background:var(--input-bg);color:var(--text);-webkit-appearance:none; border-radius:2px;}
+.btn{background:linear-gradient(180deg,#5274b3,#3b5998);color:white;border:1px solid #2a4070;padding:12px 16px;font-family:inherit;font-size:13px;font-weight:bold;cursor:pointer;margin-top:8px; width:100%; border-radius:2px; -webkit-tap-highlight-color:transparent;}
 .btn-alt{background:#eee; color:#333; border:1px solid #ccc;}
+.btn:active{opacity:0.8;}
 
-.info-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #eee;font-size:13px;}
+.info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;font-size:13px;}
 .info-row:last-child{border-bottom:none;}
-.msg{font-size:12px;margin-top:6px; min-height:16px;}
 
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--topbar-bg);border-top:2px solid rgba(0,0,0,0.2);display:flex;height:52px;z-index:100;}
 .bottom-nav a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.8);text-decoration:none;font-size:10px;gap:2px;}
 .bottom-nav a.active{background:rgba(255,255,255,0.15); color:white;}
 .bottom-nav a .material-icons { font-size: 20px; }
+
+/* Themes Grid */
+.theme-grid{display:grid; grid-template-columns: repeat(3, 1fr); gap:8px;}
+.theme-btn{border:1px solid #ddd; background:white; padding:8px 4px; border-radius:2px; text-align:center; cursor:pointer;}
+.theme-btn .swatch{height:20px; border-radius:1px; margin-bottom:4px; border:1px solid rgba(0,0,0,0.1);}
+.theme-btn span{font-size:10px; font-weight:bold; color:#444;}
 </style>
 </head>
 <body>
@@ -41,6 +49,32 @@ input[type=text], input[type=password], select{width:100%;border:1px solid var(-
 </div>
 
 <div class="main">
+  <div class="card">
+    <div class="card-title"><span class="material-icons">palette</span> Themes</div>
+    <div class="card-body">
+      <div class="theme-grid">
+        <div class="theme-btn" onclick="setTheme('classic')">
+          <div class="swatch" style="background:#3b5998;"></div><span>Classic</span>
+        </div>
+        <div class="theme-btn" onclick="setTheme('cherry')">
+          <div class="swatch" style="background:#ffb7c5;"></div><span>Cherry</span>
+        </div>
+        <div class="theme-btn" onclick="setTheme('midnight')">
+          <div class="swatch" style="background:#1a1a2e;"></div><span>Midnight</span>
+        </div>
+        <div class="theme-btn" onclick="setTheme('y2k')">
+          <div class="swatch" style="background:#0055cc;"></div><span>Y2K</span>
+        </div>
+        <div class="theme-btn" onclick="setTheme('limeade')">
+          <div class="swatch" style="background:#2d7a2d;"></div><span>Limeade</span>
+        </div>
+        <div class="theme-btn" onclick="setTheme('cyberpunk')">
+          <div class="swatch" style="background:#ff00ff;"></div><span>Cyber</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title"><span class="material-icons">info</span> Account Info</div>
     <div class="card-body">
@@ -51,57 +85,16 @@ input[type=text], input[type=password], select{width:100%;border:1px solid var(-
   </div>
 
   <div class="card">
-    <div class="card-title"><span class="material-icons">palette</span> Themes</div>
-    <div class="card-body" style="padding:15px;">
-      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
-        <button onclick="setTheme('classic')" style="border:none; background:none; text-align:center;">
-          <div style="height:35px; background:linear-gradient(180deg,#dfe7f3,#f5f6f7); border-top: 5px solid #3b5998; border-radius:2px; margin-bottom:4px;"></div>
-          <span style="font-size:10px; font-weight:bold;">Classic</span>
-        </button>
-        <button onclick="setTheme('cherry')" style="border:none; background:none; text-align:center;">
-          <div style="height:35px; background:linear-gradient(180deg,#fff5f7,#fde2e4); border-top: 5px solid #ffb7c5; border-radius:2px; margin-bottom:4px;"></div>
-          <span style="font-size:10px; font-weight:bold;">Cherry</span>
-        </button>
-        <button onclick="setTheme('midnight')" style="border:none; background:none; text-align:center;">
-          <div style="height:35px; background:linear-gradient(180deg,#0a0a1a,#1a1a2e); border-top: 5px solid #7b68ee; border-radius:2px; margin-bottom:4px;"></div>
-          <span style="font-size:10px; font-weight:bold;">Midnight</span>
-        </button>
-        <button onclick="setTheme('y2k')" style="border:none; background:none; text-align:center;">
-          <div style="height:35px; background:linear-gradient(180deg,#c0e8ff,#e8f4ff); border-top: 5px solid #0055cc; border-radius:2px; margin-bottom:4px;"></div>
-          <span style="font-size:10px; font-weight:bold;">Y2K</span>
-        </button>
-        <button onclick="setTheme('limeade')" style="border:none; background:none; text-align:center;">
-          <div style="height:35px; background:linear-gradient(180deg,#e8fce8,#f5fff5); border-top: 5px solid #2d7a2d; border-radius:2px; margin-bottom:4px;"></div>
-          <span style="font-size:10px; font-weight:bold;">Limeade</span>
-        </button>
-        <button onclick="setTheme('cyberpunk')" style="border:none; background:none; text-align:center;">
-          <div style="height:35px; background:linear-gradient(180deg,#0d0221,#0f084b); border-top: 5px solid #ff00ff; border-radius:2px; margin-bottom:4px;"></div>
-          <span style="font-size:10px; font-weight:bold;">Cyber</span>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
     <div class="card-title"><span class="material-icons">swap_horiz</span> Data Portability</div>
     <div class="card-body">
-      <p style="font-size:12px; color:#666; margin-bottom:12px;">Export/Restore posts & balances.</p>
-      <button class="btn" onclick="exportData()">Export Data (.ermn)</button>
+      <p style="font-size:12px; color:#666; margin-bottom:12px;">Export or Restore your content.</p>
+      <button class="btn" onclick="exportData()">Export My Data (.ermn)</button>
       <label for="importFile" class="btn btn-alt" style="display:block; text-align:center;">Import Backup</label>
       <input type="file" id="importFile" accept=".ermn" style="display:none;" onchange="previewImport(event)">
-      <div id="importMsg" class="msg"></div>
       <div id="importPreview" style="display:none; margin-top:10px; background:#f9f9f9; padding:10px; border:1px solid #ddd;">
         <div id="importPreviewBody" style="font-size:12px; margin-bottom:10px;"></div>
         <button class="btn" onclick="importData()">Restore Now</button>
       </div>
-    </div>
-  </div>
-
-  <div class="card" id="devCard" style="display:none;">
-    <div class="card-title" style="background:#fce8e8; color:#c00;"><span class="material-icons">code</span> Developer Tools</div>
-    <div class="card-body">
-      <button id="maintenanceToggle" class="btn" style="background:#c00;" onclick="toggleMaintenanceMode()">SITE MAINTENANCE: OFF</button>
-      <p style="font-size:10px; color:#888; margin-top:6px; text-align:center;">Nuclear switch: Shuts down site for non-staff.</p>
     </div>
   </div>
 </div>
@@ -122,32 +115,10 @@ const me = localStorage.getItem("currentUser");
 
 async function loadSettings() {
   document.getElementById("infoUser").innerText = "@" + me;
-  const { data: user } = await sb.from("users").select("created_at, is_admin, is_developer").ilike("username", me).maybeSingle();
+  const { data: user } = await sb.from("users").select("created_at").ilike("username", me).maybeSingle();
   if (user) {
     document.getElementById("infoJoined").innerText = new Date(user.created_at).toLocaleDateString();
-    if (user.is_admin || user.is_developer) {
-      document.getElementById("devCard").style.display = "block";
-      initMaintenanceStatus();
-    }
   }
-}
-
-async function initMaintenanceStatus() {
-  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
-  const active = config && config.value === true;
-  const btn = document.getElementById("maintenanceToggle");
-  if (!btn) return;
-  btn.innerText = "SITE MAINTENANCE: " + (active ? "ON" : "OFF");
-  btn.style.background = active ? "#27ae60" : "#c00";
-}
-
-async function toggleMaintenanceMode() {
-  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
-  const cur = config && config.value === true;
-  const target = !cur;
-  if (target === true && !confirm("SHUT DOWN SITE?")) return;
-  await sb.from("site_config").upsert({ key: "maintenance_mode", value: target });
-  initMaintenanceStatus();
 }
 
 async function exportData() {

@@ -42,6 +42,11 @@ function checkModernize() {
   }
 }
 
+function setTheme(t) {
+  localStorage.setItem("theme", t);
+  applyTheme();
+}
+
 // Initial check
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", checkModernize);
