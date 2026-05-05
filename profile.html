@@ -444,7 +444,7 @@ async function load() {
   const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("following", me);
   const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("follower", me);
   document.getElementById("uname").innerText = "@" + me;
-  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, spotify_data").ilike("username", me).maybeSingle();
+  const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, is_plus, plus_settings, banner, spotify_data, equipped_shell, equipped_background").ilike("username", me).maybeSingle();
   if (user) {
     if (user.pic) document.getElementById("picDisplay").src = user.pic;
     if (user.bio) {
@@ -458,10 +458,25 @@ async function load() {
     if (user.spotify_data) {
       displaySelectedMusic(user.spotify_data);
     }
+    if (user.equipped_shell) {
+      document.getElementById("picDisplay").style.border = user.equipped_shell;
+    }
+    
     let badges = '';
     if (user.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
     if (user.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
+    
+    const isPlus = user.is_plus || false;
+    const plusSettings = user.plus_settings || { "gold_name": true, "show_badge": true };
+    
+    if (isPlus && plusSettings.show_badge !== false) {
+      badges += ' <span class="material-icons" style="font-size:16px;vertical-align:middle;color:#d4af37;margin-left:2px;" title="ermn.+ Subscriber">diamond</span>';
+    }
+    
+    const userStyle = (isPlus && plusSettings.gold_name !== false) ? 'color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);' : '';
+    
     document.getElementById("uname").innerHTML = "@" + escapeHtml(me) + badges;
+    document.getElementById("uname").style.cssText = userStyle;
   }
   document.getElementById("statFollowers").innerText = fc || 0;
   document.getElementById("statFollowing").innerText = fgc || 0;

@@ -361,7 +361,7 @@ async function load() {
   try {
     document.title = "ermn. · @" + viewUser;
 
-    const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, is_banned, spotify_data, equipped_background, equipped_shell").ilike("username", viewUser).maybeSingle();
+    const { data: user } = await sb.from("users").select("pic, bio, verified, is_developer, banner, is_private, is_banned, spotify_data, equipped_background, equipped_shell, is_plus, plus_settings").ilike("username", viewUser).maybeSingle();
 
     // Banned user screen
     if (user && user.is_banned) {
@@ -414,7 +414,18 @@ async function load() {
     let badges = '';
     if (user && user.verified) badges += ' <span class="badge-icon badge-verified" data-title="Verified User">&nbsp;</span>';
     if (user && user.is_developer) badges += ' <span class="badge-icon badge-developer" data-title="Developer">&nbsp;</span>';
+    
+    const isPlus = user && user.is_plus;
+    const plusSettings = user ? (user.plus_settings || { "gold_name": true, "show_badge": true }) : {};
+    
+    if (isPlus && plusSettings.show_badge !== false) {
+      badges += ' <span class="material-icons" style="font-size:16px;vertical-align:middle;color:#d4af37;margin-left:2px;" title="ermn.+ Subscriber">diamond</span>';
+    }
+    
+    const userStyle = (isPlus && plusSettings.gold_name !== false) ? 'color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);' : '';
+    
     document.getElementById("userName").innerHTML = "@" + escapeHtml(viewUser) + badges;
+    document.getElementById("userName").style.cssText = userStyle;
     document.getElementById("userBio").innerText = (user && user.bio) ? user.bio : "";
     document.getElementById("userPic").src = (user && user.pic) || "empty.jpg";
     if (user && user.banner) {

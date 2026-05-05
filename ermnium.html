@@ -259,8 +259,8 @@ async function loadErmnium() {
     drawChart();
   }
 
-  // Plus Status
-  const { data: userPlus } = await sb.from("users").select("is_plus, plus_expires_at").ilike("username", currentUser || localStorage.getItem("currentUser")).maybeSingle();
+  // Plus Status & Equipment
+  const { data: userPlus } = await sb.from("users").select("is_plus, plus_expires_at, equipped_shell, equipped_background").ilike("username", currentUser || localStorage.getItem("currentUser")).maybeSingle();
   if (userPlus && userPlus.is_plus) {
     document.getElementById("plusStatus").style.display = "block";
     document.getElementById("plusExpiry").innerText = new Date(userPlus.plus_expires_at).toLocaleDateString();
@@ -454,13 +454,17 @@ async function claimBonus() {
 
 // ── SHOP ──
 async function renderShop(items) {
-  const { data: user } = await sb.from("users").select("is_plus").eq("username", currentUser).maybeSingle();
+  const { data: user } = await sb.from("users").select("is_plus, equipped_shell, equipped_background").ilike("username", currentUser).maybeSingle();
   const isPlus = user && user.is_plus;
+  const eqShell = user ? user.equipped_shell : null;
+  const eqBG = user ? user.equipped_background : null;
 
   const el = document.getElementById("shopGrid");
   el.innerHTML = "";
   items.forEach(item => {
     const owned = myInventory.has(item.id);
+    const isEquipped = (item.type === 'shell' && eqShell === item.css_value) || (item.type === 'background' && eqBG === item.css_value);
+    
     const d = document.createElement("div");
     d.className = "shop-item";
     d.innerHTML = '<div class="shop-preview" style="background:'+item.preview_css+';"></div>'+
@@ -469,7 +473,9 @@ async function renderShop(items) {
       '<div class="shop-price">'+item.price_ern+' ERN · '+item.type+'</div>'+
       '<div class="shop-desc">'+escapeHtml(item.description)+'</div>'+
       (owned || isPlus
-        ? '<button class="shop-btn owned" onclick="equipItem('+item.id+')">Equip</button> <button class="shop-btn" style="background:#888;margin-top:4px;" onclick="unequipType(\''+item.type+'\')">Unequip</button>'
+        ? (isEquipped 
+            ? '<button class="shop-btn" style="background:#888;" onclick="unequipType(\''+item.type+'\')">Unequip</button>'
+            : '<button class="shop-btn owned" onclick="equipItem('+item.id+')">Equip</button>')
         : '<button class="shop-btn"'+(myBalance<item.price_ern?' disabled':'')+' onclick="buyItem('+item.id+')">Buy · '+item.price_ern+' ERN</button>');
     el.appendChild(d);
   });

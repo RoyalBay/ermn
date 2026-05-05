@@ -22,6 +22,17 @@ function applyTheme() {
   document.documentElement.style.setProperty("--badge-glow", th.badgeGlow);
   document.documentElement.style.setProperty("--neon-glow", th.neonGlow);
   document.body.style.background = th.body;
+  
+  // Force apply to all cards and root variables
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(c => {
+    c.style.background = th.card;
+    if (t === 'platinum') {
+      c.style.borderColor = '#d4af37';
+      const titles = c.querySelectorAll('.card-title');
+      titles.forEach(tt => tt.style.background = 'linear-gradient(180deg,#fdf9e1,#f5f0d0)');
+    }
+  });
 }
 applyTheme();
 
