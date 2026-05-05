@@ -60,6 +60,9 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
             <span class="stat-item"><b id="countFollowers">0</b> followers</span>
             <span class="stat-item"><b id="countFollowing">0</b> following</span>
           </div>
+          <div id="pActions" style="margin-top:12px;">
+            <button id="followBtn" class="btn" style="display:none; width:auto; padding:6px 16px;"></button>
+          </div>
         </div>
       </div>
     </div>
@@ -103,7 +106,33 @@ async function loadProfile() {
   document.getElementById("pLoading").style.display = "none";
   document.getElementById("profileContainer").style.display = "block";
 
+  if (currentUser && user.username !== currentUser) {
+    const btn = document.getElementById("followBtn");
+    btn.style.display = "block";
+    const { data: follow } = await sb.from("follows").select("*").eq("follower", currentUser).eq("following", user.username).maybeSingle();
+    if (follow) {
+      btn.innerText = "Unfollow";
+      btn.style.background = "#eee";
+      btn.style.color = "#333";
+    } else {
+      btn.innerText = "Follow";
+      btn.style.background = "var(--accent)";
+      btn.style.color = "white";
+    }
+    btn.onclick = () => mFollow(user.username);
+  }
+
   render(null, "newest", 0, user.username, "pPosts");
+}
+
+async function mFollow(target) {
+  const { data: existing } = await sb.from("follows").select("*").eq("follower", currentUser).eq("following", target).maybeSingle();
+  if (existing) {
+    await sb.from("follows").delete().eq("follower", currentUser).eq("following", target);
+  } else {
+    await sb.from("follows").insert({ follower: currentUser, following: target });
+  }
+  loadProfile();
 }
 
 document.addEventListener("sessionReady", loadProfile);

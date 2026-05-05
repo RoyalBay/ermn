@@ -34,10 +34,10 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
 .post{background:var(--card-bg);border:1px solid var(--border);border-radius:2px;margin-bottom:10px;padding:10px; width:100%; box-sizing:border-box;}
 .post-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;position:relative;}
 .post-avatar{width:44px;height:44px;object-fit:cover;border:2px solid var(--border);border-radius:2px;flex-shrink:0;}
-.post-meta{flex:1; min-width:0;}
-.user-link{color:var(--accent);font-weight:bold;text-decoration:none;font-size:15px; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-.post-time{font-size:11px;color:#888;}
-.follow-btn{background:#e8edf7;color:var(--accent);border:1px solid var(--border);font-size:11px;padding:2px 6px;cursor:pointer;font-family:inherit;margin-top:2px;border-radius:2px;}
+.post-meta{flex:1; min-width:0; display:flex; align-items:center; flex-wrap:wrap; gap:4px;}
+.user-link{color:var(--accent);font-weight:bold;text-decoration:none;font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+.post-time{font-size:11px;color:#888; width:100%; margin-top:2px;}
+.follow-btn{background:#e8edf7;color:var(--accent);border:1px solid var(--border);font-size:11px;padding:2px 6px;cursor:pointer;font-family:inherit;border-radius:2px;}
 .follow-btn.following{background:#d0f0d0;color:#2a6e2a;border-color:#8ec88e;}
 
 .post-text{line-height:1.5;margin-bottom:8px;word-break:break-word; font-size:14px;}
