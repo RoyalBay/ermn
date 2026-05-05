@@ -169,10 +169,32 @@ RETURNS jsonb AS $$
 DECLARE
   user_name text;
 BEGIN
+  -- 1. Try to find the username in the public users table
   SELECT username INTO user_name FROM public.users WHERE id = auth.uid();
-  IF EXISTS (SELECT 1 FROM ermnium_wallets WHERE username = user_name) THEN RETURN jsonb_build_object('success', false, 'reason', 'Already claimed'); END IF;
+  
+  -- 2. If the user is missing (because the sync trigger was off), create them on-demand
+  IF user_name IS NULL THEN
+    INSERT INTO public.users (id, username, email)
+    SELECT id, COALESCE(raw_user_meta_data->>'username', 'user_' || substr(id::text, 1, 8)), email
+    FROM auth.users WHERE id = auth.uid()
+    ON CONFLICT (id) DO NOTHING
+    RETURNING username INTO user_name;
+  END IF;
+
+  -- 3. Safety check: if we still don't have a username, stop here
+  IF user_name IS NULL THEN 
+    RETURN jsonb_build_object('success', false, 'reason', 'Could not resolve username. Please try logging out and back in.'); 
+  END IF;
+  
+  -- 4. Check if wallet already exists
+  IF EXISTS (SELECT 1 FROM ermnium_wallets WHERE username = user_name) THEN 
+    RETURN jsonb_build_object('success', false, 'reason', 'Already claimed'); 
+  END IF;
+
+  -- 5. Create wallet and log transaction
   INSERT INTO ermnium_wallets (username, balance, points_balance) VALUES (user_name, 0, 10);
   INSERT INTO ermnium_transactions (username, type, amount) VALUES (user_name, 'signup_bonus', 10);
+  
   RETURN jsonb_build_object('success', true, 'points', 10);
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;

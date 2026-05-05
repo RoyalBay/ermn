@@ -482,6 +482,15 @@
       if (p.length < 4) { setMsg("Password must be at least 4 characters.", true); return; }
       if (!/^[a-zA-Z0-9_]+$/.test(rawU)) { setMsg("Username can only contain letters, numbers, and underscores.", true); return; }
       
+      // Restriction: Only specific 3-letter usernames are allowed
+      if (rawU.length === 3) {
+        const allowed = ["cnn", "cbc", "mtv", "bbc"];
+        if (!allowed.includes(rawU.toLowerCase())) {
+          setMsg("Most 3-letter usernames are reserved.", true);
+          return;
+        }
+      }
+      
       setBusy(true); setMsg("Creating account...", false);
 
       // Check if username is already taken in the public.users table
