@@ -484,7 +484,7 @@ if (typeof applyTheme === "function") applyTheme();
 document.getElementById("infoUser").innerText = "@" + me;
 
 async function loadInfo() {
-  const { data: user } = await sb.from("users").select("created_at, is_private, is_admin, is_developer").eq("username", me).maybeSingle();
+  const { data: user } = await sb.from("users").select("created_at, is_private, is_admin, is_developer, is_plus, plus_settings").eq("username", me).maybeSingle();
   if (user) {
     if (user.created_at) document.getElementById("infoJoined").innerText = new Date(user.created_at).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
     localStorage.setItem("isDeveloper", user.is_developer || false);

@@ -49,6 +49,21 @@ input[type=text], input[type=password], select{width:100%;border:1px solid var(-
 </div>
 
 <div class="main">
+  <!-- ermn.+ Dashboard -->
+  <div id="plusDashboard" class="card" style="display:none; border:1px solid #d4af37;">
+    <div class="card-title" style="background:linear-gradient(135deg,#d4af37,#f1c40f); color:white;">
+      <span class="material-icons">diamond</span> ermn.+ Dashboard
+    </div>
+    <div class="card-body">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+        <button id="toggleGold" class="btn btn-alt" style="margin-top:0; font-size:11px;" onclick="togglePlusSetting('gold_name')">Gold...</button>
+        <button id="toggleBadge" class="btn btn-alt" style="margin-top:0; font-size:11px;" onclick="togglePlusSetting('show_badge')">Badge...</button>
+      </div>
+      <div style="margin-top:10px; padding:8px; background:#fdf9e1; border:1px solid #d4af37; border-radius:2px; font-size:11px;">
+        <b style="color:#b8860b;">Benefits:</b> 1k Monthly ERN · Infinite Shells · Platinum Theme
+      </div>
+    </div>
+  </div>
   <div class="card">
     <div class="card-title"><span class="material-icons">palette</span> Themes</div>
     <div class="card-body">
@@ -67,6 +82,9 @@ input[type=text], input[type=password], select{width:100%;border:1px solid var(-
         </div>
         <div class="theme-btn" onclick="setTheme('limeade')">
           <div class="swatch" style="background:#2d7a2d;"></div><span>Limeade</span>
+        </div>
+        <div class="theme-btn" id="sw-platinum" onclick="setTheme('platinum')" style="display:none;">
+          <div class="swatch" style="background:linear-gradient(135deg,#e5e4e2,#f5f5f5); border:1px solid #d4af37;"></div><span>Platinum</span>
         </div>
         <div class="theme-btn" onclick="setTheme('cyberpunk')">
           <div class="swatch" style="background:#ff00ff;"></div><span>Cyber</span>
@@ -115,10 +133,30 @@ const me = localStorage.getItem("currentUser");
 
 async function loadSettings() {
   document.getElementById("infoUser").innerText = "@" + me;
-  const { data: user } = await sb.from("users").select("created_at").ilike("username", me).maybeSingle();
+  const { data: user } = await sb.from("users").select("created_at, is_plus, plus_settings").ilike("username", me).maybeSingle();
   if (user) {
     document.getElementById("infoJoined").innerText = new Date(user.created_at).toLocaleDateString();
+    if (user.is_plus) {
+      document.getElementById("plusDashboard").style.display = "block";
+      document.getElementById("sw-platinum").style.display = "block";
+      updatePlusToggles(user.plus_settings);
+    }
   }
+}
+
+let _plusSettings = { "gold_name": true, "show_badge": true };
+function updatePlusToggles(settings) {
+  if (settings) _plusSettings = settings;
+  const g = document.getElementById("toggleGold");
+  const b = document.getElementById("toggleBadge");
+  if (!g || !b) return;
+  g.innerText = _plusSettings.gold_name !== false ? "Gold ON" : "Gold OFF";
+  b.innerText = _plusSettings.show_badge !== false ? "Badge ON" : "Badge OFF";
+}
+async function togglePlusSetting(key) {
+  _plusSettings[key] = !(_plusSettings[key] !== false);
+  updatePlusToggles(_plusSettings);
+  await sb.from("users").update({ plus_settings: _plusSettings }).ilike("username", me);
 }
 
 async function exportData() {
