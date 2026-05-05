@@ -638,7 +638,7 @@ async function render(searchQuery, sortMode, page) {
           '<a href="'+getUserPageLink(p.username)+'" class="user-link">@'+escapeHtml(p.username)+'</a>'+
           badges +
           (p.username!==currentUser
-            ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')\">'+(isFollowing?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following':'+ Follow')+'</button>'
+            ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')">'+(isFollowing?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following':'+ Follow')+'</button>'
             : ' <span class="you-tag">you</span>')+
           '<div class="post-time">'+timeAgo(p.created_at)+editedLabel+'</div>'+
         '</div>'+

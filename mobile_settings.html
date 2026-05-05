@@ -51,6 +51,38 @@ input[type=text], input[type=password], select{width:100%;border:1px solid var(-
   </div>
 
   <div class="card">
+    <div class="card-title"><span class="material-icons">palette</span> Themes</div>
+    <div class="card-body" style="padding:15px;">
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
+        <button onclick="setTheme('classic')" style="border:none; background:none; text-align:center;">
+          <div style="height:35px; background:linear-gradient(180deg,#dfe7f3,#f5f6f7); border-top: 5px solid #3b5998; border-radius:2px; margin-bottom:4px;"></div>
+          <span style="font-size:10px; font-weight:bold;">Classic</span>
+        </button>
+        <button onclick="setTheme('cherry')" style="border:none; background:none; text-align:center;">
+          <div style="height:35px; background:linear-gradient(180deg,#fff5f7,#fde2e4); border-top: 5px solid #ffb7c5; border-radius:2px; margin-bottom:4px;"></div>
+          <span style="font-size:10px; font-weight:bold;">Cherry</span>
+        </button>
+        <button onclick="setTheme('midnight')" style="border:none; background:none; text-align:center;">
+          <div style="height:35px; background:linear-gradient(180deg,#0a0a1a,#1a1a2e); border-top: 5px solid #7b68ee; border-radius:2px; margin-bottom:4px;"></div>
+          <span style="font-size:10px; font-weight:bold;">Midnight</span>
+        </button>
+        <button onclick="setTheme('y2k')" style="border:none; background:none; text-align:center;">
+          <div style="height:35px; background:linear-gradient(180deg,#c0e8ff,#e8f4ff); border-top: 5px solid #0055cc; border-radius:2px; margin-bottom:4px;"></div>
+          <span style="font-size:10px; font-weight:bold;">Y2K</span>
+        </button>
+        <button onclick="setTheme('limeade')" style="border:none; background:none; text-align:center;">
+          <div style="height:35px; background:linear-gradient(180deg,#e8fce8,#f5fff5); border-top: 5px solid #2d7a2d; border-radius:2px; margin-bottom:4px;"></div>
+          <span style="font-size:10px; font-weight:bold;">Limeade</span>
+        </button>
+        <button onclick="setTheme('cyberpunk')" style="border:none; background:none; text-align:center;">
+          <div style="height:35px; background:linear-gradient(180deg,#0d0221,#0f084b); border-top: 5px solid #ff00ff; border-radius:2px; margin-bottom:4px;"></div>
+          <span style="font-size:10px; font-weight:bold;">Cyber</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-title"><span class="material-icons">swap_horiz</span> Data Portability</div>
     <div class="card-body">
       <p style="font-size:12px; color:#666; margin-bottom:12px;">Export/Restore posts & balances.</p>
