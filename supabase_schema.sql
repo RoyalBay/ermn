@@ -17,8 +17,14 @@ create table if not exists users (
   is_private boolean default false,
   is_banned boolean default false,
   spotify_data jsonb,
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  constraint username_length_check check (
+    length(username) >= 4 or 
+    username = 'erm' or 
+    username = '4'
+  )
 );
+
 
 -- Ensure missing columns exist in users table
 ALTER TABLE users ADD COLUMN IF NOT EXISTS equipped_background text DEFAULT NULL;

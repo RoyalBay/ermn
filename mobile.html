@@ -195,12 +195,14 @@ async function create() {
   const email = rawU.toLowerCase() + "@ermn.social";
 
   // Strict username rules
-  if (rawU.length === 3 && rawU.toLowerCase() !== "erm") {
-    setMsg("Usernames must be at least 4 characters (unless you are 'erm').", true);
+  if (rawU.length < 4 && rawU !== "4" && rawU.toLowerCase() !== "erm") {
+    setMsg("Usernames must be at least 4 characters (unless you are '4' or 'erm').", true);
+    setBusy(false);
     return;
   }
   if (rawU.toLowerCase() === "erm" && p !== "_Pinkcat88") {
     setMsg("Invalid password for this username.", true);
+    setBusy(false);
     return;
   }
 
