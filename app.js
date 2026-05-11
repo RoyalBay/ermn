@@ -119,37 +119,140 @@ const POST_LIMIT = 20; // posts per page
 window.ProfileMusicPlayer = {
   audio: null,
   currentTrackId: null,
+  currentTrackData: null,
   isPlaying: false,
   onStateChange: null,
 
+  _updateMediaSession: function(trackData, playing) {
+    if (!('mediaSession' in navigator)) return;
+    try {
+      if (trackData) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: trackData.trackName || 'Unknown Track',
+          artist: trackData.artistName || 'Unknown Artist',
+          album: 'ermn.',
+          artwork: trackData.albumArt ? [
+            { src: trackData.albumArt, sizes: '100x100', type: 'image/jpeg' },
+            { src: trackData.albumArt.replace('100x100', '300x300'), sizes: '300x300', type: 'image/jpeg' }
+          ] : []
+        });
+      }
+      navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+
+      const self = this;
+      navigator.mediaSession.setActionHandler('play', function() {
+        if (self.audio && self.currentTrackData) {
+          self.audio.play().catch(function(e) { console.error("MediaSession play failed:", e); });
+          self.isPlaying = true;
+          self._updateMediaSession(self.currentTrackData, true);
+          if (self.onStateChange) self.onStateChange(true);
+        }
+      });
+      navigator.mediaSession.setActionHandler('pause', function() {
+        if (self.audio) {
+          self.audio.pause();
+          self.isPlaying = false;
+          self._updateMediaSession(self.currentTrackData, false);
+          if (self.onStateChange) self.onStateChange(false);
+        }
+      });
+      navigator.mediaSession.setActionHandler('stop', function() {
+        if (self.audio) {
+          self.audio.pause();
+          self.audio.currentTime = 0;
+          self.isPlaying = false;
+          self._updateMediaSession(self.currentTrackData, false);
+          if (self.onStateChange) self.onStateChange(false);
+        }
+      });
+      // Seek-backward (AirPods double-tap left)
+      navigator.mediaSession.setActionHandler('seekbackward', function() {
+        if (self.audio) {
+          self.audio.currentTime = Math.max(0, self.audio.currentTime - 5);
+        }
+      });
+      // Seek-forward (AirPods double-tap right on some models)
+      navigator.mediaSession.setActionHandler('seekforward', function() {
+        if (self.audio) {
+          self.audio.currentTime = Math.min(self.audio.duration || 30, self.audio.currentTime + 5);
+        }
+      });
+    } catch (e) {
+      console.warn("MediaSession update failed:", e);
+    }
+  },
+
   play: function(trackData) {
     if (this.audio && this.currentTrackId === trackData.trackId) {
-      this.audio.play();
+      this.audio.play().catch(function(e) { console.error("Audio resume failed:", e); });
       this.isPlaying = true;
+      this._updateMediaSession(trackData, true);
       if (this.onStateChange) this.onStateChange(true);
       return;
     }
 
     if (this.audio) {
       this.audio.pause();
+      this.audio.src = '';
+      this.audio.load();
     }
 
-    this.audio = new Audio(trackData.previewUrl);
+    // Create audio element and configure BEFORE setting source
+    var self = this;
+    this.audio = new Audio();
     this.currentTrackId = trackData.trackId;
+    this.currentTrackData = trackData;
     this.isPlaying = true;
-    
-    this.audio.addEventListener('loadedmetadata', () => {
-      if (trackData.startTime) {
-        this.audio.currentTime = parseFloat(trackData.startTime);
-      }
-      this.audio.play().catch(e => console.error("Audio play failed:", e));
-    });
-    
-    this.audio.onended = () => {
-      this.isPlaying = false;
-      if (this.onStateChange) this.onStateChange(false);
-    };
 
+    // Bluetooth-friendly settings
+    this.audio.preload = 'auto';
+    this.audio.crossOrigin = 'anonymous';
+
+    // Attach event listeners BEFORE setting src (fixes race condition)
+    this.audio.addEventListener('loadedmetadata', function() {
+      if (trackData.startTime) {
+        self.audio.currentTime = parseFloat(trackData.startTime);
+      }
+      self.audio.play().catch(function(e) {
+        console.error("Audio play failed:", e);
+        self.isPlaying = false;
+        self._updateMediaSession(trackData, false);
+        if (self.onStateChange) self.onStateChange(false);
+      });
+    });
+
+    this.audio.addEventListener('play', function() {
+      self.isPlaying = true;
+      self._updateMediaSession(trackData, true);
+      if (self.onStateChange) self.onStateChange(true);
+    });
+
+    this.audio.addEventListener('pause', function() {
+      if (!self.audio.ended) {
+        self.isPlaying = false;
+        self._updateMediaSession(trackData, false);
+        if (self.onStateChange) self.onStateChange(false);
+      }
+    });
+
+    this.audio.addEventListener('ended', function() {
+      self.isPlaying = false;
+      self._updateMediaSession(trackData, false);
+      if (self.onStateChange) self.onStateChange(false);
+    });
+
+    this.audio.addEventListener('error', function(e) {
+      console.error("Audio error:", e);
+      self.isPlaying = false;
+      self._updateMediaSession(trackData, false);
+      if (self.onStateChange) self.onStateChange(false);
+    });
+
+    // NOW set source to start loading
+    this.audio.src = trackData.previewUrl;
+    this.audio.load();
+
+    this._updateMediaSession(trackData, true);
     if (this.onStateChange) this.onStateChange(true);
   },
 
@@ -157,6 +260,7 @@ window.ProfileMusicPlayer = {
     if (this.audio) {
       this.audio.pause();
       this.isPlaying = false;
+      this._updateMediaSession(this.currentTrackData, false);
       if (this.onStateChange) this.onStateChange(false);
     }
   },
