@@ -94,19 +94,6 @@ async function initSession() {
   }
 
 
-  // Global Maintenance Check - Simplified & Optimized
-  const isMaintenancePage = window.location.href.includes("maintenance.html");
-  if (!isMaintenancePage) {
-    const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
-    if (config && config.value === true) {
-      // Re-verify admin status if needed, but we already have _isAdmin and _isDeveloper
-      if (!_isAdmin && !_isDeveloper) {
-        location.href = "maintenance.html";
-        return;
-      }
-    }
-  }
-
   document.dispatchEvent(new Event("sessionReady"));
 }
 initSession();

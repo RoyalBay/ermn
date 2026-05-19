@@ -120,18 +120,6 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let _mfaChallengeId = null, _mfaFactorId = null;
 
-async function checkMaintenance() {
-  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
-  if (config && config.value === true) {
-    const cu = localStorage.getItem("currentUser");
-    if (cu) {
-      const { data: me } = await sb.from("users").select("is_admin, is_developer").ilike("username", cu).maybeSingle();
-      if (me && (me.is_admin || me.is_developer)) return;
-    }
-    location.href = "maintenance.html";
-  }
-}
-checkMaintenance();
 applyTheme();
 
 function setMsg(text, isError) {
