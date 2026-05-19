@@ -68,37 +68,8 @@ async function initSession() {
         }
       }
     } else {
-      currentUser = session.user.user_metadata.username || ('user_' + session.user.id.substring(0, 8));
+      currentUser = session.user.user_metadata.username;
       localStorage.setItem("currentUser", currentUser);
-      
-      // Auto-create missing public.users record for robustness
-      console.log("Auto-creating missing public.users record for:", currentUser);
-      const { error: insertErr } = await sb.from("users").insert({
-        id: session.user.id,
-        username: currentUser,
-        email: session.user.email
-      });
-      if (!insertErr) {
-        console.log("Profile auto-created successfully!");
-        // Re-fetch to initialize state correctly
-        const { data: newProfile } = await sb.from("users").select("username, is_admin, is_developer, is_banned, is_plus").eq("id", session.user.id).maybeSingle();
-        if (newProfile) {
-          currentUser = newProfile.username;
-          _isAdmin = newProfile.is_admin;
-          _isDeveloper = newProfile.is_developer;
-          localStorage.setItem("isDeveloper", _isDeveloper || false);
-          localStorage.setItem("isPlus", newProfile.is_plus || false);
-        }
-        
-        // Also auto-create a wallet for them if needed
-        await sb.from("ermnium_wallets").insert({
-          username: currentUser,
-          balance: 0,
-          points_balance: 10
-        }).select().maybeSingle();
-      } else {
-        console.error("Failed to auto-create profile:", insertErr.message);
-      }
     }
     
     // Check if user ID or username is banned
@@ -123,7 +94,18 @@ async function initSession() {
   }
 
 
-
+  // Global Maintenance Check - Simplified & Optimized
+  const isMaintenancePage = window.location.href.includes("maintenance.html");
+  if (!isMaintenancePage) {
+    const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
+    if (config && config.value === true) {
+      // Re-verify admin status if needed, but we already have _isAdmin and _isDeveloper
+      if (!_isAdmin && !_isDeveloper) {
+        location.href = "maintenance.html";
+        return;
+      }
+    }
+  }
 
   document.dispatchEvent(new Event("sessionReady"));
 }

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ermn. · Servers Offline</title>
+<link rel="icon" href="wicon.png">
+<style>
+:root {
+  --accent: #3b5998;
+  --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
+  --card-bg: #fff;
+  --text: #333;
+  --border: #b0b7c3;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Tahoma, Verdana, sans-serif; background: var(--body-bg); color: var(--text); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+
+.maintenance-card { background: white; border: 1px solid var(--border); max-width: 500px; padding: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.1); }
+.icon-circle { width: 80px; height: 80px; background: #fce8e8; color: #c00; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+.icon-circle .material-icons { font-size: 48px; }
+
+h1 { color: var(--accent); font-size: 24px; margin-bottom: 10px; }
+p { color: #666; line-height: 1.6; margin-bottom: 30px; font-size: 14px; }
+
+.data-safety { background: #f8f9fa; border: 1px dashed var(--border); padding: 20px; border-radius: 4px; text-align: left; }
+.data-safety h2 { font-size: 14px; color: var(--text); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.data-safety p { font-size: 12px; margin-bottom: 15px; }
+
+.btn {
+  background: linear-gradient(180deg,#5274b3,#3b5998);
+  color: white;
+  border: 1px solid #2a4070;
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn:hover { background: linear-gradient(180deg,#6080bf,#4a6aaa); }
+.status-footer { margin-top: 30px; font-size: 11px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+</style>
+</head>
+<body>
+
+<div class="maintenance-card">
+  <div class="icon-circle">
+    <span class="material-icons">potted_plant</span>
+  </div>
+  <h1>Site Under Maintenance</h1>
+  <p>The ermn. servers are currently undergoing essential upgrades or scheduled maintenance. We'll be back online shortly.</p>
+
+  <div class="data-safety">
+    <h2><span class="material-icons" style="color:var(--accent);font-size:18px;">save</span> Important: Save Your Content</h2>
+    <p>A database wipe is planned for this maintenance window. To preserve your posts, likes, and account history, please use the backup tool below to download your <b>.ermn</b> data file.</p>
+    <a href="settings.html#dataPortabilityCard" class="btn">Go to Data Export</a>
+  </div>
+
+  <div class="status-footer">SYSTEM STATUS: OFFLINE</div>
+</div>
+
+</body>
+</html>
