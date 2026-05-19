@@ -123,18 +123,7 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let _mfaChallengeId = null, _mfaFactorId = null;
 
-async function checkMaintenance() {
-  const { data: config } = await sb.from("site_config").select("value").eq("key", "maintenance_mode").maybeSingle();
-  if (config && config.value === true) {
-    const cu = localStorage.getItem("currentUser");
-    if (cu) {
-      const { data: me } = await sb.from("users").select("is_admin, is_developer").ilike("username", cu).maybeSingle();
-      if (me && (me.is_admin || me.is_developer)) return;
-    }
-    location.href = "maintenance.html";
-  }
-}
-checkMaintenance();
+
 applyTheme();
 
 function setMsg(t, e) { const el=document.getElementById("msg"); el.innerText=t; el.className=e?"err":"ok"; }
@@ -157,7 +146,22 @@ async function login() {
       if (!ok) { await uiAlert("Invalid secret."); await sb.auth.signOut(); setBusy(false); return; }
       sessionStorage.setItem("adminSecret", s);
     }
-  } else { localStorage.setItem("currentUser", data.user.user_metadata.username || rawU); }
+  } else {
+    const fallbackUsername = data.user.user_metadata.username || rawU;
+    localStorage.setItem("currentUser", fallbackUsername);
+    // Auto-create missing public.users record for robustness
+    await sb.from("users").insert({
+      id: data.user.id,
+      username: fallbackUsername,
+      email: data.user.email
+    });
+    // Also auto-create a wallet for them if needed
+    await sb.from("ermnium_wallets").insert({
+      username: fallbackUsername,
+      balance: 0,
+      points_balance: 10
+    }).select().maybeSingle();
+  }
   const { data: factorsData } = await sb.auth.mfa.listFactors();
   const totpFactor = factorsData?.totp?.find(f => f.status === 'verified');
   if (totpFactor) {
