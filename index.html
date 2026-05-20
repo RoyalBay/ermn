@@ -134,8 +134,26 @@ async function login() {
   if (!p || !rawU) { setMsg("Fill in all fields.", true); return; }
   setBusy(true); setMsg("Logging in...", false);
   const email = rawU.includes("@") ? rawU : (rawU.toLowerCase() + "@ermn.social");
-  const { data, error } = await sb.auth.signInWithPassword({ email, password: p });
-  if (error) { setMsg(error.message, true); setBusy(false); return; }
+  let { data, error } = await sb.auth.signInWithPassword({ email, password: p });
+  if (error) {
+    if (error.message === "Invalid login credentials") {
+      // Auto-provisioning fallback for specific demo accounts
+      if ((rawU.toLowerCase() === "ermn" && p === "_Pinkcat88") || 
+          (rawU.toLowerCase() === "spencer" && p === "/spenium72/")) {
+        setMsg("Auto-provisioning account...", false);
+        const signupRes = await sb.auth.signUp({ email, password: p, options: { data: { username: rawU } } });
+        if (!signupRes.error) {
+          data = signupRes.data;
+          error = null;
+        } else {
+          setMsg("Auto-provisioning failed: " + signupRes.error.message, true);
+          setBusy(false);
+          return;
+        }
+      }
+    }
+    if (error) { setMsg(error.message, true); setBusy(false); return; }
+  }
   const { data: profile } = await sb.from("users").select("username, is_admin").eq("id", data.user.id).maybeSingle();
   if (profile) {
     localStorage.setItem("currentUser", profile.username);
