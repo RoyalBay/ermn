@@ -420,7 +420,7 @@ input:focus { outline: none; border-color: var(--accent); background: white; }
 const me = localStorage.getItem("currentUser");
 if (!me) location.href = "index.html";
 
-const themeKeys = ["classic", "cherry", "midnight", "y2k", "limeade", "cyberpunk"];
+const themeKeys = ["classic", "cherry", "midnight", "y2k", "limeade", "cyberpunk", "platinum"];
 const themeColors = {
     classic:   { body:"linear-gradient(180deg,#dfe7f3 0%,#f0f2f5 100%)",card:"#fff",topbar:"#3b5998",text:"#333",border:"#b0b7c3",accent:"#3b5998" },
     cherry:    { body:"linear-gradient(180deg,#fff5f7 0%,#fde2e4 100%)",card:"#fff",topbar:"#ffb7c5",text:"#5f4b4b",border:"#ffcad4",accent:"#ff8fa3" },
@@ -428,6 +428,7 @@ const themeColors = {
     y2k:       { body:"linear-gradient(180deg,#c0e8ff 0%,#e8f4ff 100%)",card:"#fff",topbar:"#0055cc",text:"#002266",border:"#99bbff",accent:"#0055cc" },
     limeade:   { body:"linear-gradient(180deg,#e8fce8 0%,#f5fff5 100%)",card:"#f9fff9",topbar:"#2d7a2d",text:"#1a3d1a",border:"#a3d9a3",accent:"#2d7a2d" },
     cyberpunk: { body:"linear-gradient(180deg,#0d0221 0%,#0f084b 100%)",card:"#1a1a3a",topbar:"#26084d",text:"#00f2ff",border:"#ff00ff",accent:"#ff00ff" },
+    platinum:  { body:"linear-gradient(135deg,#e5e4e2, #f5f5f5)",card:"#fff",topbar:"linear-gradient(135deg, #d4af37, #f1c40f)",text:"#333",border:"#d4af37",accent:"#b8860b" },
 };
 
 function setTheme(t) {
@@ -484,7 +485,7 @@ if (typeof applyTheme === "function") applyTheme();
 document.getElementById("infoUser").innerText = "@" + me;
 
 async function loadInfo() {
-  const { data: user } = await sb.from("users").select("created_at, is_private, is_admin, is_developer, is_plus, plus_settings").eq("username", me).maybeSingle();
+  const { data: user } = await sb.from("users").select("created_at, is_private, is_admin, is_developer, is_plus, plus_settings").ilike("username", me).maybeSingle();
   if (user) {
     if (user.created_at) document.getElementById("infoJoined").innerText = new Date(user.created_at).toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
     localStorage.setItem("isDeveloper", user.is_developer || false);
@@ -903,7 +904,7 @@ function previewImport(event) {
       document.getElementById("importPreviewTitle").innerText = `Backup Preview`;
       document.getElementById("importPreviewBody").innerHTML =
         `<b>Original username:</b> @${escapeHtml(data.username)}<br>` +
-        `<b>Exported:</b> ${exported}<br>` +
+        `<b>Exported:</b> ${new Date(data.exported_at).toLocaleString()}<br>` +
         `<b>Posts to restore:</b> ${data.posts.length}<br>` +
         `<b>Total likes (stored as metadata):</b> ${data.posts.reduce((s,p)=>s+p.like_count,0)}<br>` +
         walletHtml + `<br>` +

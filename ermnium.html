@@ -684,12 +684,14 @@ async function equipItem(itemId) {
   const { error } = await sb.rpc("ermnium_equip_item",{target_item_id:itemId});
   if (error) { await uiAlert("Error: "+error.message); return; }
   await uiAlert("Equipped!");
+  loadErmnium();
 }
 
 async function unequipType(type) {
   const { error } = await sb.rpc("ermnium_unequip",{cosmetic_type:type});
   if (error) { await uiAlert("Error: "+error.message); return; }
   await uiAlert("Unequipped!");
+  loadErmnium();
 }
 
 // ── INIT ──

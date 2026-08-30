@@ -680,13 +680,13 @@ async function render(searchQuery, sortMode, page) {
         (isOwn ? '<span class="delete" onclick="del('+p.id+')"><span class="material-icons" style="font-size:16px;">close</span></span>' : '')+
       '</div>'+
       repostHtml +
-      '<div class="post-text" id="post-text-'+p.id+'">'+renderPostText(p.text)+'</div>'+
+      '<div class="post-text" id="post-text-'+p.id+'" data-raw="'+escapeHtml(p.text)+'">'+renderPostText(p.text)+'</div>'+
       pollHtml +
       '<div class="post-actions">'+
         '<span id="likes-'+p.id+'" class="like-wrap"><span class="heart'+(liked?" liked":"")+'" onclick="like('+p.id+')"><span class="material-icons" style="font-size:18px;">favorite</span></span> '+likeCount+' likes</span>'+
         '<span class="comment-toggle" onclick="toggleComments('+p.id+')"><span class="material-icons" style="font-size:18px;">mode_comment</span> '+commentCount+' comments</span>'+
         (currentUser ? ' <span class="repost-btn" onclick="repost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" style="cursor:pointer;color:#555;"><span class="material-icons" style="font-size:18px;">sync</span> Share</span>' : '')+
-        (canEdit ? ' <span class="edit-btn" onclick="editPostPrompt('+p.id+',\''+escapeHtml(p.text.replace(/'/g,"\\'"))+'\')" style="cursor:pointer;color:#555;margin-left:auto;"><span class="material-icons" style="font-size:18px;">edit</span> Edit</span>' : '')+
+        (canEdit ? ' <span class="edit-btn" onclick="editPostPrompt('+p.id+')" style="cursor:pointer;color:#555;margin-left:auto;"><span class="material-icons" style="font-size:18px;">edit</span> Edit</span>' : '')+
         (!isOwn ? '<span class="report-btn" onclick="reportPost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" title="Report this post" style="margin-left:auto;"><span class="material-icons" style="font-size:16px;">flag</span> Report</span>' : '')+
       '</div>'+
       adminBar+
@@ -870,18 +870,17 @@ async function repost(postId, originalAuthor) {
 }
 
 /* ── EDIT POST ── */
-function editPostPrompt(postId, currentText) {
+function editPostPrompt(postId) {
   const pt = document.getElementById("post-text-"+postId);
   if (!pt) return;
+  const rawText = pt.getAttribute("data-raw") || "";
   pt.innerHTML = '<textarea id="edit-input-'+postId+'" style="width:100%;height:60px;padding:6px;border:1px solid var(--border);border-radius:4px;font-family:inherit;resize:vertical;"></textarea>'+
                  '<div style="margin-top:6px;text-align:right;">'+
                    '<button onclick="render()" style="padding:4px 10px;background:#ddd;border:1px solid #ccc;cursor:pointer;margin-right:6px;">Cancel</button>'+
                    '<button onclick="saveEditPost('+postId+')" style="padding:4px 10px;background:var(--accent);color:white;border:1px solid var(--accent);cursor:pointer;">Save Edit</button>'+
                  '</div>';
   const textarea = document.getElementById("edit-input-"+postId);
-  // Decode HTML entities safely using a dummy element
-  const doc = new DOMParser().parseFromString(currentText, "text/html");
-  textarea.value = doc.documentElement.textContent;
+  textarea.value = rawText;
   textarea.focus();
 }
 
@@ -1087,7 +1086,12 @@ async function renderAlgo() {
     const pic = uInfo.pic||"empty.jpg";
     const isOwn = p.username===currentUser;
     const admin = isAdmin() && localStorage.getItem("hideAdminControls") !== "true";
-    const adminBar = admin ? '\'' + '\'' : ""; // Simplified for now to avoid complexity in this turn
+    const adminBar = admin
+      ? '<div class="admin-bar">'+
+          '<span class="admin-action" onclick="adminDelPost('+p.id+')">🛡 Delete Post</span>'+
+          (!isOwn ? '<span class="admin-action" onclick="adminBanUser(\''+p.username.replace(/'/g,"\\'")+'\')" style="color:#e55">🛡 Ban @'+escapeHtml(p.username)+'</span>' : '')+
+        '</div>'
+      : '';
 
     const isVerified = uInfo.verified || false;
     const isDeveloper = uInfo.is_developer || false;
@@ -1127,7 +1131,7 @@ async function renderAlgo() {
                       "</div>"+
                     "</div>";
       });
-      pollHtml += "<div style=\"font-size:11px;color:#888;text-align:right;\">"+totalVotes+" votes</div></div>";
+      pollHtml += "<div style=\"font-size:11px;color:#888;text-align:right;\">"+totalVotes+" vote"+(totalVotes!==1?"s":"")+"</div></div>";
     }
 
     const div = document.createElement("div");
@@ -1157,10 +1161,11 @@ async function renderAlgo() {
         (currentUser ? " <span class=\"repost-btn\" onclick=\"repost("+p.id+",'"+p.username.replace(/'/g,"\\'")+"')\" style=\"cursor:pointer;color:#555;\"><span class=\"material-icons\" style=\"font-size:18px;\">sync</span> Share</span>" : "")+
         (!isOwn ? "<span class=\"report-btn\" onclick=\"reportPost("+p.id+",'"+p.username.replace(/'/g,"\\'")+"')\" style=\"margin-left:auto;\"><span class=\"material-icons\" style=\"font-size:16px;\">flag</span> Report</span>" : "")+
       "</div>"+
+      adminBar+
       "<div id=\"comments-"+p.id+"\" class=\"comment-box\" data-postid=\""+p.id+"\" style=\"display:none\">"+
         "<div class=\"comment-list\"></div>"+
         "<div class=\"comment-input\">"+
-          "<input id=\"cinput-"+p.id+"\" placeholder=\"Write a comment...\" onkeydown=\"if(event.key==='\''Enter'\'')addComment("+p.id+")\">"+
+          "<input id=\"cinput-"+p.id+"\" placeholder=\"Write a comment...\" onkeydown=\"if(event.key==='Enter')addComment("+p.id+")\">"+
           "<button onclick=\"addComment("+p.id+")\">Post</button>"+
         "</div>"+
       "</div>";

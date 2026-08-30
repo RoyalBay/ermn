@@ -209,18 +209,9 @@ async function savePic() {
   if (!tempPic) { document.getElementById("picMsg").innerText = "Please select a file first."; document.getElementById("picMsg").className = "msg err"; return; }
   const { error } = await sb.from("users").update({ pic: tempPic }).ilike("username", me);
   if (error) { document.getElementById("picMsg").innerText = "Error: " + error.message; document.getElementById("picMsg").className = "msg err"; return; }
-  const file = document.getElementById("fileInput").files[0];
-  if (!file) return;
-  const r = new FileReader();
-  r.onload = async () => {
-    const { error } = await sb.from("users").update({ pic: r.result }).ilike("username", me);
-    if (!error) {
-      document.getElementById("picDisplay").src = r.result;
-      document.getElementById("picMsg").innerText = "Picture updated!";
-      setTimeout(()=>document.getElementById("picMsg").innerText="", 3000);
-    }
-  };
-  r.readAsDataURL(file);
+  document.getElementById("picDisplay").src = tempPic;
+  document.getElementById("picMsg").innerText = "Picture updated!";
+  setTimeout(()=>document.getElementById("picMsg").innerText="", 3000);
 }
 
 function saveBanner() {
@@ -358,9 +349,6 @@ async function saveMusicStart(val) {
     setTimeout(() => document.getElementById("musicMsg").innerText = "", 2000);
   }
 }
-
-function escapeHtml(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-function timeAgo(d) { const diff=Math.floor((Date.now()-new Date(d))/1000); if(diff<60)return diff+"s ago"; if(diff<3600)return Math.floor(diff/60)+"m ago"; if(diff<86400)return Math.floor(diff/3600)+"h ago"; return Math.floor(diff/86400)+"d ago"; }
 
 async function votePoll(postId, optionIndex) {
   if (!me) return;
