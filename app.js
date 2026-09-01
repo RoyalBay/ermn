@@ -253,23 +253,8 @@ async function post() {
   const btn = document.getElementById("postBtn");
   if (btn) btn.disabled = true;
   
-  // Build insert payload
-  const postPayload = { username: currentUser, text: t };
-
-  // Time Capsule: check for unlock date
-  const capsuleDateEl = document.getElementById("capsuleDate");
-  if (capsuleDateEl && capsuleDateEl.value) {
-    const unlockDate = new Date(capsuleDateEl.value);
-    if (unlockDate <= new Date()) {
-      await uiAlert("Time Capsule date must be in the future.");
-      if (btn) btn.disabled = false;
-      return;
-    }
-    postPayload.capsule_unlock_at = unlockDate.toISOString();
-  }
-
   // Insert the post
-  const { data: insertedPost, error } = await sb.from("posts").insert(postPayload).select().single();
+  const { data: insertedPost, error } = await sb.from("posts").insert({ username: currentUser, text: t }).select().single();
   if (error) { await uiAlert("Error posting: " + error.message); if (btn) btn.disabled = false; return; }
   
   // Check for poll options
@@ -286,9 +271,6 @@ async function post() {
   }
   const pollContainer = document.getElementById("pollInputs");
   if (pollContainer) pollContainer.style.display = "none";
-  const capsuleInputs = document.getElementById("capsuleInputs");
-  if (capsuleInputs) capsuleInputs.style.display = "none";
-  if (capsuleDateEl) capsuleDateEl.value = "";
   
   if (btn) btn.disabled = false;
   textEl.value = "";
@@ -533,7 +515,7 @@ async function render(searchQuery, sortMode, page) {
   // ── 1. Fetch posts for current page only ──
   const from = _currentPage * limit;
   const to   = from + limit - 1;
-  let query = sb.from("posts").select("id,username,text,created_at,edited_at,repost_of,capsule_unlock_at,tip_total", { count: "exact" });
+  let query = sb.from("posts").select("id,username,text,created_at,edited_at,repost_of", { count: "exact" });
   if (searchQuery && searchQuery.trim()) {
     if (searchQuery.startsWith("#")) {
       query = query.ilike("text", "%" + searchQuery.trim() + "%");
@@ -611,7 +593,13 @@ async function render(searchQuery, sortMode, page) {
   // Filter out blocked users' posts
   sortedPosts = sortedPosts.filter(p => !blockedSet.has(p.username));
 
-  if (!sortedPosts.leng  for (const p of sortedPosts) {
+  if (!sortedPosts.length) {
+    feedEl.innerHTML = "<div style='text-align:center;padding:24px;color:#888;font-style:italic;'>No posts found.</div>";
+    updateTrendingHashtags([]);
+    return;
+  }
+
+  for (const p of sortedPosts) {
     const liked = likedSet.has(p.id);
     const likeCount = likeMap[p.id]||0;
     const commentCount = commentMap[p.id]||0;
@@ -622,14 +610,10 @@ async function render(searchQuery, sortMode, page) {
     const isOwn = p.username===currentUser;
     const admin = isAdmin() && localStorage.getItem("hideAdminControls") !== "true";
 
-    // Time Capsule check
-    const isCapsule = !!p.capsule_unlock_at;
-    const capsuleLocked = isCapsule && new Date(p.capsule_unlock_at) > new Date();
-
     const adminBar = admin
       ? '<div class="admin-bar">'+
           '<span class="admin-action" onclick="adminDelPost('+p.id+')">🛡 Delete Post</span>'+
-          (!isOwn ? '<span class="admin-action" onclick="adminBanUser(\''+p.username.replace(/'/g,"\\\'")+'\')\" style="color:#e55">🛡 Ban @'+escapeHtml(p.username)+'</span>' : '')+
+          (!isOwn ? '<span class="admin-action" onclick="adminBanUser(\''+p.username.replace(/'/g,"\\'")+'\')" style="color:#e55">🛡 Ban @'+escapeHtml(p.username)+'</span>' : '')+
         '</div>'
       : '';
 
@@ -648,58 +632,11 @@ async function render(searchQuery, sortMode, page) {
     
     const userStyle = (isPlus && plusSettings.gold_name !== false) ? 'color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);' : '';
 
-    // If capsule is still locked, render locked placeholder
-    if (capsuleLocked) {
-      const unlockDate = new Date(p.capsule_unlock_at);
-      const diffMs = unlockDate - Date.now();
-      const diffDays = Math.floor(diffMs / 86400000);
-      const diffHrs = Math.floor((diffMs % 86400000) / 3600000);
-      const diffMins = Math.floor((diffMs % 3600000) / 60000);
-      let countdownStr = '';
-      if (diffDays > 0) countdownStr += diffDays + 'd ';
-      if (diffHrs > 0) countdownStr += diffHrs + 'h ';
-      countdownStr += diffMins + 'm';
-
-      const div = document.createElement("div");
-      div.className = "post capsule-locked";
-      div.id = "post-"+p.id;
-      div.innerHTML =
-        '<div class="post-header">'+
-          '<a href="'+getUserPageLink(p.username)+'" class="post-avatar-link">'+
-            '<img class="post-avatar" src="'+escapeHtml(pic)+'" onerror="this.src=\'empty.jpg\'" style="'+(uInfo.equipped_shell ? 'border:'+uInfo.equipped_shell+';' : '')+'">'+
-          '</a>'+
-          '<div class="post-meta">'+
-            '<a href="'+getUserPageLink(p.username)+'" class="user-link" style="'+userStyle+'">@'+escapeHtml(p.username)+'</a>'+
-            badges +
-            (p.username!==currentUser
-              ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')\">'+(isFollowing?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following':'+ Follow')+'</button>'
-              : ' <span class="you-tag">you</span>')+
-            '<div class="post-time">'+timeAgo(p.created_at)+'</div>'+
-          '</div>'+
-          (isOwn ? '<span class="delete" onclick="del('+p.id+')"><span class="material-icons" style="font-size:16px;">close</span></span>' : '')+
-        '</div>'+
-        '<div class="capsule-body">'+
-          '<span class="material-icons capsule-icon">lock</span>'+
-          '<div class="capsule-label">Time Capsule</div>'+
-          '<div class="capsule-countdown">Unlocks in '+countdownStr+'</div>'+
-          '<div class="capsule-date">'+unlockDate.toLocaleDateString(undefined, {month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})+'</div>'+
-        '</div>'+
-        adminBar;
-      feedEl.appendChild(div);
-      continue;
-    }
-
     let repostHtml = '';
     if (p.repost_of && repostMap[p.repost_of]) {
       const rp = repostMap[p.repost_of];
       repostHtml = '<div class="repost-banner" style="font-size:11px;color:#666;margin-bottom:6px;"><span class="material-icons" style="font-size:12px;vertical-align:middle;margin-right:2px;">sync</span> Reposted from <a href="'+getUserPageLink(rp.username)+'" style="color:var(--accent);text-decoration:none;">@'+escapeHtml(rp.username)+'</a></div>'+
                    '<div class="repost-content" style="border-left:3px solid var(--accent);padding-left:10px;margin-bottom:10px;color:#555;">'+renderPostText(rp.text)+'</div>';
-    }
-
-    // Capsule unlocked banner
-    let capsuleBanner = '';
-    if (isCapsule && !capsuleLocked) {
-      capsuleBanner = '<div class="capsule-opened-banner"><span class="material-icons" style="font-size:12px;vertical-align:middle;margin-right:3px;">lock_open</span> Time Capsule opened ' + timeAgo(p.capsule_unlock_at) + '</div>';
     }
 
     let pollHtml = '';
@@ -724,11 +661,6 @@ async function render(searchQuery, sortMode, page) {
     const editTimeWindow = 15 * 60 * 1000; // 15 mins
     const canEdit = isOwn && (Date.now() - new Date(p.created_at).getTime() < editTimeWindow);
 
-    // Tip display
-    const tipTotal = p.tip_total || 0;
-    const tipDisplay = tipTotal > 0 ? ' <span class="tip-total" style="color:#f57f17;font-size:12px;cursor:default;"><span class="material-icons" style="font-size:14px;vertical-align:middle;">toll</span> '+tipTotal+' ERN</span>' : '';
-    const tipBtn = (!isOwn && currentUser) ? ' <span class="tip-btn" onclick="tipPost('+p.id+',\''+p.username.replace(/'/g,"\\\'")+'\')\" style="cursor:pointer;color:#f57f17;font-size:12px;" title="Tip ERN"><span class="material-icons" style="font-size:18px;vertical-align:middle;">toll</span> Tip</span>' : '';
-
     const div = document.createElement("div");
     div.className = "post";
     div.id = "post-"+p.id;
@@ -741,23 +673,21 @@ async function render(searchQuery, sortMode, page) {
           '<a href="'+getUserPageLink(p.username)+'" class="user-link" style="'+userStyle+'">@'+escapeHtml(p.username)+'</a>'+
           badges +
           (p.username!==currentUser
-            ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')\">'+(isFollowing?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following':'+ Follow')+'</button>'
+            ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')">'+(isFollowing?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following':'+ Follow')+'</button>'
             : ' <span class="you-tag">you</span>')+
           '<div class="post-time">'+timeAgo(p.created_at)+editedLabel+'</div>'+
         '</div>'+
         (isOwn ? '<span class="delete" onclick="del('+p.id+')"><span class="material-icons" style="font-size:16px;">close</span></span>' : '')+
       '</div>'+
-      capsuleBanner +
       repostHtml +
       '<div class="post-text" id="post-text-'+p.id+'" data-raw="'+escapeHtml(p.text)+'">'+renderPostText(p.text)+'</div>'+
       pollHtml +
       '<div class="post-actions">'+
         '<span id="likes-'+p.id+'" class="like-wrap"><span class="heart'+(liked?" liked":"")+'" onclick="like('+p.id+')"><span class="material-icons" style="font-size:18px;">favorite</span></span> '+likeCount+' likes</span>'+
         '<span class="comment-toggle" onclick="toggleComments('+p.id+')"><span class="material-icons" style="font-size:18px;">mode_comment</span> '+commentCount+' comments</span>'+
-        (currentUser ? ' <span class="repost-btn" onclick="repost('+p.id+',\''+p.username.replace(/'/g,"\\\'")+'\')\" style="cursor:pointer;color:#555;"><span class="material-icons" style="font-size:18px;">sync</span> Share</span>' : '')+
-        tipBtn + tipDisplay +
+        (currentUser ? ' <span class="repost-btn" onclick="repost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" style="cursor:pointer;color:#555;"><span class="material-icons" style="font-size:18px;">sync</span> Share</span>' : '')+
         (canEdit ? ' <span class="edit-btn" onclick="editPostPrompt('+p.id+')" style="cursor:pointer;color:#555;margin-left:auto;"><span class="material-icons" style="font-size:18px;">edit</span> Edit</span>' : '')+
-        (!isOwn ? '<span class="report-btn" onclick="reportPost('+p.id+',\''+p.username.replace(/'/g,"\\\'")+'\')\" title="Report this post" style="margin-left:auto;"><span class="material-icons" style="font-size:16px;">flag</span> Report</span>' : '')+
+        (!isOwn ? '<span class="report-btn" onclick="reportPost('+p.id+',\''+p.username.replace(/'/g,"\\'")+'\')" title="Report this post" style="margin-left:auto;"><span class="material-icons" style="font-size:16px;">flag</span> Report</span>' : '')+
       '</div>'+
       adminBar+
       '<div id="comments-'+p.id+'" class="comment-box" data-postid="'+p.id+'" style="display:'+(isOpen?"block":"none")+'">'+
@@ -927,36 +857,6 @@ function updateTrendingHashtags(posts) {
   ).join('');
 }
 
-/* ── TIP POST ── */
-async function tipPost(postId, author) {
-  if (!currentUser) { await uiAlert("Log in to tip ERN."); return; }
-  if (author === currentUser) { await uiAlert("You cannot tip your own post."); return; }
-  
-  const amountStr = await uiPrompt(`Tip @${author} on this post?\nEnter ERN amount (min 1):`);
-  if (!amountStr) return;
-  
-  const amount = parseInt(amountStr, 10);
-  if (isNaN(amount) || amount < 1) {
-    await uiAlert("Invalid tip amount.");
-    return;
-  }
-
-  if (!(await uiConfirm(`Confirm tip of ${amount} ERN to @${author}?`))) return;
-
-  const { data, error } = await sb.rpc('ermnium_tip_post', { 
-    target_post_id: postId, 
-    tip_amount: amount 
-  });
-
-  if (error) {
-    await uiAlert("Tip failed: " + error.message);
-    return;
-  }
-
-  await uiAlert(`Successfully tipped ${amount} ERN to @${author}!`);
-  if (typeof render === "function") await render();
-}
-
 /* ── REPOST ── */
 async function repost(postId, originalAuthor) {
   if (!currentUser) { await uiAlert("Log in to repost."); return; }
@@ -1058,13 +958,6 @@ function togglePollInputs() {
   }
 }
 
-function toggleCapsuleInputs() {
-  const el = document.getElementById("capsuleInputs");
-  if (el) {
-    el.style.display = el.style.display === "none" ? "block" : "none";
-  }
-}
-
 /* ── ALGO FEED ── */
 async function renderAlgo() {
   const feedEl = document.getElementById("posts");
@@ -1074,7 +967,7 @@ async function renderAlgo() {
   const isLite = localStorage.getItem("dev_layout") === "lite";
 
   // 1. Fetch recent candidates (minimize egress by fetching only what's needed for scoring)
-  const { data: candidates, error } = await sb.from("posts").select("id,username,text,created_at,edited_at,repost_of,capsule_unlock_at,tip_total").order("created_at", { ascending: false }).limit(isLite ? 30 : 100);
+  const { data: candidates, error } = await sb.from("posts").select("id,username,text,created_at,edited_at,repost_of").order("created_at", { ascending: false }).limit(isLite ? 30 : 100);
   if (error) { feedEl.innerHTML = "<p>Error loading feed.</p>"; return; }
 
   const candIds = candidates.map(p => p.id);
@@ -1184,6 +1077,7 @@ async function renderAlgo() {
   }
 
   for (const p of filteredPosts) {
+    // [The exact same HTML generation from render()]
     const liked = likedSet.has(p.id);
     const likeCount = likeMap[p.id]||0;
     const commentCount = commentMap[p.id]||0;
@@ -1192,15 +1086,10 @@ async function renderAlgo() {
     const pic = uInfo.pic||"empty.jpg";
     const isOwn = p.username===currentUser;
     const admin = isAdmin() && localStorage.getItem("hideAdminControls") !== "true";
-
-    // Time Capsule check
-    const isCapsule = !!p.capsule_unlock_at;
-    const capsuleLocked = isCapsule && new Date(p.capsule_unlock_at) > new Date();
-
     const adminBar = admin
       ? '<div class="admin-bar">'+
           '<span class="admin-action" onclick="adminDelPost('+p.id+')">🛡 Delete Post</span>'+
-          (!isOwn ? '<span class="admin-action" onclick="adminBanUser(\''+p.username.replace(/'/g,"\\\'")+'\')\" style="color:#e55">🛡 Ban @'+escapeHtml(p.username)+'</span>' : '')+
+          (!isOwn ? '<span class="admin-action" onclick="adminBanUser(\''+p.username.replace(/'/g,"\\'")+'\')" style="color:#e55">🛡 Ban @'+escapeHtml(p.username)+'</span>' : '')+
         '</div>'
       : '';
 
@@ -1218,59 +1107,12 @@ async function renderAlgo() {
     }
     
     const userStyle = (isPlus && plusSettings.gold_name !== false) ? 'color:#d4af37; font-weight:bold; text-shadow: 0 0 5px rgba(212,175,55,0.2);' : '';
-
-    // If capsule is still locked, render locked placeholder
-    if (capsuleLocked) {
-      const unlockDate = new Date(p.capsule_unlock_at);
-      const diffMs = unlockDate - Date.now();
-      const diffDays = Math.floor(diffMs / 86400000);
-      const diffHrs = Math.floor((diffMs % 86400000) / 3600000);
-      const diffMins = Math.floor((diffMs % 3600000) / 60000);
-      let countdownStr = '';
-      if (diffDays > 0) countdownStr += diffDays + 'd ';
-      if (diffHrs > 0) countdownStr += diffHrs + 'h ';
-      countdownStr += diffMins + 'm';
-
-      const div = document.createElement("div");
-      div.className = "post capsule-locked";
-      div.id = "post-"+p.id;
-      div.innerHTML =
-        '<div class="post-header">'+
-          '<a href="'+getUserPageLink(p.username)+'" class="post-avatar-link">'+
-            '<img class="post-avatar" src="'+escapeHtml(pic)+'" onerror="this.src=\'empty.jpg\'" style="'+(uInfo.equipped_shell ? 'border:'+uInfo.equipped_shell+';' : '')+'">'+
-          '</a>'+
-          '<div class="post-meta" style="flex:1; min-width:0; display:flex; align-items:center; flex-wrap:wrap; gap:4px;">'+
-            '<a href="'+getUserPageLink(p.username)+'" class="user-link" style="'+userStyle+'">@'+escapeHtml(p.username)+'</a>'+
-            badges +
-            (p.username!==currentUser
-              ? ' <button class="follow-btn '+(isFollowing?"following":"")+'" onclick="follow(\''+p.username+'\')\">'+(isFollowing?'<span class="material-icons" style="font-size:14px;vertical-align:middle;">check</span> Following':'+ Follow')+'</button>'
-              : ' <span class="you-tag">you</span>')+
-            '<div class="post-time" style="width:100%; margin-top:2px;">'+timeAgo(p.created_at)+'</div>'+
-          '</div>'+
-          (isOwn ? '<span class="delete" onclick="del('+p.id+')"><span class="material-icons" style="font-size:16px;">close</span></span>' : '')+
-        '</div>'+
-        '<div class="capsule-body">'+
-          '<span class="material-icons capsule-icon">lock</span>'+
-          '<div class="capsule-label">Time Capsule</div>'+
-          '<div class="capsule-countdown">Unlocks in '+countdownStr+'</div>'+
-          '<div class="capsule-date">'+unlockDate.toLocaleDateString(undefined, {month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})+'</div>'+
-        '</div>'+
-        adminBar;
-      feedEl.appendChild(div);
-      continue;
-    }
     
     let repostHtml = "";
     if (p.repost_of && repostMap[p.repost_of]) {
       const rp = repostMap[p.repost_of];
       repostHtml = "<div class=\"repost-banner\" style=\"font-size:11px;color:#666;margin-bottom:6px;\"><span class=\"material-icons\" style=\"font-size:12px;vertical-align:middle;margin-right:2px;\">sync</span> Reposted from <a href=\""+getUserPageLink(rp.username)+"\" style=\"color:var(--accent);text-decoration:none;\">@"+escapeHtml(rp.username)+"</a></div>"+
                    "<div class=\"repost-content\" style=\"border-left:3px solid var(--accent);padding-left:10px;margin-bottom:10px;color:#555;\">"+renderPostText(rp.text)+"</div>";
-    }
-
-    // Capsule unlocked banner
-    let capsuleBanner = '';
-    if (isCapsule && !capsuleLocked) {
-      capsuleBanner = '<div class="capsule-opened-banner"><span class="material-icons" style="font-size:12px;vertical-align:middle;margin-right:3px;">lock_open</span> Time Capsule opened ' + timeAgo(p.capsule_unlock_at) + '</div>';
     }
 
     let pollHtml = "";
@@ -1292,11 +1134,6 @@ async function renderAlgo() {
       pollHtml += "<div style=\"font-size:11px;color:#888;text-align:right;\">"+totalVotes+" vote"+(totalVotes!==1?"s":"")+"</div></div>";
     }
 
-    // Tip display
-    const tipTotal = p.tip_total || 0;
-    const tipDisplay = tipTotal > 0 ? ' <span class="tip-total" style="color:#f57f17;font-size:12px;cursor:default;"><span class="material-icons" style="font-size:14px;vertical-align:middle;">toll</span> '+tipTotal+' ERN</span>' : '';
-    const tipBtn = (!isOwn && currentUser) ? ' <span class="tip-btn" onclick="tipPost('+p.id+',\''+p.username.replace(/'/g,"\\\'")+'\')\" style="cursor:pointer;color:#f57f17;font-size:12px;" title="Tip ERN"><span class="material-icons" style="font-size:18px;vertical-align:middle;">toll</span> Tip</span>' : '';
-
     const div = document.createElement("div");
     div.className = "post";
     div.id = "post-"+p.id;
@@ -1315,7 +1152,6 @@ async function renderAlgo() {
         "</div>"+
         (isOwn ? "<span class=\"delete\" onclick=\"del("+p.id+")\"><span class=\"material-icons\" style=\"font-size:16px;\">close</span></span>" : "")+
       "</div>"+
-      capsuleBanner +
       repostHtml +
       "<div class=\"post-text\" id=\"post-text-"+p.id+"\">"+renderPostText(p.text)+"</div>"+
       pollHtml +
@@ -1323,7 +1159,6 @@ async function renderAlgo() {
         "<span id=\"likes-"+p.id+"\" class=\"like-wrap\"><span class=\"heart"+(liked?" liked":"")+"\" onclick=\"like("+p.id+")\"><span class=\"material-icons\" style=\"font-size:18px;\">favorite</span></span> "+likeCount+" likes</span>"+
         "<span class=\"comment-toggle\" onclick=\"toggleComments("+p.id+")\"><span class=\"material-icons\" style=\"font-size:18px;\">mode_comment</span> "+commentCount+" comments</span>"+
         (currentUser ? " <span class=\"repost-btn\" onclick=\"repost("+p.id+",'"+p.username.replace(/'/g,"\\'")+"')\" style=\"cursor:pointer;color:#555;\"><span class=\"material-icons\" style=\"font-size:18px;\">sync</span> Share</span>" : "")+
-        tipBtn + tipDisplay +
         (!isOwn ? "<span class=\"report-btn\" onclick=\"reportPost("+p.id+",'"+p.username.replace(/'/g,"\\'")+"')\" style=\"margin-left:auto;\"><span class=\"material-icons\" style=\"font-size:16px;\">flag</span> Report</span>" : "")+
       "</div>"+
       adminBar+

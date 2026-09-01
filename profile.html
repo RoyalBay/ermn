@@ -382,7 +382,7 @@ async function deletePost(postId) {
 }
 
 async function loadPosts() {
-  const { data: posts } = await sb.from("posts").select("id, text, created_at, capsule_unlock_at").ilike("username", me).order("created_at", { ascending: false });
+  const { data: posts } = await sb.from("posts").select("id, text, created_at").ilike("username", me).order("created_at", { ascending: false });
   const postIds = (posts || []).map(p => p.id);
   const [{ data: polls }, { data: pollVotes }] = await Promise.all([
     postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({ data: [] }),
@@ -397,19 +397,6 @@ async function loadPosts() {
   if (!posts || !posts.length) { el.innerHTML = "<div style='color:#888;font-style:italic;'>No posts yet.</div>"; return; }
   el.innerHTML = "";
   for (const p of posts) {
-    const isCapsule = !!p.capsule_unlock_at;
-    const capsuleLocked = isCapsule && new Date(p.capsule_unlock_at) > new Date();
-
-    if (capsuleLocked) {
-      const d = document.createElement("div");
-      d.className = "post";
-      d.innerHTML = '<span class="delete-post" onclick="deletePost(' + p.id + ')"><span class="material-icons" style="font-size:14px;vertical-align:middle;">delete</span> delete</span>' +
-        '<div class="post-text" style="color:#5274b3;font-style:italic;"><span class="material-icons" style="font-size:14px;vertical-align:middle;">lock</span> Time Capsule (Locked)</div>' +
-        '<div class="post-time">' + timeAgo(p.created_at) + '</div>';
-      el.appendChild(d);
-      continue;
-    }
-
     let pollHtml = '';
     if (pollMap[p.id]) {
       const options = pollMap[p.id];
