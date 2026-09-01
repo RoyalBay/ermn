@@ -386,17 +386,46 @@ async function load(){
   }
   document.getElementById("sF").innerText=fc||0;
   document.getElementById("sFg").innerText=fgc||0;
-  document.getElementById("sP").innerText=(posts||[]).length;
-  const el=document.getElementById("myPosts");
-  if(!posts||!posts.length){el.innerHTML="<div style='color:#888;font-style:italic;'>No posts yet.</div>";return;}
-  el.innerHTML="";
-  for(const p of posts){
+  document.getElementById("sP").innerText="";
+  loadPosts();
+}
+
+async function loadPosts() {
+  const { data: posts } = await sb.from("posts").select("id, text, created_at, capsule_unlock_at").ilike("username", me).order("created_at", { ascending: false });
+  const postIds = (posts || []).map(p => p.id);
+  const [{ data: polls }, { data: pollVotes }] = await Promise.all([
+    postIds.length ? sb.from("polls").select("*").in("post_id", postIds) : Promise.resolve({ data: [] }),
+    postIds.length ? sb.from("poll_votes").select("post_id,option_index").in("post_id", postIds).eq("username", me) : Promise.resolve({ data: [] })
+  ]);
+  const pollMap = {};
+  (polls || []).forEach(pl => { pollMap[pl.post_id] = pl.options; });
+  const myVoteMap = {};
+  (pollVotes || []).forEach(pv => { myVoteMap[pv.post_id] = pv.option_index; });
+
+  const el = document.getElementById("myPosts");
+  if (!posts || !posts.length) { el.innerHTML = "<div style='color:#888;font-style:italic;'>No posts yet.</div>"; return; }
+  document.getElementById("sP").innerText = posts.length;
+  el.innerHTML = "";
+  for (const p of posts) {
+    const isCapsule = !!p.capsule_unlock_at;
+    const capsuleLocked = isCapsule && new Date(p.capsule_unlock_at) > new Date();
+
+    if (capsuleLocked) {
+      const d = document.createElement("div");
+      d.className = "post";
+      d.innerHTML = '<span class="delete-post" onclick="deletePost(' + p.id + ')"><span class="material-icons" style="font-size:14px;vertical-align:middle;">delete</span> delete</span>' +
+        '<div class="post-text" style="color:#5274b3;font-style:italic;"><span class="material-icons" style="font-size:14px;vertical-align:middle;">lock</span> Time Capsule (Locked)</div>' +
+        '<div class="post-time">' + timeAgo(p.created_at) + '</div>';
+      el.appendChild(d);
+      continue;
+    }
+
     let pollHtml = '';
     if (pollMap[p.id]) {
       const options = pollMap[p.id];
       const myVote = myVoteMap[p.id];
       const totalVotes = options.reduce((sum, opt) => sum + (opt.votes||0), 0);
-      pollHtml = '<div class="poll-container" style="margin:10px 0;background:#f9f9f9;border:1px solid #eee;border-radius:4px;padding:10px;">';
+      pollHtml = '<div class="poll-container" style="margin:10px 0;background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:10px;">';
       options.forEach((opt, idx) => {
         const pct = totalVotes > 0 ? Math.round(((opt.votes||0) / totalVotes) * 100) : 0;
         const isMyVote = myVote === idx;
@@ -410,8 +439,12 @@ async function load(){
       pollHtml += '<div style="font-size:11px;color:#888;text-align:right;">'+totalVotes+' vote'+(totalVotes!==1?'s':'')+'</div></div>';
     }
 
-    const d=document.createElement("div");d.className="post";
-    d.innerHTML='<div style="line-height:1.5;margin-bottom:4px;">'+escapeHtml(p.text)+'</div>' + pollHtml + '<div style="font-size:11px;color:#888;">'+timeAgo(p.created_at)+'</div>';
+    const d = document.createElement("div");
+    d.className = "post";
+    d.innerHTML = '<span class="delete-post" onclick="deletePost(' + p.id + ')"><span class="material-icons" style="font-size:14px;vertical-align:middle;">delete</span> delete</span>' +
+      '<div class="post-text">' + escapeHtml(p.text) + '</div>' +
+      pollHtml +
+      '<div class="post-time">' + timeAgo(p.created_at) + '</div>';
     el.appendChild(d);
   }
 }

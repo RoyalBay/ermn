@@ -401,7 +401,7 @@ async function load() {
 
     const { count: fc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("following", viewUser);
     const { count: fgc } = await sb.from("follows").select("*",{count:"exact",head:true}).ilike("follower", viewUser);
-    const { data: posts } = await sb.from("posts").select("id, text, created_at").ilike("username", viewUser).order("created_at", { ascending: false });
+    const { data: posts } = await sb.from("posts").select("id, text, created_at, capsule_unlock_at").ilike("username", viewUser).order("created_at", { ascending: false });
 
     if (user && user.spotify_data) {
       userMusicData = user.spotify_data;
@@ -506,6 +506,24 @@ async function load() {
     for (const p of posts) {
       const liked = likedSet.has(p.id);
       const likeCount = likeMap[p.id] || 0;
+
+      const isCapsule = !!p.capsule_unlock_at;
+      const capsuleLocked = isCapsule && new Date(p.capsule_unlock_at) > new Date();
+
+      if (capsuleLocked) {
+        const d = document.createElement("div");
+        d.className = "post";
+        d.innerHTML = '<div class="post-text" style="color:#5274b3;font-style:italic;"><span class="material-icons" style="font-size:14px;vertical-align:middle;">lock</span> Time Capsule (Locked)</div>' +
+          '<div class="post-footer">' +
+            '<span id="hlikes-' + p.id + '">' +
+              '<span class="heart' + (liked ? " liked" : "") + '" onclick="likePost(' + p.id + ',this)">&#9829;</span> ' +
+              '<span class="like-count">' + likeCount + ' likes</span>' +
+            '</span>' +
+            '<span class="post-time">' + timeAgo(p.created_at) + '</span>' +
+          '</div>';
+        postsEl.appendChild(d);
+        continue;
+      }
       
       let pollHtml = '';
       if (pollMap[p.id]) {

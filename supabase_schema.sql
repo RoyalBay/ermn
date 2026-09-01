@@ -24,6 +24,10 @@ create table if not exists users (
 ALTER TABLE users ADD COLUMN IF NOT EXISTS equipped_background text DEFAULT NULL;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS equipped_shell text DEFAULT NULL;
 
+-- Time Capsule & Tipping columns on posts
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS capsule_unlock_at timestamptz DEFAULT NULL;
+ALTER TABLE posts ADD COLUMN IF NOT EXISTS tip_total numeric DEFAULT 0;
+
 -- Trigger to sync auth.users to public.users
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$

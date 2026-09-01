@@ -56,6 +56,15 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
 /* Badges */
 .badge-icon { width: 14px; height: 14px; vertical-align: middle; margin-left: 2px; }
 .admin-badge { background:#c00; color:white; font-size:9px; padding:1px 4px; border-radius:2px; margin-left:4px; vertical-align: middle; }
+/* Time Capsule & Tipping CSS */
+.capsule-locked { opacity:0.85; background:#f0f4ff; border:1px solid #c0d0f0; }
+.capsule-body { text-align:center; padding:16px; color:#5274b3; border-top:1px dashed #c0d0f0; margin-top:8px; }
+.capsule-icon { font-size:28px !important; margin-bottom:6px; opacity:0.7; }
+.capsule-label { font-weight:bold; font-size:13px; margin-bottom:4px; }
+.capsule-countdown { font-size:15px; font-weight:bold; color:#e74c3c; margin-bottom:4px; }
+.capsule-date { font-size:11px; color:#888; }
+.capsule-opened-banner { background:#e8f5e9; border:1px solid #c8e6c9; color:#2e7d32; font-size:11px; padding:4px 8px; margin-bottom:8px; border-radius:2px; font-weight:bold; }
+.tip-btn:hover { color:#ff9800 !important; }
 </style>
 </head>
 <body>
@@ -79,7 +88,14 @@ body{font-family:Tahoma,Verdana,sans-serif;background:var(--body-bg);color:var(-
   <div class="compose-box">
     <h4><span class="material-icons" style="font-size:14px;">edit</span> What's on your mind?</h4>
     <textarea id="text" placeholder="Share something..."></textarea>
-    <button id="postBtn" onclick="mPost()">Post</button>
+    <div id="capsuleInputs" style="display:none;margin-top:8px;padding-top:8px;border-top:1px dashed #ddd;">
+      <label style="font-size:12px;color:#555;display:block;margin-bottom:4px;"><span class="material-icons" style="font-size:14px;vertical-align:middle;">lock_clock</span> Lock until (Time Capsule):</label>
+      <input type="datetime-local" id="capsuleDate" style="width:100%;padding:8px;border:1px solid var(--border);font-size:14px;font-family:inherit;background:var(--input-bg);color:var(--text);">
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;gap:10px;">
+      <button onclick="toggleCapsuleInputs()" style="background:none;border:none;color:var(--accent);cursor:pointer;font-size:13px;display:flex;align-items:center;padding:10px 0;"><span class="material-icons" style="font-size:16px;margin-right:4px;">lock</span> Time Capsule</button>
+      <button id="postBtn" onclick="mPost()" style="margin-top:0;width:auto;flex:1;">Post</button>
+    </div>
   </div>
   <div id="loading" style="text-align:center;padding:20px;color:#888;font-style:italic;">Loading...</div>
   <div id="posts"></div>
