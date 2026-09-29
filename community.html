@@ -32,8 +32,7 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
 
 .header-banner { background: #ddd; height: 150px; background-size: cover; background-position: center; position: relative; border: 1px solid var(--border); border-bottom: none; }
 .header-info { background: var(--card-bg); border: 1px solid var(--border); padding: 15px; position: relative; margin-bottom: 15px; }
-.c-pic { width: 80px; height: 80px; border-radius: 6px; border: 3px solid white; position: absolute; top: -40px; background: #eee; }
-.c-meta { margin-left: 95px; }
+.c-meta { }
 .c-name { font-size: 20px; font-weight: bold; color: var(--accent); margin-bottom: 5px; }
 .c-desc { font-size: 13px; color: #555; margin-bottom: 10px; }
 .c-stats { font-size: 12px; color: #888; display: flex; gap: 15px; align-items: center; }
@@ -92,7 +91,6 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
   <div class="main-col">
     <div class="header-banner" id="c_banner"></div>
     <div class="header-info">
-      <img class="c-pic" id="c_pic" src="empty.jpg">
       <div class="c-meta">
         <div class="c-name" id="c_name">Loading...</div>
         <div class="c-desc" id="c_desc">Loading description...</div>
@@ -127,10 +125,8 @@ body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:v
     <h3>Edit Community</h3>
     <label>Description</label>
     <textarea id="edit_desc" rows="3"></textarea>
-    <label>Profile Image URL</label>
-    <input type="text" id="edit_pic">
-    <label>Banner Image URL</label>
-    <input type="text" id="edit_banner">
+    <label>Banner Image</label>
+    <input type="file" id="edit_banner_file" accept="image/*">
     
     <div class="btn-row">
       <button onclick="document.getElementById('editModal').style.display='none'">Cancel</button>
@@ -176,7 +172,6 @@ async function loadCommunity() {
   document.getElementById('c_name').innerText = c.name;
   document.getElementById('c_desc').innerText = c.description || 'No description.';
   document.getElementById('c_creator').innerText = "Created by @" + c.creator;
-  if (c.pic) document.getElementById('c_pic').src = c.pic;
   if (c.banner) document.getElementById('c_banner').style.backgroundImage = `url('${c.banner}')`;
   
   updateTimer();
@@ -256,19 +251,30 @@ async function deleteCommunity() {
 
 function openEdit() {
   document.getElementById('edit_desc').value = communityData.description || '';
-  document.getElementById('edit_pic').value = communityData.pic || '';
-  document.getElementById('edit_banner').value = communityData.banner || '';
+  document.getElementById('edit_banner_file').value = "";
   document.getElementById('editModal').style.display = 'flex';
 }
 
 async function saveEdit() {
   const desc = document.getElementById('edit_desc').value.trim();
-  const pic = document.getElementById('edit_pic').value.trim();
-  const banner = document.getElementById('edit_banner').value.trim();
+  const bannerFile = document.getElementById('edit_banner_file').files[0];
   
-  await sb.from("communities").update({ description: desc, pic, banner }).eq("id", commId);
-  document.getElementById('editModal').style.display = 'none';
-  loadCommunity();
+  let updateData = { description: desc };
+  
+  if (bannerFile) {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      updateData.banner = reader.result;
+      await sb.from("communities").update(updateData).eq("id", commId);
+      document.getElementById('editModal').style.display = 'none';
+      loadCommunity();
+    };
+    reader.readAsDataURL(bannerFile);
+  } else {
+    await sb.from("communities").update(updateData).eq("id", commId);
+    document.getElementById('editModal').style.display = 'none';
+    loadCommunity();
+  }
 }
 
 async function submitPost() {
