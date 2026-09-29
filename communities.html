@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ermn. · Communities</title>
+<link rel="icon" href="wicon.png">
+<style>
+:root {
+  --accent: #3b5998;
+  --body-bg: linear-gradient(180deg,#dfe7f3 0%,#f5f6f7 100%);
+  --card-bg: #fff; --topbar-bg: #3b5998;
+  --text: #333; --border: #b0b7c3;
+  --card-header: linear-gradient(180deg,#e8edf7,#d8e0f0);
+  --input-bg: #fafafa;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family:Tahoma,Verdana,sans-serif; background:var(--body-bg); color:var(--text); min-height:100vh; font-size:13px; }
+
+.topbar { background:var(--topbar-bg); height:44px; display:flex; align-items:center; padding:0 12px; gap:10px; position:sticky; top:0; z-index:50; box-shadow:0 2px 5px rgba(0,0,0,0.3); border-bottom:2px solid rgba(0,0,0,0.2); }
+.topbar-logo { font-size:22px; font-weight:bold; color:white; letter-spacing:-1px; font-style:italic; text-shadow:1px 1px 2px rgba(0,0,0,0.3); }
+.topbar-nav { display:flex; gap:4px; margin-left:10px; }
+.topbar-nav a { color:rgba(255,255,255,0.85); font-size:12px; text-decoration:none; padding:4px 8px; border-radius:2px; }
+.topbar-nav a:hover, .topbar-nav a.active { background:rgba(255,255,255,0.15); color:white; }
+.topbar-right { margin-left:auto; display:flex; align-items:center; gap:6px; }
+.topbar-right button { background:rgba(255,255,255,0.2); color:white; border:1px solid rgba(255,255,255,0.3); padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; }
+.topbar-right button:hover { background:rgba(255,255,255,0.35); }
+
+.container { max-width:900px; margin:16px auto; padding:0 10px; }
+
+.header-banner { background: var(--card-bg); border: 1px solid var(--border); padding: 20px; text-align: center; margin-bottom: 15px; }
+.header-banner h2 { color: var(--accent); margin-bottom: 8px; }
+.header-banner p { color: #666; font-size: 13px; }
+.header-banner button { background: var(--accent); color: white; border: none; padding: 8px 16px; font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 10px; }
+.header-banner button:hover { opacity: 0.9; }
+
+.tabs { display: flex; gap: 10px; margin-bottom: 15px; }
+.tab { padding: 8px 16px; background: var(--card-bg); border: 1px solid var(--border); cursor: pointer; font-weight: bold; color: #555; }
+.tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+.search-bar { background:var(--card-bg); border:1px solid var(--border); padding:8px 10px; margin-bottom:15px; display:flex; gap:6px; align-items:center; }
+.search-bar input { flex:1; padding:5px 8px; border:1px solid var(--border); font-family:inherit; font-size:13px; background:var(--input-bg); color:var(--text); }
+.search-bar input:focus { outline:none; border-color:var(--accent); }
+.search-bar button { background:linear-gradient(180deg,#5274b3,#3b5998); color:white; border:1px solid #2a4070; padding:5px 12px; font-family:inherit; font-size:12px; font-weight:bold; cursor:pointer; }
+.search-bar button:hover { background:linear-gradient(180deg,#6080bf,#4a6aaa); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+.community-card { background: var(--card-bg); border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+.card-banner { height: 80px; background: #ddd; background-size: cover; background-position: center; position: relative; }
+.card-content { padding: 12px; position: relative; flex: 1; }
+.card-pic { width: 50px; height: 50px; border-radius: 4px; border: 2px solid white; position: absolute; top: -25px; background: #eee; }
+.card-title { font-weight: bold; font-size: 16px; margin-top: 20px; color: var(--accent); display: flex; align-items: center; gap: 5px; }
+.card-desc { font-size: 12px; color: #666; margin: 8px 0; line-height: 1.4; flex: 1; }
+.card-meta { display: flex; justify-content: space-between; font-size: 11px; color: #888; border-top: 1px dashed #eee; padding-top: 8px; margin-top: auto; }
+.card-timer { color: #d9534f; font-weight: bold; }
+.card-btn { width: 100%; padding: 6px; text-align: center; background: #f0f0f0; border: none; border-top: 1px solid var(--border); cursor: pointer; font-weight: bold; color: var(--text); }
+.card-btn:hover { background: #e0e0e0; }
+
+.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; padding:10px; }
+.modal { background:var(--card-bg); width:400px; max-width:100%; padding:20px; border-radius:6px; box-shadow:0 10px 25px rgba(0,0,0,0.4); }
+.modal h3 { margin-bottom: 15px; color: var(--accent); }
+.modal label { display: block; margin-top: 10px; margin-bottom: 5px; font-weight: bold; font-size: 12px; }
+.modal input[type="text"], .modal input[type="password"], .modal select, .modal textarea { width: 100%; padding: 8px; border: 1px solid var(--border); font-family: inherit; font-size: 13px; margin-bottom: 5px; }
+.modal .btn-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+.modal button { padding: 8px 16px; cursor: pointer; font-family: inherit; font-weight: bold; }
+.modal .btn-cancel { background: transparent; border: 1px solid #ccc; }
+.modal .btn-submit { background: var(--accent); color: white; border: none; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="topbar-logo">ermn.</span>
+  <nav class="topbar-nav">
+    <a href="feed.html"><span class="material-icons">home</span> Home</a>
+    <a href="communities.html" class="active"><span class="material-icons">groups</span> Communities</a>
+    <a href="profile.html"><span class="material-icons">person</span> Profile</a>
+  </nav>
+  <div class="topbar-right">
+    <button onclick="location.href='settings.html'"><span class="material-icons" style="font-size:14px;">settings</span> Settings</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="header-banner">
+    <h2><span class="material-icons" style="vertical-align: middle;">groups</span> Communities</h2>
+    <p>Create and join temporary communities around topics, events, games, and friend groups. Communities expire and disappear automatically after a set time.</p>
+    <button onclick="openCreateModal()">+ Create Community</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" id="tab-discover" onclick="switchTab('discover')">Discover</div>
+    <div class="tab" id="tab-joined" onclick="switchTab('joined')">Joined</div>
+    <div class="tab" id="tab-created" onclick="switchTab('created')">Created</div>
+  </div>
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search communities..." onkeyup="if(event.key === 'Enter') loadCommunities()">
+    <button onclick="loadCommunities()"><span class="material-icons" style="font-size:14px;vertical-align:middle;">search</span> Search</button>
+  </div>
+
+  <div id="loading" style="text-align:center; padding:20px; color:#888;">Loading communities...</div>
+  <div class="grid" id="communitiesGrid"></div>
+</div>
+
+<!-- Create Modal -->
+<div class="modal-bg" id="createModal">
+  <div class="modal">
+    <h3>Create a Community</h3>
+    
+    <label>Name</label>
+    <input type="text" id="c_name" placeholder="e.g. Weekend LAN Party" maxlength="50">
+    
+    <label>Description</label>
+    <textarea id="c_desc" placeholder="What is this community about?" rows="3" maxlength="200"></textarea>
+    
+    <label>Visibility</label>
+    <select id="c_type" onchange="document.getElementById('c_pass_wrap').style.display = this.value === 'private' ? 'block' : 'none'">
+      <option value="public">Public (Anyone can join)</option>
+      <option value="private">Private (Password required)</option>
+    </select>
+    
+    <div id="c_pass_wrap" style="display:none;">
+      <label>Password</label>
+      <input type="password" id="c_pass" placeholder="Secret password">
+    </div>
+    
+    <label>Expiration (Self-Destruct)</label>
+    <select id="c_expire">
+      <option value="1">1 Hour</option>
+      <option value="6">6 Hours</option>
+      <option value="12">12 Hours</option>
+      <option value="24" selected>1 Day</option>
+      <option value="72">3 Days</option>
+      <option value="168">7 Days (Max)</option>
+    </select>
+    
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeCreateModal()">Cancel</button>
+      <button class="btn-submit" onclick="submitCommunity()">Create</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="theme.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+let currentTab = 'discover';
+let allComms = [];
+
+document.addEventListener("sessionReady", () => {
+  if (!currentUser) location.href = "index.html";
+  loadCommunities();
+});
+if (typeof currentUser !== 'undefined' && currentUser) {
+  document.dispatchEvent(new Event("sessionReady"));
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('searchInput').value = '';
+  loadCommunities();
+}
+
+function openCreateModal() { document.getElementById('createModal').style.display = 'flex'; }
+function closeCreateModal() { document.getElementById('createModal').style.display = 'none'; }
+
+async function submitCommunity() {
+  const name = document.getElementById('c_name').value.trim();
+  const desc = document.getElementById('c_desc').value.trim();
+  const isPrivate = document.getElementById('c_type').value === 'private';
+  const pass = document.getElementById('c_pass').value;
+  const hours = parseInt(document.getElementById('c_expire').value);
+  
+  if (!name) return alert("Name is required");
+  if (isPrivate && !pass) return alert("Password required for private communities");
+  
+  const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+  
+  const { data, error } = await sb.from("communities").insert({
+    name, description: desc, is_private: isPrivate, password: isPrivate ? pass : null,
+    creator: currentUser, expires_at: expiresAt
+  }).select().single();
+  
+  if (error) return alert(error.message);
+  
+  // Join automatically
+  await sb.from("community_members").insert({ community_id: data.id, username: currentUser });
+  
+  closeCreateModal();
+  switchTab('created');
+}
+
+async function loadCommunities() {
+  const grid = document.getElementById('communitiesGrid');
+  const loading = document.getElementById('loading');
+  grid.innerHTML = '';
+  loading.style.display = 'block';
+  
+  const search = document.getElementById('searchInput').value.trim();
+  
+  // Purge expired local check (backend triggers usually do this, but we hide them here)
+  const now = new Date().toISOString();
+  
+  let query = sb.from("communities").select("*, community_members(count)").gte("expires_at", now);
+  
+  if (search) {
+    query = query.ilike("name", `%${search}%`);
+  }
+  
+  if (currentTab === 'created') {
+    query = query.eq("creator", currentUser);
+  } else if (currentTab === 'joined') {
+    // Requires a different query to find joined.
+    // For simplicity, we just fetch all and filter in JS if not using a view.
+  }
+  
+  const { data, error } = await query;
+  if (error) { loading.innerText = "Error loading communities."; return; }
+  
+  // If joined tab, filter manually via membership
+  let displayData = data || [];
+  
+  if (currentTab === 'joined') {
+    const { data: myMemberships } = await sb.from("community_members").select("community_id").eq("username", currentUser);
+    const myCommIds = myMemberships ? myMemberships.map(m => m.community_id) : [];
+    displayData = displayData.filter(c => myCommIds.includes(c.id));
+  } else if (currentTab === 'discover') {
+    // Hide joined ones? Up to design. We'll show all but label them.
+  }
+  
+  loading.style.display = 'none';
+  
+  if (!displayData.length) {
+    grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 20px; color: #888;">No communities found.</div>`;
+    return;
+  }
+  
+  // Check our memberships to show correct button
+  const { data: myMemberships } = await sb.from("community_members").select("community_id").eq("username", currentUser);
+  const myCommIds = myMemberships ? myMemberships.map(m => m.community_id) : [];
+  
+  displayData.forEach(c => {
+    const isMember = myCommIds.includes(c.id);
+    const memberCount = c.community_members[0].count;
+    
+    // Time remaining
+    const diff = new Date(c.expires_at) - new Date();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff / (1000 * 60)) % 60);
+    const timeRemaining = hours > 24 ? Math.floor(hours/24) + "d " + (hours%24) + "h" : hours + "h " + mins + "m";
+    
+    const div = document.createElement("div");
+    div.className = "community-card";
+    div.innerHTML = `
+      <div class="card-banner" style="background-image: url('${c.banner || 'empty.jpg'}');"></div>
+      <div class="card-content">
+        <img class="card-pic" src="${c.pic || 'empty.jpg'}">
+        <div class="card-title">
+          ${c.is_private ? '<span class="material-icons" style="font-size:16px;">lock</span>' : ''}
+          ${escapeHtml(c.name)}
+        </div>
+        <div class="card-desc">${escapeHtml(c.description || 'No description.')}</div>
+        <div class="card-meta">
+          <span><span class="material-icons" style="font-size:12px;vertical-align:middle;">group</span> ${memberCount} members</span>
+          <span class="card-timer"><span class="material-icons" style="font-size:12px;vertical-align:middle;">timer</span> ${timeRemaining}</span>
+        </div>
+      </div>
+      <button class="card-btn" onclick="openCommunity('${c.id}', ${c.is_private}, ${isMember})">${isMember ? 'Open Community' : (c.is_private ? 'Join (Private)' : 'Join')}</button>
+    `;
+    grid.appendChild(div);
+  });
+}
+
+async function openCommunity(id, isPrivate, isMember) {
+  if (isMember) {
+    location.href = `community.html?id=${id}`;
+  } else {
+    if (isPrivate) {
+      const pass = prompt("Enter community password:");
+      if (!pass) return;
+      // Verify password
+      const { data } = await sb.from("communities").select("password").eq("id", id).single();
+      if (data.password !== pass) return alert("Incorrect password");
+    }
+    // Join
+    await sb.from("community_members").insert({ community_id: id, username: currentUser });
+    location.href = `community.html?id=${id}`;
+  }
+}
+
+function escapeHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>
